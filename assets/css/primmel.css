@@ -1,55 +1,87 @@
-/* Primmel specification — custom skin layered on coradoc's professional theme.
-   Loaded after the theme, so order wins where specificity ties.
-   Light palette + prefers-color-scheme: dark variant.
-   Indigo accent (#4f46e5 light / #a5b4fc dark). */
+/* ============================================================================
+   Primmel specification — editorial publication aesthetic
+   Layered on coradoc's professional theme (loaded after, so order wins ties).
+   ----------------------------------------------------------------------------
+   Direction: refined standards-publication typography. Body in system serif
+   (Iowan / Palatino / Georgia stack), headings in system sans (SF Pro /
+   Segoe UI), code in mono. Deep indigo ink accent on warm stone neutrals.
+   Tufte-style tables, callout admonitions, decorative section markers.
+   No external fonts or assets; no JavaScript.
+   ============================================================================ */
 
 /* ---------------------------------------------------------------------------
    Design tokens
    --------------------------------------------------------------------------- */
 
 :root {
-  --primmel-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  --primmel-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+  /* Type stacks */
+  --primmel-font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua",
+    Palatino, Georgia, "Times New Roman", serif;
+  --primmel-font-sans: "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Segoe UI Variable", "Segoe UI", system-ui, Roboto, "Helvetica Neue",
+    Helvetica, Arial, sans-serif;
+  --primmel-font-mono: "SF Mono", "JetBrains Mono", "Fira Code",
+    "Cascadia Code", "Source Code Pro", Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
 
-  --primmel-accent: #4f46e5;
-  --primmel-accent-hover: #4338ca;
-  --primmel-accent-soft: #eef2ff;
+  /* Indigo ink accent (light) */
+  --primmel-accent: #312e81;
+  --primmel-accent-hover: #1e1b4b;
+  --primmel-accent-soft: #e0e7ff;
+  --primmel-accent-line: #c7d2fe;
+  --primmel-warn: #b45309;
 
-  --primmel-bg: #ffffff;
-  --primmel-bg-soft: #fafafa;
-  --primmel-bg-mute: #f3f4f6;
-  --primmel-surface: #ffffff;
-  --primmel-text: #1f2937;
-  --primmel-text-muted: #6b7280;
-  --primmel-border: #e5e7eb;
-  --primmel-border-strong: #d1d5db;
+  /* Warm stone neutrals (light) */
+  --primmel-bg: #faf9f6;
+  --primmel-surface: #fffefb;
+  --primmel-bg-mute: #f3f2ed;
+  --primmel-bg-sunk: #ecebe5;
+  --primmel-text: #1c1917;
+  --primmel-text-muted: #57534e;
+  --primmel-text-faint: #a8a29e;
+  --primmel-border: #e7e5e4;
+  --primmel-border-strong: #d6d3d1;
 
-  --primmel-content-max: 760px;
+  /* Layout */
+  --primmel-content-max: 780px;
   --primmel-toc-width: 280px;
-  --primmel-gutter: 32px;
+  --primmel-gutter: 40px;
+  --primmel-rhythm: 1.6;
+
+  /* Effects */
+  --primmel-shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.04);
+  --primmel-shadow-md: 0 6px 24px rgba(28, 25, 23, 0.06);
+  --primmel-radius: 3px;
+  --primmel-radius-lg: 6px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Indigo accent (dark) — brighter for contrast */
     --primmel-accent: #a5b4fc;
     --primmel-accent-hover: #c7d2fe;
     --primmel-accent-soft: #1e1b4b;
+    --primmel-accent-line: #312e81;
+    --primmel-warn: #fbbf24;
 
-    --primmel-bg: #0f172a;
-    --primmel-bg-soft: #111827;
-    --primmel-bg-mute: #1e293b;
-    --primmel-surface: #1e293b;
-    --primmel-text: #e2e8f0;
-    --primmel-text-muted: #94a3b8;
-    --primmel-border: #334155;
-    --primmel-border-strong: #475569;
+    /* Warm stone neutrals (dark) */
+    --primmel-bg: #1c1917;
+    --primmel-surface: #292524;
+    --primmel-bg-mute: #292524;
+    --primmel-bg-sunk: #161413;
+    --primmel-text: #f5f5f4;
+    --primmel-text-muted: #a8a29e;
+    --primmel-text-faint: #78716c;
+    --primmel-border: #3f3a36;
+    --primmel-border-strong: #57534e;
+
+    --primmel-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --primmel-shadow-md: 0 6px 24px rgba(0, 0, 0, 0.4);
   }
 }
 
 /* ---------------------------------------------------------------------------
-   Base
+   Reset & base
    --------------------------------------------------------------------------- */
 
 *,
@@ -60,103 +92,151 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 16px;
 }
 
 body {
-  font-family: var(--primmel-font-sans);
-  font-size: 16px;
-  line-height: 1.65;
-  color: var(--primmel-text);
-  background: var(--primmel-bg);
   margin: 0;
   padding: 0;
+  background: var(--primmel-bg);
+  color: var(--primmel-text);
+  font-family: var(--primmel-font-serif);
+  font-size: 1.0625rem;
+  line-height: var(--primmel-rhythm);
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "onum" 1, "ss01" 1;
+  font-variant-numeric: oldstyle-nums;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  hyphens: auto;
+  text-wrap: pretty;
 }
 
-/* Two-column layout: TOC sidebar + content column */
+/* Decorative top accent strip — fixed across viewport */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--primmel-accent) 0%,
+    var(--primmel-accent-hover) 50%,
+    var(--primmel-accent) 100%
+  );
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Layout — two-column grid with reading column
+   --------------------------------------------------------------------------- */
+
 @media (min-width: 1024px) {
   body {
     display: grid;
     grid-template-columns: var(--primmel-toc-width) minmax(0, var(--primmel-content-max));
     grid-template-areas: "toc content";
-    align-items: start;
     justify-content: center;
     gap: var(--primmel-gutter);
-    padding: 0 var(--primmel-gutter) var(--primmel-gutter);
+    padding: calc(var(--primmel-gutter) + 3px) var(--primmel-gutter) var(--primmel-gutter);
   }
 
   nav.toc {
     grid-area: toc;
     position: sticky;
-    top: var(--primmel-gutter);
-    max-height: calc(100vh - var(--primmel-gutter) * 2);
+    top: calc(var(--primmel-gutter) + 3px);
+    max-height: calc(100vh - (var(--primmel-gutter) * 2) - 3px);
     overflow-y: auto;
     padding: var(--primmel-gutter) 0;
   }
 
-  body > section,
-  body > main,
-  body > article,
-  body > div:not(.toc-wrapper) {
-    grid-area: content;
-    padding: var(--primmel-gutter) 0;
-    max-width: 100%;
-  }
-}
-
-/* Fallback: if coradoc doesn't wrap content, treat all non-nav children as content */
-@media (min-width: 1024px) {
   body > *:not(nav.toc) {
     grid-area: content;
     padding: var(--primmel-gutter) 0;
-    max-width: var(--primmel-content-max);
+    max-width: 100%;
     min-width: 0;
   }
 }
 
 /* ---------------------------------------------------------------------------
-   Headings
+   Headings — sans display, confident hierarchy
    --------------------------------------------------------------------------- */
 
 h1, h2, h3, h4, h5, h6 {
-  color: var(--primmel-text);
+  font-family: var(--primmel-font-sans);
   font-weight: 600;
-  line-height: 1.25;
-  margin: 1.6em 0 0.6em;
-  letter-spacing: -0.01em;
+  color: var(--primmel-text);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 1.8em 0 0.6em;
+  scroll-margin-top: 2em;
+  font-variant-numeric: lining-nums;
 }
 
-h1 {
-  font-size: 2.1rem;
+/* Document title (first h1 in document) */
+.document h1:first-of-type {
+  font-size: 2.55rem;
   font-weight: 700;
+  letter-spacing: -0.025em;
   margin-top: 0;
-  margin-bottom: 0.8em;
-  padding-bottom: 0.4em;
-  border-bottom: 1px solid var(--primmel-border);
+  margin-bottom: 1.2em;
+  padding-bottom: 0.55em;
+  position: relative;
+}
+
+.document h1:first-of-type::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 72px;
+  height: 3px;
+  background: var(--primmel-accent);
+}
+
+/* Non-title h1 (rare in spec docs) */
+h1:not(:first-of-type) {
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin-top: 2.5em;
+  padding-bottom: 0.35em;
 }
 
 h2 {
   font-size: 1.5rem;
+  margin-top: 2.8em;
   padding-bottom: 0.3em;
-  border-bottom: 1px solid var(--primmel-border);
-  margin-top: 2em;
+}
+
+.document h2::before {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 2px;
+  background: var(--primmel-accent);
+  margin-bottom: 0.6em;
 }
 
 h3 {
   font-size: 1.2rem;
-  margin-top: 1.8em;
+  margin-top: 2.2em;
 }
 
 h4 {
-  font-size: 1.05rem;
-  color: var(--primmel-text-muted);
+  font-size: 0.95rem;
+  color: var(--primmel-text);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 2em;
 }
 
 h5, h6 {
   font-size: 0.95rem;
   color: var(--primmel-text-muted);
+  font-weight: 600;
+  margin-top: 1.6em;
 }
 
 /* ---------------------------------------------------------------------------
@@ -164,156 +244,319 @@ h5, h6 {
    --------------------------------------------------------------------------- */
 
 p {
-  margin: 0 0 1.1em;
+  margin: 0 0 1.2em;
+  hanging-punctuation: first last;
+}
+
+p:last-child {
+  margin-bottom: 0;
 }
 
 a {
   color: var(--primmel-accent);
   text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: color 0.12s ease, border-color 0.12s ease;
+  background-image: linear-gradient(
+    transparent calc(100% - 1px),
+    var(--primmel-accent-line) calc(100% - 1px)
+  );
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  transition: color 0.15s ease, background-image 0.15s ease;
 }
 
 a:hover {
   color: var(--primmel-accent-hover);
-  border-bottom-color: var(--primmel-accent-hover);
+  background-image: linear-gradient(
+    transparent calc(100% - 1px),
+    var(--primmel-accent) calc(100% - 1px)
+  );
 }
 
 a:focus-visible {
   outline: 2px solid var(--primmel-accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
   border-radius: 2px;
+  background-image: none;
 }
 
 a:visited {
   color: var(--primmel-accent);
 }
 
-strong { font-weight: 600; }
-em { font-style: italic; }
-small { color: var(--primmel-text-muted); }
+/* External links get a discrete ↗ glyph */
+a[href^="http"]::after {
+  content: " ↗";
+  font-size: 0.82em;
+  font-family: var(--primmel-font-sans);
+  color: var(--primmel-text-faint);
+  background-image: none;
+  transition: color 0.15s ease;
+}
+
+a[href^="http"]:hover::after {
+  color: var(--primmel-accent);
+}
+
+/* TOC links should not get the ↗ glyph or the underline */
+nav.toc a,
+nav.toc a::after {
+  background-image: none;
+  content: none;
+}
+
+strong {
+  font-weight: 600;
+  color: var(--primmel-text);
+  font-family: var(--primmel-font-sans);
+  font-size: 0.96em;
+  letter-spacing: -0.005em;
+}
+
+em {
+  font-style: italic;
+}
+
+small,
+.footnote {
+  font-size: 0.85em;
+  color: var(--primmel-text-muted);
+}
+
+/* Inline code */
+code, kbd, samp {
+  font-family: var(--primmel-font-mono);
+  font-size: 0.86em;
+  background: var(--primmel-bg-mute);
+  padding: 0.1em 0.35em;
+  border-radius: var(--primmel-radius);
+  color: var(--primmel-text);
+  font-variant-numeric: normal;
+}
 
 /* ---------------------------------------------------------------------------
-   Lists
+   Lists — refined bullets and numbers
    --------------------------------------------------------------------------- */
 
 ul, ol {
-  margin: 0 0 1.1em;
-  padding-left: 1.6em;
+  margin: 0 0 1.2em;
+  padding-left: 1.5em;
 }
 
-li { margin: 0.25em 0; }
-li > p { margin: 0.3em 0; }
-
-/* ---------------------------------------------------------------------------
-   Code
-   --------------------------------------------------------------------------- */
-
-code, pre, kbd, samp {
-  font-family: var(--primmel-font-mono);
-  font-size: 0.9em;
+li {
+  margin: 0.4em 0;
+  padding-left: 0.15em;
 }
 
-code {
-  background: var(--primmel-bg-mute);
-  padding: 0.15em 0.4em;
-  border-radius: 3px;
+li > p {
+  margin: 0.3em 0;
+}
+
+ul li::marker {
+  color: var(--primmel-accent);
+  font-family: var(--primmel-font-sans);
+}
+
+ol li::marker {
+  color: var(--primmel-text-muted);
+  font-family: var(--primmel-font-sans);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+dl {
+  margin: 0 0 1.2em;
+}
+
+dt {
+  font-family: var(--primmel-font-sans);
+  font-weight: 600;
+  margin-top: 0.8em;
   color: var(--primmel-text);
 }
 
+dd {
+  margin: 0.2em 0 0.8em 1.5em;
+}
+
+/* ---------------------------------------------------------------------------
+   Code blocks — indigo left rule, refined shadow
+   --------------------------------------------------------------------------- */
+
 pre {
-  background: var(--primmel-bg-soft);
+  font-size: 0.875rem;
+  font-family: var(--primmel-font-mono);
+  background: var(--primmel-surface);
   border: 1px solid var(--primmel-border);
-  border-radius: 6px;
-  padding: 14px 18px;
+  border-left: 3px solid var(--primmel-accent);
+  border-radius: var(--primmel-radius);
+  padding: 1em 1.3em;
   overflow-x: auto;
-  margin: 0 0 1.1em;
-  line-height: 1.5;
+  margin: 0 0 1.4em;
+  line-height: 1.55;
+  box-shadow: var(--primmel-shadow-sm);
+  font-variant-numeric: normal;
+  tab-size: 2;
+  -moz-tab-size: 2;
 }
 
 pre code {
   background: transparent;
   padding: 0;
   border-radius: 0;
-  font-size: 0.88em;
+  font-size: 1em;
   color: inherit;
+  font-variant-numeric: normal;
 }
 
 /* ---------------------------------------------------------------------------
-   Blockquote, hr, dl
+   Blockquote — editorial pull-aside
    --------------------------------------------------------------------------- */
 
 blockquote {
-  margin: 0 0 1.1em;
-  padding: 0.4em 1em;
-  border-left: 3px solid var(--primmel-accent);
-  background: var(--primmel-accent-soft);
-  color: var(--primmel-text);
-  border-radius: 0 4px 4px 0;
+  margin: 1.6em 0;
+  padding: 0.2em 1.4em;
+  border-left: 2px solid var(--primmel-accent);
+  background: transparent;
+  color: var(--primmel-text-muted);
+  font-style: italic;
+  font-size: 0.95em;
 }
 
-blockquote p { margin: 0.3em 0; }
+blockquote p {
+  margin: 0.5em 0;
+}
+
+blockquote strong {
+  color: var(--primmel-text);
+  font-style: normal;
+}
+
+/* ---------------------------------------------------------------------------
+   Horizontal rule — three-dot ornament
+   --------------------------------------------------------------------------- */
 
 hr {
   border: none;
-  border-top: 1px solid var(--primmel-border);
-  margin: 2em 0;
+  text-align: center;
+  margin: 3em 0 2.5em;
+  height: 6px;
+  background-image: radial-gradient(
+    circle,
+    var(--primmel-text-faint) 1.4px,
+    transparent 1.4px
+  );
+  background-size: 18px 6px;
+  background-position: center;
+  background-repeat: repeat-x;
+  width: 100%;
 }
 
-dl { margin: 0 0 1.1em; }
-dt { font-weight: 600; margin-top: 0.5em; }
-dd { margin-left: 1.5em; }
-
 /* ---------------------------------------------------------------------------
-   Tables
+   Tables — Tufte-style minimal horizontal rules
    --------------------------------------------------------------------------- */
 
 table {
   border-collapse: collapse;
   width: 100%;
-  margin: 0 0 1.5em;
-  font-size: 0.95em;
+  margin: 1.6em 0 2em;
+  font-size: 0.93em;
+  font-family: var(--primmel-font-sans);
+  font-variant-numeric: tabular-nums;
   display: block;
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primmel-border) transparent;
 }
 
-th, td {
-  border: 1px solid var(--primmel-border);
-  padding: 8px 12px;
-  text-align: left;
-  vertical-align: top;
+thead {
+  border-top: 2px solid var(--primmel-text);
+  border-bottom: 1px solid var(--primmel-border-strong);
 }
 
 th {
-  background: var(--primmel-bg-soft);
   font-weight: 600;
+  text-align: left;
+  padding: 0.65em 0.9em;
   color: var(--primmel-text);
+  vertical-align: bottom;
+  white-space: nowrap;
 }
 
-tbody tr:nth-child(even) { background: var(--primmel-bg-soft); }
-tbody tr:nth-child(odd) { background: var(--primmel-surface); }
+tbody tr {
+  border-bottom: 1px solid var(--primmel-border);
+  transition: background 0.12s ease;
+}
+
+tbody tr:last-child {
+  border-bottom: 1px solid var(--primmel-text);
+}
+
+tbody tr:hover {
+  background: var(--primmel-bg-mute);
+}
+
+td {
+  padding: 0.6em 0.9em;
+  border: none;
+  vertical-align: top;
+  text-align: left;
+}
+
+td > p:first-child:last-child {
+  margin: 0;
+}
+
+table caption {
+  caption-side: bottom;
+  font-family: var(--primmel-font-serif);
+  font-size: 0.85em;
+  color: var(--primmel-text-muted);
+  font-style: italic;
+  padding-top: 0.6em;
+  text-align: left;
+}
 
 /* ---------------------------------------------------------------------------
    TOC sidebar
    --------------------------------------------------------------------------- */
 
 nav.toc {
-  font-size: 0.9rem;
+  font-family: var(--primmel-font-sans);
+  font-size: 0.85rem;
   border-right: 1px solid var(--primmel-border);
   padding-right: 1.2em;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primmel-border) transparent;
+}
+
+nav.toc::-webkit-scrollbar {
+  width: 4px;
+}
+
+nav.toc::-webkit-scrollbar-thumb {
+  background: var(--primmel-border);
+  border-radius: 2px;
+}
+
+nav.toc::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 nav.toc h2,
-nav.toc > h2,
 nav.toc > p:first-child {
-  font-size: 0.78rem;
+  font-family: var(--primmel-font-sans);
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   color: var(--primmel-text-muted);
-  margin: 0 0 0.8em;
-  padding: 0;
-  border: none;
+  margin: 0 0 1em;
+  padding: 0 0 0.7em;
+  border-bottom: 1px solid var(--primmel-border);
   font-weight: 600;
+}
+
+nav.toc h2::before {
+  content: none;
 }
 
 nav.toc ul {
@@ -329,60 +572,162 @@ nav.toc li {
 
 nav.toc a {
   display: block;
-  padding: 0.3em 0.6em;
+  padding: 0.34em 0.7em;
   color: var(--primmel-text-muted);
+  background-image: none;
   border-left: 2px solid transparent;
-  border-bottom: none;
   border-radius: 0;
+  line-height: 1.4;
   transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
 }
 
 nav.toc a:hover,
 nav.toc a:focus {
   color: var(--primmel-accent);
-  background: var(--primmel-bg-soft);
+  background: var(--primmel-bg-mute);
   border-left-color: var(--primmel-accent);
-  border-bottom: none;
 }
 
 nav.toc ul ul {
-  margin-left: 0.6em;
-  font-size: 0.95em;
+  padding-left: 0.7em;
+  font-size: 0.94em;
 }
 
 nav.toc ul ul a {
-  padding-left: 1.2em;
+  color: var(--primmel-text-faint);
+  padding-left: 0.9em;
+}
+
+nav.toc ul ul a:hover {
+  color: var(--primmel-accent);
+}
+
+nav.toc ul ul ul {
+  font-size: 0.94em;
 }
 
 /* ---------------------------------------------------------------------------
-   Anchor target highlight
+   Admonition blocks — NOTE / EXAMPLE / WARNING / TIP
+   --------------------------------------------------------------------------- */
+
+.admonitionblock,
+.note,
+.tip,
+.warning,
+.caution,
+.important {
+  margin: 1.6em 0;
+  padding: 0.85em 1.3em;
+  border-left: 3px solid var(--primmel-accent-line);
+  background: var(--primmel-bg-mute);
+  border-radius: 0 var(--primmel-radius) var(--primmel-radius) 0;
+  font-size: 0.95em;
+}
+
+.admonitionblock.note,
+.admonitionblock.tip,
+.note,
+.tip {
+  border-left-color: var(--primmel-accent);
+}
+
+.admonitionblock.warning,
+.admonitionblock.caution,
+.admonitionblock.important,
+.warning,
+.caution,
+.important {
+  border-left-color: var(--primmel-warn);
+  background: color-mix(in srgb, var(--primmel-warn) 8%, var(--primmel-bg));
+}
+
+.admonitionblock .icon,
+.admonitionblock .title,
+.note > p:first-child strong,
+.tip > p:first-child strong,
+.warning > p:first-child strong,
+.caution > p:first-child strong,
+.important > p:first-child strong {
+  font-family: var(--primmel-font-sans);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: var(--primmel-accent);
+  display: inline-block;
+  margin-right: 0.6em;
+  font-feature-settings: normal;
+  font-variant-numeric: normal;
+}
+
+.admonitionblock.warning .icon,
+.warning > p:first-child strong,
+.caution > p:first-child strong,
+.important > p:first-child strong {
+  color: var(--primmel-warn);
+}
+
+.admonitionblock p,
+.note p, .tip p, .warning p, .caution p, .important p {
+  margin: 0.35em 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Example blocks (AsciiDoc example)
+   --------------------------------------------------------------------------- */
+
+.exampleblock,
+.example {
+  margin: 1.6em 0;
+  padding: 0.85em 1.3em;
+  border: 1px solid var(--primmel-border);
+  border-radius: var(--primmel-radius);
+  background: var(--primmel-bg-sunk);
+  font-size: 0.95em;
+}
+
+.exampleblock .title,
+.example > .title {
+  font-family: var(--primmel-font-sans);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: var(--primmel-text-muted);
+  margin-bottom: 0.5em;
+}
+
+/* ---------------------------------------------------------------------------
+   Anchor target flash
    --------------------------------------------------------------------------- */
 
 :target {
-  scroll-margin-top: 1em;
+  scroll-margin-top: 2em;
 }
 
-h1:target,
-h2:target,
-h3:target,
-h4:target,
-h5:target,
-h6:target {
-  background: var(--primmel-accent-soft);
-  margin-left: -0.3em;
-  padding-left: 0.3em;
-  border-radius: 2px;
+:target > h1,
+:target > h2,
+:target > h3,
+:target > h4,
+:target > h5,
+:target > h6,
+section:target {
+  animation: primmel-target-flash 1.8s ease-out;
+}
+
+@keyframes primmel-target-flash {
+  0%   { background: var(--primmel-accent-soft); box-shadow: -16px 0 0 var(--primmel-accent-soft); }
+  60%  { background: var(--primmel-accent-soft); box-shadow: -16px 0 0 var(--primmel-accent-soft); }
+  100% { background: transparent; box-shadow: -16px 0 0 transparent; }
 }
 
 /* ---------------------------------------------------------------------------
-   Selection + slim scrollbar in TOC
+   Selection + focus
    --------------------------------------------------------------------------- */
 
-@media (prefers-color-scheme: light) {
-  ::selection {
-    background: var(--primmel-accent);
-    color: #ffffff;
-  }
+::selection {
+  background: var(--primmel-accent);
+  color: var(--primmel-surface);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -392,35 +737,190 @@ h6:target {
   }
 }
 
-nav.toc {
-  scrollbar-width: thin;
-  scrollbar-color: var(--primmel-border) transparent;
-}
+/* ---------------------------------------------------------------------------
+   Footer / closing
+   --------------------------------------------------------------------------- */
 
-nav.toc::-webkit-scrollbar { width: 6px; }
-nav.toc::-webkit-scrollbar-thumb {
-  background: var(--primmel-border);
-  border-radius: 3px;
+.footer,
+footer,
+#footer {
+  margin-top: 4em;
+  padding-top: 1.5em;
+  border-top: 1px solid var(--primmel-border);
+  font-family: var(--primmel-font-sans);
+  font-size: 0.85rem;
+  color: var(--primmel-text-muted);
 }
-nav.toc::-webkit-scrollbar-track { background: transparent; }
 
 /* ---------------------------------------------------------------------------
-   Print
+   Mobile layout
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  body {
+    padding: calc(20px + 3px) 20px 40px;
+  }
+
+  nav.toc {
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid var(--primmel-border);
+    padding: 1em 0;
+    margin-bottom: 1.2em;
+    max-height: 240px;
+    overflow-y: auto;
+    top: auto;
+  }
+
+  .document h1:first-of-type {
+    font-size: 1.85rem;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+  }
+
+  pre {
+    font-size: 0.78rem;
+    padding: 0.85em 1em;
+  }
+
+  table {
+    font-size: 0.85em;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Print — refined for paper standards printing
    --------------------------------------------------------------------------- */
 
 @media print {
-  nav.toc { display: none; }
+  body::before {
+    display: none;
+  }
+
   body {
-    display: block;
     background: #fff;
     color: #000;
+    display: block;
+    padding: 0;
+    font-size: 11pt;
+    line-height: 1.5;
   }
+
+  nav.toc {
+    display: none;
+  }
+
   a {
     color: #000;
     text-decoration: underline;
-    border-bottom: none;
+    background-image: none;
   }
-  pre, blockquote, table {
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #444;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    color: #000;
+  }
+
+  .document h1:first-of-type {
+    font-size: 22pt;
+    border-bottom: 2px solid #000;
+  }
+
+  .document h1:first-of-type::after {
+    display: none;
+  }
+
+  h2 {
+    font-size: 15pt;
+    border-top: 1px solid #999;
+    padding-top: 0.4em;
+    margin-top: 1.5em;
+  }
+
+  .document h2::before {
+    display: none;
+  }
+
+  pre, blockquote, table, figure {
     page-break-inside: avoid;
   }
+
+  pre {
+    border-color: #ccc;
+    background: #f7f7f7;
+    box-shadow: none;
+  }
+
+  hr {
+    margin: 1.5em 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Motion preference
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Image / figure — keep inline images tidy
+   --------------------------------------------------------------------------- */
+
+img,
+figure img,
+svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.4em auto;
+  border-radius: var(--primmel-radius);
+}
+
+figure {
+  margin: 2em 0;
+  text-align: center;
+}
+
+figure figcaption,
+.caption {
+  font-family: var(--primmel-font-sans);
+  font-size: 0.85em;
+  color: var(--primmel-text-muted);
+  font-style: normal;
+  margin-top: 0.6em;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Bibliography entries
+   --------------------------------------------------------------------------- */
+
+.bibliography,
+.bibliography ul,
+#bibliography ul {
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+.bibliography li {
+  margin: 0.6em 0;
+  padding-left: 1.5em;
+  text-indent: -1.5em;
 }
