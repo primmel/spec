@@ -1,0 +1,426 @@
+/* Primmel specification — custom skin layered on coradoc's professional theme.
+   Loaded after the theme, so order wins where specificity ties.
+   Light palette + prefers-color-scheme: dark variant.
+   Indigo accent (#4f46e5 light / #a5b4fc dark). */
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   --------------------------------------------------------------------------- */
+
+:root {
+  --primmel-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --primmel-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  --primmel-accent: #4f46e5;
+  --primmel-accent-hover: #4338ca;
+  --primmel-accent-soft: #eef2ff;
+
+  --primmel-bg: #ffffff;
+  --primmel-bg-soft: #fafafa;
+  --primmel-bg-mute: #f3f4f6;
+  --primmel-surface: #ffffff;
+  --primmel-text: #1f2937;
+  --primmel-text-muted: #6b7280;
+  --primmel-border: #e5e7eb;
+  --primmel-border-strong: #d1d5db;
+
+  --primmel-content-max: 760px;
+  --primmel-toc-width: 280px;
+  --primmel-gutter: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primmel-accent: #a5b4fc;
+    --primmel-accent-hover: #c7d2fe;
+    --primmel-accent-soft: #1e1b4b;
+
+    --primmel-bg: #0f172a;
+    --primmel-bg-soft: #111827;
+    --primmel-bg-mute: #1e293b;
+    --primmel-surface: #1e293b;
+    --primmel-text: #e2e8f0;
+    --primmel-text-muted: #94a3b8;
+    --primmel-border: #334155;
+    --primmel-border-strong: #475569;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--primmel-font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--primmel-text);
+  background: var(--primmel-bg);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Two-column layout: TOC sidebar + content column */
+@media (min-width: 1024px) {
+  body {
+    display: grid;
+    grid-template-columns: var(--primmel-toc-width) minmax(0, var(--primmel-content-max));
+    grid-template-areas: "toc content";
+    align-items: start;
+    justify-content: center;
+    gap: var(--primmel-gutter);
+    padding: 0 var(--primmel-gutter) var(--primmel-gutter);
+  }
+
+  nav.toc {
+    grid-area: toc;
+    position: sticky;
+    top: var(--primmel-gutter);
+    max-height: calc(100vh - var(--primmel-gutter) * 2);
+    overflow-y: auto;
+    padding: var(--primmel-gutter) 0;
+  }
+
+  body > section,
+  body > main,
+  body > article,
+  body > div:not(.toc-wrapper) {
+    grid-area: content;
+    padding: var(--primmel-gutter) 0;
+    max-width: 100%;
+  }
+}
+
+/* Fallback: if coradoc doesn't wrap content, treat all non-nav children as content */
+@media (min-width: 1024px) {
+  body > *:not(nav.toc) {
+    grid-area: content;
+    padding: var(--primmel-gutter) 0;
+    max-width: var(--primmel-content-max);
+    min-width: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Headings
+   --------------------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primmel-text);
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.6em 0 0.6em;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 0.8em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid var(--primmel-border);
+}
+
+h2 {
+  font-size: 1.5rem;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--primmel-border);
+  margin-top: 2em;
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin-top: 1.8em;
+}
+
+h4 {
+  font-size: 1.05rem;
+  color: var(--primmel-text-muted);
+}
+
+h5, h6 {
+  font-size: 0.95rem;
+  color: var(--primmel-text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Inline text
+   --------------------------------------------------------------------------- */
+
+p {
+  margin: 0 0 1.1em;
+}
+
+a {
+  color: var(--primmel-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+
+a:hover {
+  color: var(--primmel-accent-hover);
+  border-bottom-color: var(--primmel-accent-hover);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--primmel-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+a:visited {
+  color: var(--primmel-accent);
+}
+
+strong { font-weight: 600; }
+em { font-style: italic; }
+small { color: var(--primmel-text-muted); }
+
+/* ---------------------------------------------------------------------------
+   Lists
+   --------------------------------------------------------------------------- */
+
+ul, ol {
+  margin: 0 0 1.1em;
+  padding-left: 1.6em;
+}
+
+li { margin: 0.25em 0; }
+li > p { margin: 0.3em 0; }
+
+/* ---------------------------------------------------------------------------
+   Code
+   --------------------------------------------------------------------------- */
+
+code, pre, kbd, samp {
+  font-family: var(--primmel-font-mono);
+  font-size: 0.9em;
+}
+
+code {
+  background: var(--primmel-bg-mute);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  color: var(--primmel-text);
+}
+
+pre {
+  background: var(--primmel-bg-soft);
+  border: 1px solid var(--primmel-border);
+  border-radius: 6px;
+  padding: 14px 18px;
+  overflow-x: auto;
+  margin: 0 0 1.1em;
+  line-height: 1.5;
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.88em;
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   Blockquote, hr, dl
+   --------------------------------------------------------------------------- */
+
+blockquote {
+  margin: 0 0 1.1em;
+  padding: 0.4em 1em;
+  border-left: 3px solid var(--primmel-accent);
+  background: var(--primmel-accent-soft);
+  color: var(--primmel-text);
+  border-radius: 0 4px 4px 0;
+}
+
+blockquote p { margin: 0.3em 0; }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--primmel-border);
+  margin: 2em 0;
+}
+
+dl { margin: 0 0 1.1em; }
+dt { font-weight: 600; margin-top: 0.5em; }
+dd { margin-left: 1.5em; }
+
+/* ---------------------------------------------------------------------------
+   Tables
+   --------------------------------------------------------------------------- */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 1.5em;
+  font-size: 0.95em;
+  display: block;
+  overflow-x: auto;
+}
+
+th, td {
+  border: 1px solid var(--primmel-border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: var(--primmel-bg-soft);
+  font-weight: 600;
+  color: var(--primmel-text);
+}
+
+tbody tr:nth-child(even) { background: var(--primmel-bg-soft); }
+tbody tr:nth-child(odd) { background: var(--primmel-surface); }
+
+/* ---------------------------------------------------------------------------
+   TOC sidebar
+   --------------------------------------------------------------------------- */
+
+nav.toc {
+  font-size: 0.9rem;
+  border-right: 1px solid var(--primmel-border);
+  padding-right: 1.2em;
+}
+
+nav.toc h2,
+nav.toc > h2,
+nav.toc > p:first-child {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primmel-text-muted);
+  margin: 0 0 0.8em;
+  padding: 0;
+  border: none;
+  font-weight: 600;
+}
+
+nav.toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav.toc li {
+  margin: 0;
+  padding: 0;
+}
+
+nav.toc a {
+  display: block;
+  padding: 0.3em 0.6em;
+  color: var(--primmel-text-muted);
+  border-left: 2px solid transparent;
+  border-bottom: none;
+  border-radius: 0;
+  transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+nav.toc a:hover,
+nav.toc a:focus {
+  color: var(--primmel-accent);
+  background: var(--primmel-bg-soft);
+  border-left-color: var(--primmel-accent);
+  border-bottom: none;
+}
+
+nav.toc ul ul {
+  margin-left: 0.6em;
+  font-size: 0.95em;
+}
+
+nav.toc ul ul a {
+  padding-left: 1.2em;
+}
+
+/* ---------------------------------------------------------------------------
+   Anchor target highlight
+   --------------------------------------------------------------------------- */
+
+:target {
+  scroll-margin-top: 1em;
+}
+
+h1:target,
+h2:target,
+h3:target,
+h4:target,
+h5:target,
+h6:target {
+  background: var(--primmel-accent-soft);
+  margin-left: -0.3em;
+  padding-left: 0.3em;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Selection + slim scrollbar in TOC
+   --------------------------------------------------------------------------- */
+
+@media (prefers-color-scheme: light) {
+  ::selection {
+    background: var(--primmel-accent);
+    color: #ffffff;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  ::selection {
+    background: var(--primmel-accent);
+    color: var(--primmel-bg);
+  }
+}
+
+nav.toc {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primmel-border) transparent;
+}
+
+nav.toc::-webkit-scrollbar { width: 6px; }
+nav.toc::-webkit-scrollbar-thumb {
+  background: var(--primmel-border);
+  border-radius: 3px;
+}
+nav.toc::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------------------------------------------------------------------------
+   Print
+   --------------------------------------------------------------------------- */
+
+@media print {
+  nav.toc { display: none; }
+  body {
+    display: block;
+    background: #fff;
+    color: #000;
+  }
+  a {
+    color: #000;
+    text-decoration: underline;
+    border-bottom: none;
+  }
+  pre, blockquote, table {
+    page-break-inside: avoid;
+  }
+}

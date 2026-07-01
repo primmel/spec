@@ -6,6 +6,11 @@ require 'coradoc/html'
 
 module CoradocBuild
   DEFAULT_CSS_THEME = 'professional'
+  PRIMMEL_CSS_PATH = File.expand_path('../assets/css/primmel.css', __dir__)
+
+  def self.primmel_css
+    @primmel_css ||= File.exist?(PRIMMEL_CSS_PATH) ? File.read(PRIMMEL_CSS_PATH) : ''
+  end
 
   def self.build_file(path, css_theme: DEFAULT_CSS_THEME)
     content = File.read(path)
@@ -14,6 +19,7 @@ module CoradocBuild
     core = Coradoc::AsciiDoc::Transform::ToCoreModel.transform(expanded)
 
     css = Coradoc::Html::Config.embedded_stylesheet(css_theme: css_theme)
+    css += "\n\n/* === Primmel skin (assets/css/primmel.css) === */\n" + primmel_css
     config = Coradoc::Html::Static::Configuration.new(
       include_toc: true,
       toc_levels: 4,
