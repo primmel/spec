@@ -1,0 +1,19 @@
+= MN 113-7: MMEL Documentation Models
+:docnumber: 113.7
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Documentation Models
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-documentation-overview.adoc[]
+include::sections/02-tables.adoc[]
+include::sections/03-figures.adoc[]
+include::sections/04-multimedia.adoc[]
+include::sections/05-sections.adoc[]
+include::sections/06-sdc-files.adoc[]

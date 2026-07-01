@@ -1,0 +1,79 @@
+[[multimedia]]
+== Multimedia
+
+=== General
+
+MMEL is designed to support a range of multimedia content types beyond static
+figures. This clause describes the planned multimedia support and current
+implementation status.
+
+=== Supported content types
+
+The following multimedia content types are planned for MMEL:
+
+[cols="1,2,3"]
+|===
+|Content type |Status |Description
+
+|Figure |Implemented |Static images embedded as base64-encoded PNG data.
+See <<figures>>.
+|Video |Not functional |Video content for animated process demonstrations or
+instructional material.
+|3D model |Not functional |Three-dimensional models for physical product
+visualisation or spatial representation.
+|===
+
+=== Figure (implemented)
+
+Figures are the only multimedia type currently implemented in MMEL. They use
+the `figure` construct with base64-encoded image data. See <<figures>> for
+full specification.
+
+=== Video (future)
+
+Video support is planned to enable embedding of instructional content,
+process demonstrations, and animated diagrams within MMEL models. The planned
+syntax would follow a similar pattern to figures:
+
+[source,mmel]
+----
+// Planned syntax (not yet implemented)
+video <VideoID> {
+  title "Video title"
+  data "<base64-encoded-video-data>"
+  format "mp4"
+}
+----
+
+Video content would be referenced by processes via a `video { }` property
+block, analogous to the `figure { }` block.
+
+=== 3D model (future)
+
+3D model support is planned for physical product visualization and spatial
+representation in engineering and manufacturing contexts. The planned syntax
+would follow a similar pattern:
+
+[source,mmel]
+----
+// Planned syntax (not yet implemented)
+model3d <ModelID> {
+  title "3D model title"
+  data "<base64-encoded-model-data>"
+  format "glb"
+}
+----
+
+3D models would be referenced by processes via a `model3d { }` property block.
+
+=== Current limitations
+
+As of this edition of the specification:
+
+* Only the `figure` construct is functional. Video and 3D model constructs are
+not yet implemented.
+* The `data` field for figures is limited to base64-encoded PNG images.
+* There is no streaming or external referencing for large multimedia content --
+all data is embedded inline in the `.mmel` file.
+* Future editions may introduce external file references or URL-based loading
+for large media assets.

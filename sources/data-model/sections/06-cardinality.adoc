@@ -1,0 +1,158 @@
+[[cardinality]]
+== Cardinality
+
+=== General
+
+Cardinality (multiplicity) notation specifies how many values a field may hold.
+Cardinality applies to reference types and helper class types.
+
+=== Notation
+
+[cols="1,2,3"]
+|===
+|Notation |Meaning |Example
+
+|`[0..*]` |Zero or more (optional collection) |`reference(Role#data)[0..*]`
+|`[1..*]` |One or more (required collection) |`reference(BibItem#data)[1..*]`
+|`[0..1]` |Zero or one (optional single) |`reference(Traceability)[0..1]`
+|(none) |Exactly one (default) |`reference(RiskPlan)`
+|===
+
+=== Syntax
+
+Cardinality is specified immediately after the type name, before the field
+property block:
+
+[source,mmel]
+----
+<fieldName>: <type>[<lower>..<upper>] {
+  definition "Description"
+}
+----
+
+Where `<lower>` is an integer and `<upper>` is either an integer or `*`
+(meaning unbounded).
+
+=== Examples
+
+==== Optional collections
+
+The `[0..*]` notation indicates that a field may have zero or more values:
+
+[source,mmel]
+----
+class audit#data {
+  name: string {
+    definition "Name/Title"
+  }
+  persons: reference(Role#data)[0..*] {     <1>
+    definition "Responsible persons"
+  }
+  bibitem: reference(BibItem#data)[0..*] {  <2>
+    definition "Relevant bibliographic items"
+  }
+  checklist: auditchecklist[0..*] {          <3>
+    definition "Audit Checklist"
+  }
+}
+----
+
+<1> Zero or more role references.
+<2> Zero or more bibliographic item references.
+<3> Zero or more embedded helper class structures.
+
+==== Required collections
+
+The `[1..*]` notation indicates that a field must have at least one value:
+
+[source,mmel]
+----
+class Procedure#data {
+  name: string {
+    definition "Name/Title"
+  }
+  policy: reference(policy#data)[1..*] {    <1>
+    definition "Relevant Policy"
+  }
+  bibiitem: reference(BibItem#data)[1..*] { <2>
+    definition "relevant bibliographic items"
+  }
+}
+----
+
+<1> At least one policy reference is required.
+<2> At least one bibliographic item reference is required.
+
+==== Optional single values
+
+The `[0..1]` notation indicates that a field may have zero or one value:
+
+[source,mmel]
+----
+class SMSProcessInteractionData {
+  meta: DocMeta {
+    definition "General documented information"
+    modality SHALL
+  }
+  process: reference(SMSProcessData)[1..*] {
+    definition "Process"
+    modality SHALL
+  }
+  sequence[0..1] {                           <1>
+    definition "Sequence of the processes"
+    modality SHALL
+  }
+  interaction[0..1] {                        <2>
+    definition "Interaction of the processes"
+    modality SHALL
+  }
+}
+----
+
+<1> Zero or one sequence field.
+<2> Zero or one interaction field.
+
+==== Default (exactly one)
+
+When no cardinality is specified, the field holds exactly one value:
+
+[source,mmel]
+----
+class Scope#data {
+  name: string {                             <1>
+    definition "Name/Title"
+  }
+  aspect: reference(Aspects#data) {          <2>
+    definition "Performance Aspect"
+  }
+  review: datetime {                         <3>
+    definition "Last Reviewed"
+  }
+}
+----
+
+<1> Exactly one string value.
+<2> Exactly one reference.
+<3> Exactly one datetime value.
+
+=== Cardinality and modality interaction
+
+When a field has both cardinality and modality, the modality applies to the
+field as a whole. For example:
+
+* `modality SHALL` with `[0..*]` means the field itself SHALL exist but may be
+empty (zero values)
+* `modality SHALL` with `[1..*]` means the field SHALL exist and SHALL contain
+at least one value
+
+[source,mmel]
+----
+class PartyRequirementData {
+  party: reference(PartyData)[0..*] {
+    definition "Requirement of interested parties"
+    modality SHALL                    <1>
+  }
+}
+----
+
+<1> The `party` field SHALL be present but may contain zero or more references.

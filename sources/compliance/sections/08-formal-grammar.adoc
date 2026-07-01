@@ -1,0 +1,113 @@
+[[compliance-formal-grammar]]
+== Formal grammar (EBNF)
+
+This clause provides the EBNF grammar for compliance-related constructs in
+MMEL. The grammar extends the base MMEL grammar defined in MN 113.
+
+=== Provision
+
+[source,ebnf]
+----
+ProvisionDecl    ::= 'provision' IDENTIFIER '{' ProvisionField* '}'
+
+ProvisionField   ::= 'condition' STRING
+                   | 'modality' MODALITY
+                   | SubjectBinding
+                   | 'reference' '{' IDENTIFIER* '}'
+
+SubjectBinding   ::= 'subject#' INTEGER IDENTIFIER
+----
+
+The `SubjectBinding` production matches the `subject#N` fields where `N` is
+a positive integer (1, 2, 3, ...) and the identifier is the entity being
+bound (a role ID or data registry ID).
+
+=== Note
+
+[source,ebnf]
+----
+NoteDecl         ::= 'note' IDENTIFIER '{' NoteField* '}'
+
+NoteField        ::= 'type' NOTE_TYPE
+                   | 'message' STRING
+                   | 'reference' '{' IDENTIFIER* '}'
+
+NOTE_TYPE        ::= 'NOTE'
+                   | 'EXAMPLE'
+                   | 'DEFINITION'
+                   | 'TABLE_REFERENCE'
+                   | 'TABLE_OPTIONS'
+                   | 'FOOTNOTE'
+----
+
+In `.mmel` files, only the `NOTE` type is used. The other types appear in
+`.sdc` files or measurement contexts.
+
+=== Reference
+
+[source,ebnf]
+----
+ReferenceDecl    ::= 'reference' (NAMESPACE '#')? IDENTIFIER '{' RefField* '}'
+
+RefField         ::= 'document' STRING
+                   | 'clause' STRING
+                   | 'title' STRING
+
+NAMESPACE        ::= IDENTIFIER
+----
+
+The optional `NAMESPACE '#` prefix enables cross-model reference declarations.
+
+=== Modality
+
+[source,ebnf]
+----
+MODALITY         ::= 'SHALL'
+                   | 'MUST'
+                   | 'SHOULD'
+                   | 'MAY'
+                   | 'CAN'
+----
+
+=== Process compliance fields
+
+[source,ebnf]
+----
+ProcessComplianceField ::= 'validate_provision' '{' IDENTIFIER* '}'
+                         | 'validate_measurement' '{' STRING '}'
+                         | 'modality' MODALITY
+----
+
+=== Approval compliance fields
+
+[source,ebnf]
+----
+ApprovalComplianceField ::= 'modality' MODALITY
+                          | 'reference' '{' IDENTIFIER* '}'
+                          | 'approval_record' '{' IDENTIFIER* '}'
+----
+
+=== Complete provision examples in grammar
+
+[source,ebnf]
+----
+(* Provision with single subject *)
+provision StandardMeetEnvironment {
+  subject#1 StandardRegistry
+  condition "{ Standards (Data) } selected meet environmental requirements"
+  modality SHALL
+}
+
+(* Provision with multiple subjects *)
+provision AssignConform {
+  subject#2 VisionRegistry
+  subject#1 MissionRegistry
+  condition "Assign responsibility... conforms to the { Mission } and { Vision }"
+  modality SHALL
+}
+
+(* Provision without modality (Statement) *)
+provision Provision2 {
+  condition "URL: https://crimson.ribose.com"
+}
+----

@@ -1,0 +1,195 @@
+[[data-registries]]
+== Data registries
+
+=== General
+
+Data registries define named, persistent data stores. Each registry is backed by
+a data class and represents a collection of records that processes can read from
+or write to. Data registries are the runtime containers that hold the actual
+document records produced during process execution.
+
+=== Syntax
+
+[source,mmel]
+----
+data_registry <RegistryName> {
+  title "Human-readable title"    <1>
+  data_class <ClassName>#data     <2>
+}
+----
+
+<1> Display title for the registry.
+<2> The data class defining the schema of records in this registry.
+
+=== Registry vs data class distinction
+
+A data class defines the *schema* (structure) of records, while a data registry
+defines the *store* (container) for those records. They are distinct concepts:
+
+[cols="1,3"]
+|===
+|Concept |Description
+
+|Data class (`class Name#data { ... }`) |Defines the fields and types of a
+record; the schema
+|Data registry (`data_registry Name { ... }`) |Defines the named, persistent
+store for records conforming to that schema
+|===
+
+The `data_class` property of a registry points to the data class that defines
+its schema. The registry name and the data class name may be the same or
+different.
+
+[source,mmel]
+----
+class RiskPlan#data {               <1>
+  scope {
+    definition "Scope"
+    modality SHALL
+  }
+}
+
+data_registry RiskPlan {             <2>
+  title "Risk management plan"
+  data_class RiskPlan#data           <3>
+}
+----
+
+<1> Data class defining the schema.
+<2> Data registry defining the persistent store.
+<3> The registry references its backing data class.
+
+=== Process bindings
+
+Processes interact with data registries through two binding mechanisms:
+
+==== Output binding
+
+The `output { }` property of a process specifies which data registries the
+process writes to:
+
+[source,mmel]
+----
+process RiskManagementFile1 {
+  name "Manage Risk management file"
+  actor Org
+  validate_provision {
+    Provision1
+  }
+  output {                          <1>
+    RiskManagementFile
+  }
+}
+----
+
+<1> This process populates the `RiskManagementFile` registry with new records.
+
+==== Reference data registry binding
+
+The `reference_data_registry { }` property specifies which data registries the
+process reads from:
+
+[source,mmel]
+----
+process MonitorIssue {
+  name "Monitor issues"
+  modality SHALL
+  reference_data_registry {         <1>
+    IssueRegistry
+  }
+  validate_provision {
+    MonitorIssue
+  }
+}
+----
+
+<1> This process reads existing records from the `IssueRegistry` registry.
+
+=== Example registries
+
+The following example, from an ISO HLS model, demonstrates a model with multiple
+data registries, each backed by a data class:
+
+[source,mmel]
+----
+class Aspects#data {
+  name: string {
+    definition "Name/Title"
+  }
+  bib: reference(BibItem#data)[0..*] {
+    definition "Relevant bibliographic item"
+  }
+}
+
+class BibItem#data {
+  id: string {
+    definition "BibItem ID"
+  }
+  item: string {
+    definition "Item"
+  }
+}
+
+data_registry Aspects {
+  title "Performance Aspects"
+  data_class Aspects#data
+}
+
+data_registry BibItem {
+  title "Bibliographic items"
+  data_class BibItem#data
+}
+
+data_registry Scope {
+  title "Scope"
+  data_class Scope#data
+}
+
+data_registry Objective {
+  title "Objectives"
+  data_class Objective#data
+}
+
+data_registry Role {
+  title "Roles"
+  data_class Role#data
+}
+----
+
+=== Registry naming
+
+The registry identifier is used in:
+
+* `process.output { }` -- to specify which registries the process writes to
+* `process.reference_data_registry { }` -- to specify which registries the
+process reads from
+* `subprocess.data { }` -- to position the registry icon on the diagram
+
+The `title` property provides a human-readable display name, which may differ
+from the identifier.
+
+=== Multiple registries
+
+A model may define any number of data registries. Each registry SHALL reference
+exactly one data class. Multiple registries MAY reference the same data class,
+though this is uncommon.
+
+A process MAY output to multiple registries and read from multiple registries:
+
+[source,mmel]
+----
+process DeterminePartyandReq {
+  name "Determine interested parties and their requirements"
+  modality SHALL
+  validate_provision {
+    DetermineParty
+    DeterminePartyReq
+  }
+  output {                               <1>
+    PartyRequirementRegistry
+    PartyRegistry
+  }
+}
+----
+
+<1> This process writes to two registries simultaneously.

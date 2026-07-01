@@ -1,0 +1,17 @@
+= MN 113-9: MMEL Workspace and Runtime
+:docnumber: 113.9
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Workspace and Runtime
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-workspace-overview.adoc[]
+include::sections/02-workspace-state-files.adoc[]
+include::sections/03-data-register-population.adoc[]
+include::sections/04-document-records.adoc[]

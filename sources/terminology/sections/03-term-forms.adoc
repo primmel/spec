@@ -1,0 +1,170 @@
+[[term-forms]]
+== Term forms
+
+=== General
+
+Term forms classify the type of term designation within a term entry. MMEL
+supports the following form types, aligned with ISO 10241-1 and ISO 30042 (TBX)
+terminology standards.
+
+=== Form types
+
+[cols="1,3"]
+|===
+|Form type |Description
+
+|`fullForm` |The complete, unabbreviated form of a term. This is the default
+and preferred designation.
+|`abbreviation` |A shortened form of a term created by omitting letters or
+words (e.g. "approx." for "approximately").
+|`acronym` |A term formed from the initial letters of a multi-word term,
+pronounced as a word (e.g. "RAM" for "Random Access Memory").
+|`symbol` |A graphical or mathematical symbol representing a concept
+(e.g. "$Omega$" for electrical resistance in ohms).
+|`equation` |A mathematical expression that defines a concept
+(e.g. "$E = mc^2$" for mass-energy equivalence).
+|`formula` |A chemical or mathematical formula representing a substance or
+relationship (e.g. "$H_2O$" for water).
+|`variant` |A spelling, regional, or orthographic variant of the preferred
+term.
+|===
+
+=== Examples of form types
+
+==== fullForm
+
+The standard, complete designation:
+
+[source,mmel]
+----
+term_entry quality_management_system {
+  term "quality management system"
+  definition "management system to direct and control an organization with regard to quality"
+  form_type fullForm
+}
+----
+
+==== abbreviation
+
+A shortened form:
+
+[source,mmel]
+----
+term_entry quality_management_system {
+  term "quality management system"
+  alt "QMS"
+  definition "management system to direct and control an organization with regard to quality"
+  form_type fullForm
+}
+----
+
+In this case, the `alt` entry "QMS" is an abbreviation of the preferred term.
+
+==== acronym
+
+An initialism pronounced as a word:
+
+[source,mmel]
+----
+term_entry information_security_management_system {
+  term "information security management system"
+  alt "ISMS"
+  definition "management system to direct and control an organization with regard to information security"
+  form_type fullForm
+}
+----
+
+==== symbol
+
+A graphical or mathematical symbol:
+
+[source,mmel]
+----
+term_entry voltage {
+  term "voltage"
+  alt "U"
+  definition "electric potential difference between two points"
+  form_type fullForm
+}
+----
+
+==== equation and formula
+
+Mathematical or chemical expressions:
+
+[source,mmel]
+----
+term_entry carbon_footprint {
+  term "carbon footprint"
+  definition "total amount of greenhouse gases produced directly and indirectly by an activity"
+  form_type fullForm
+}
+
+term_entry water {
+  term "water"
+  alt "H2O"
+  definition "clear, colourless, odourless, tasteless liquid"
+  form_type fullForm
+}
+----
+
+=== Part-of-speech types
+
+MMEL supports the following part-of-speech classifications:
+
+[cols="1,3"]
+|===
+|Part of speech |Description
+
+|`noun` |A word that names a person, place, thing, or concept. Most technical
+terms are nouns.
+|`verb` |A word that expresses an action, occurrence, or state of being.
+|`adjective` |A word that describes or modifies a noun.
+|`adverb` |A word that modifies a verb, adjective, or other adverb.
+|===
+
+==== Examples
+
+[source,mmel]
+----
+term_entry risk {
+  term "risk"
+  definition "effect of uncertainty on objectives"
+  part_of_speech noun
+}
+
+term_entry assess {
+  term "assess"
+  alt "evaluate"
+  definition "to determine the significance or value of something by careful appraisal"
+  part_of_speech verb
+}
+
+term_entry applicable {
+  term "applicable"
+  definition "relevant or appropriate in the circumstances"
+  part_of_speech adjective
+}
+----
+
+=== Combining form types and parts of speech
+
+Form types and parts of speech can be combined to fully classify a term
+designation:
+
+[source,mmel]
+----
+term_entry personal_data {
+  term "personal data"
+  alt "PII"
+  deprecated "personal information"
+  definition "any information relating to an identified or identifiable natural person"
+  language "en"
+  part_of_speech noun
+  form_type fullForm
+}
+----
+
+In this entry, the preferred term "personal data" is classified as a noun in
+its full form. The admitted term "PII" is an acronym, and the deprecated term
+"personal information" is documented for backward compatibility.

@@ -1,0 +1,200 @@
+[[table-lookup]]
+== Table lookup measurements
+
+=== General
+
+TABLE_REFERENCE and TABLE_OPTIONS are measurement types that look up values
+from tables defined within the same model. They enable data-driven
+specifications where the required value or valid options depend on other
+measurement parameters.
+
+=== TABLE_REFERENCE
+
+TABLE_REFERENCE returns a single value from a table by column lookup. It is
+used when a specification requires looking up a specific value (e.g.
+insulation thickness requirement) based on parameter combinations (e.g.
+cable type, cross-sectional area, conductor class).
+
+==== Syntax
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type TABLE_REFERENCE
+  definition "<table_name>,<column_index>,<filter_column>,<filter_data>,..."
+  description "Human-readable description"
+}
+----
+
+==== Definition format
+
+The `definition` field contains a comma-separated lookup specification with
+the following structure:
+
+[source]
+----
+<table_name>,<target_column>,<filter1_column>,<filter1_data>,<filter2_column>,<filter2_data>,...
+----
+
+[cols="1,2"]
+|===
+|Component |Description
+
+|`table_name` |The ID of the table construct to look up from.
+
+|`target_column` |The column index to retrieve the value from. Column indices
+start at 0.
+
+|`filter_column` |The column index to filter on.
+
+|`filter_data` |The measurement ID whose value is used as the filter criterion.
+|===
+
+Column indices start at 0 (the first column is index 0, the second is 1, etc.).
+
+==== Examples from BS 6004 model
+
+The BS 6004 model (cable specifications) uses TABLE_REFERENCE extensively
+with 67 records across Tables 3--6:
+
+[source,mmel]
+----
+measurement thicknessReq {
+  type TABLE_REFERENCE
+  definition "data,4,0,type,2,area,3,class"
+  description "Requirement of the radial thickness of insulation"
+}
+----
+
+This definition means:
+
+* Look up from table `data`
+* Return the value in column 4 (target column)
+* Filter by column 0 matching the `type` measurement value
+* Filter by column 2 matching the `area` measurement value
+* Filter by column 3 matching the `class` measurement value
+
+Additional TABLE_REFERENCE measurements:
+
+[source,mmel]
+----
+measurement sheathReq {
+  type TABLE_REFERENCE
+  definition "data,5,0,type,2,area,3,class"
+  description "Requirement of radial thickness of sheath"
+}
+
+measurement isCircular {
+  type TABLE_REFERENCE
+  definition "data,13,0,type"
+  description "Is the cable circular"
+}
+----
+
+The `sheathReq` measurement uses the same filter chain but targets column 5
+instead of column 4. The `isCircular` measurement uses only one filter
+(column 0 matching `type`).
+
+=== TABLE_OPTIONS
+
+TABLE_OPTIONS returns matching rows as selectable options. It is used for
+parameterized model views where the user selects from a set of valid options
+determined by table data and current measurement values.
+
+==== Syntax
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type TABLE_OPTIONS
+  definition "<table_name>,<target_column>,<filter_column>,<filter_data>,..."
+  description "Human-readable description"
+}
+----
+
+The definition format is identical to TABLE_REFERENCE. The difference is in
+the result: TABLE_OPTIONS returns all distinct matching values from the
+target column as a set of selectable options.
+
+==== Examples from BS 6004 model
+
+[source,mmel]
+----
+measurement type {
+  type TABLE_OPTIONS
+  definition "data,0,2,area,3,class"
+  description "Type of cable (e.g., 6181Y)"
+}
+
+measurement area {
+  type TABLE_OPTIONS
+  definition "data,2,0,type,3,class"
+  description "Nominal cross-sectional area of conductors"
+}
+
+measurement class {
+  type TABLE_OPTIONS
+  definition "data,3,2,area,0,type"
+  description "Class of conductor (1 / 2)"
+}
+----
+
+These three measurements form a mutually-filtering set:
+
+* `type` returns cable types filtered by `area` and `class`
+* `area` returns cross-sectional areas filtered by `type` and `class`
+* `class` returns conductor classes filtered by `area` and `type`
+
+When the user selects a value for one, the options for the others are
+narrowed accordingly.
+
+=== Lookup semantics
+
+The lookup process follows these steps:
+
+. Resolve the current values of all filter_data measurements.
+. Scan the table rows for matches where each filter_column value equals the
+corresponding filter_data measurement value.
+. For TABLE_REFERENCE: return the value from the target_column of the
+first (or only) matching row.
+. For TABLE_OPTIONS: return the set of distinct values from the
+target_column across all matching rows.
+
+=== Error handling
+
+When no matching row is found in the table:
+
+* TABLE_REFERENCE returns an undefined/error value. Validation expressions
+using this value will fail.
+* TABLE_OPTIONS returns an empty set of options.
+
+When multiple rows match and the target column has different values:
+
+* TABLE_REFERENCE returns the value from the first matching row.
+* TABLE_OPTIONS returns all distinct values as selectable options.
+
+=== Column index convention
+
+Column indices in the definition string start at 0:
+
+[cols="1,2"]
+|===
+|Index |Column
+
+|0 |First column
+|1 |Second column
+|2 |Third column
+|... |...
+|N |Column N+1
+|===
+
+=== Data scale in production models
+
+The BS 6004 model demonstrates table lookup at scale:
+
+* The model contains tables with 67 records from Tables 3--6 of the
+BS 6004 standard.
+* Multiple TABLE_REFERENCE measurements look up requirements (thickness,
+sheath, circularity) based on cable parameters.
+* TABLE_OPTIONS measurements provide interactive filtering for cable type,
+cross-sectional area, and conductor class.

@@ -1,0 +1,300 @@
+[[processes]]
+== Processes
+
+=== General
+
+Processes are the core behavioural units in MMEL. They represent tasks,
+activities, or operations within the model, and may carry compliance
+obligations, produce data outputs, consume data inputs, and contain
+measurement validation expressions.
+
+=== Syntax
+
+[source,mmel]
+----
+process <ProcessID> {
+  name "Display name"                             <1>
+  actor <RoleID>                                   <2>
+  modality SHALL | SHOULD | MAY | CAN | MUST       <3>
+  validate_provision {                             <4>
+    <ProvisionID1>
+    <ProvisionID2>
+  }
+  validate_measurement {                           <5>
+    "<measurement expression>"
+  }
+  output {                                         <6>
+    <DataRegistryID1>
+    <DataRegistryID2>
+  }
+  reference_data_registry {                        <7>
+    <DataRegistryID1>
+    <DataRegistryID2>
+  }
+  subprocess <SubprocessID>                        <8>
+  links {                                          <9>
+    <LinkID1>
+    <LinkID2>
+  }
+  note {                                           <10>
+    <NoteID1>
+    <NoteID2>
+  }
+  table {                                          <11>
+    <TableID1>
+    <TableID2>
+  }
+  figure {                                         <12>
+    <FigureID1>
+    <FigureID2>
+  }
+}
+----
+
+<1> Display name of the process. Required.
+<2> The role responsible for performing this process. Optional.
+<3> Modality keyword indicating the obligation level. Optional.
+<4> Provisions this process must satisfy. Optional.
+<5> Measurement validation expressions. Optional.
+<6> Data registries this process writes to. Optional.
+<7> Data registries this process reads from. Optional.
+<8> Links to a child subprocess containing the detailed flow. Optional.
+<9> Cross-model links to other MMEL models. Optional.
+<10> Associated notes providing context. Optional.
+<11> Associated tables containing structured data. Optional.
+<12> Associated figures (diagrams or images). Optional.
+
+=== Properties
+
+The following table describes each process property:
+
+[cols="1,1,3"]
+|===
+|Property |Required |Description
+
+|`name` |yes |Display name of the process
+|`actor` |no |Organizational role responsible for performing the process
+|`modality` |no |Obligation level for the process itself (SHALL, SHOULD, MAY, CAN, MUST)
+|`validate_provision` |no |List of provision IDs that this process must satisfy for compliance
+|`validate_measurement` |no |Measurement expression that must evaluate to true for validation
+|`output` |no |Data registries that this process writes to or populates
+|`reference_data_registry` |no |Data registries that this process reads from as input
+|`subprocess` |no |Reference to a child subprocess definition containing the detailed flow
+|`links` |no |Cross-model link references to related external models
+|`note` |no |Associated note references providing supplementary context
+|`table` |no |Associated table references containing structured data
+|`figure` |no |Associated figure references (diagrams or embedded images)
+|===
+
+=== Minimal process example
+
+A minimal process requires only a `name`:
+
+[source,mmel]
+----
+process InternalAudit {
+  name "Internal Audit"
+  actor Org
+}
+----
+
+=== Fully-specified process example
+
+The following example from the PAS 2060 carbon neutrality model shows a process
+with all property types bound:
+
+[source,mmel]
+----
+process ExcludeEmissionSource {
+  name "Exclude emission source"
+  actor entity
+  modality MAY
+  validate_provision {
+    Provision45
+    Provision48
+    Provision98
+    Provision99
+  }
+  validate_measurement {
+    "[Excluded_Emission].max / [Total_Emission] < 0.01"
+  }
+  output {
+    Subject
+  }
+}
+----
+
+This process:
+
+* is performed by the `entity` role
+* has an obligation level of `MAY` (it is optional)
+* must satisfy four compliance provisions
+* must meet the measurement expression that no single excluded emission source
+  exceeds 1% of total emissions
+* outputs to the `Subject` data registry
+
+=== Process with subprocess reference
+
+When a process has a detailed flow diagram, it references a child subprocess:
+
+[source,mmel]
+----
+process DetermineSubject {
+  name "Determine subject of carbon neutrality"
+  actor entity
+  modality SHALL
+  validate_provision {
+    Provision1
+  }
+  output {
+    Subject
+  }
+  subprocess Page0
+}
+----
+
+The `subprocess Page0` declaration links this process to a subprocess definition
+(named `Page0`) that contains the detailed flow diagram with elements, edges,
+and data store placements.
+
+=== Process with data register I/O
+
+Processes interact with data registers through `output` and
+`reference_data_registry` properties:
+
+[source,mmel]
+----
+process DetermineScope {
+  name "Determining the scope of the information security management system"
+  actor Org
+  modality SHALL
+  reference_data_registry {
+    PartyRequirement
+    Issues
+  }
+  validate_provision {
+    Provision2
+    Provision6
+    Provision7
+  }
+  output {
+    Scope
+  }
+}
+----
+
+This process reads from two data registries (`PartyRequirement` and `Issues`)
+and writes to one (`Scope`).
+
+=== Process with table and figure references
+
+Processes may reference tabular data and embedded figures from the normative
+document:
+
+[source,mmel]
+----
+process GeneralRequirementsForRiskManagement {
+  name "General requirements for risk management"
+  actor Manufacturer
+  validate_provision {
+    Provision7
+  }
+  note {
+    Note1
+    Note2
+  }
+  figure {
+    Figure1
+  }
+  subprocess Page1
+}
+----
+
+[source,mmel]
+----
+process RatedVoltage {
+  name "Rated voltage"
+  validate_provision {
+    Provision1
+    Provision2
+    Provision3
+  }
+  table {
+    PermittedVoltages
+  }
+  subprocess Page1
+}
+----
+
+[source,mmel]
+----
+process Embossing {
+  name "Embossing or indenting"
+  validate_provision {
+    Provision49
+    Provision50
+    Provision51
+    Provision53
+  }
+  note {
+    Note26
+  }
+  figure {
+    sheathExample
+    videodemo
+  }
+}
+----
+
+=== Process with cross-model links
+
+Processes may reference external models via the `links` property:
+
+[source,mmel]
+----
+process ProductionAndPostProductionInformation {
+  name "Production and post-production information"
+  actor Manufacturer
+  validate_provision {
+    Provision5
+    Provision84
+  }
+  links {
+    Link2
+  }
+  note {
+    Note37
+    Note38
+  }
+  output {
+    Post-ProductionEvaluationResult
+  }
+  subprocess Page15
+}
+----
+
+=== Process reuse mechanism
+
+A process definition is declared once at the top level of the model but can
+appear in multiple subprocess diagrams. When the same process ID is placed in
+the `elements` section of multiple subprocesses, all instances share the same
+definition.
+
+For example, in the BS 16341 model, the process `SelectStandardC` is defined
+once:
+
+[source,mmel]
+----
+process SelectStandardC {
+  name "Select standards in the order of preference C"
+  actor Purchaser
+  modality SHALL
+  validate_provision {
+    PreferenceOrderC
+  }
+}
+----
+
+This process is placed in the root subprocess diagram and connected to other
+elements via edges. Because the definition is shared, any change to the process
+properties is reflected in every diagram that includes it.

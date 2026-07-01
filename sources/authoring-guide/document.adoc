@@ -1,0 +1,18 @@
+= MMEL Authoring Guide
+:docnumber: MN 113-A
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Authoring Guide
+:doctype: report
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-creating-model.adoc[]
+include::sections/02-model-editor.adoc[]
+include::sections/03-model-components.adoc[]
+include::sections/04-diagram-editing.adoc[]
+include::sections/05-document-import.adoc[]

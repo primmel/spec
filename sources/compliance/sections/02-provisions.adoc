@@ -1,0 +1,295 @@
+[[provisions]]
+== Provisions
+
+=== General
+
+Provisions are the central compliance construct in MMEL. A provision defines a
+single compliance requirement expressed as a condition text, optionally
+qualified by a modality keyword, bound to subjects, and linked to normative
+references. Processes reference provisions via `validate_provision` to declare
+which requirements they must satisfy.
+
+=== Syntax
+
+[source,mmel]
+----
+provision <ProvisionID> {
+  condition "Requirement text"                   <1>
+  modality SHALL | SHOULD | MAY | CAN | MUST     <2>
+  subject#1 <EntityID>                           <3>
+  subject#2 <EntityID>
+  ...
+  subject#N <EntityID>
+  reference {                                    <4>
+    <ReferenceID1>
+    <ReferenceID2>
+  }
+}
+----
+
+<1> The condition text describing the requirement. May contain
+`{ subject#N }` placeholder references.
+<2> Optional RFC 2119 modality keyword. When absent, the provision is an
+informational statement.
+<3> Optional numbered subject bindings. Each `subject#N` binds an entity
+(role or data registry) to a numbered slot.
+<4> Optional normative references linking to source document clauses.
+
+=== Fields
+
+[cols="1,1,3"]
+|===
+|Field |Required |Description
+
+|`condition` |yes |The requirement condition text describing the obligation or statement.
+May contain `{ subject#N }` placeholders for subject binding.
+
+|`modality` |no |RFC 2119 modality keyword indicating the obligation level. When absent,
+the provision is classified as an informational Statement.
+
+|`subject#N` |no |Numbered subject binding fields (N = 1, 2, 3, ...). Each binds an
+entity (role or data registry ID) to a numbered slot referenced in the
+condition text.
+
+|`reference` |no |Normative references providing traceability to source document clauses.
+|===
+
+=== Provision type classification
+
+Provisions are classified into two broad categories based on their modality
+keyword:
+
+==== Governing provisions
+
+Governing provisions impose obligations on the model. They carry a modality
+keyword and require compliance.
+
+[cols="1,2,2"]
+|===
+|Sub-type |Modality |Description
+
+|Requirement |`SHALL`, `MUST` |Mandatory obligation. Non-compliance means the model does not conform.
+
+|Instruction |`SHOULD` |Recommended action. Valid reasons may exist for not following it.
+|===
+
+Example of a governing provision (Requirement):
+
+[source,mmel]
+----
+provision StandardMeetEnvironment {
+  subject#1 StandardRegistry
+  condition "{ Standards (Data) } selected meet environmental requirements"
+  modality SHALL
+}
+----
+
+Example of a governing provision (Instruction):
+
+[source,mmel]
+----
+provision ReviewPolicies {
+  condition "Review data protection policies periodically"
+  modality SHOULD
+}
+----
+
+==== Assertional provisions
+
+Assertional provisions describe capabilities, possibilities, or informational
+content rather than imposing obligations.
+
+[cols="1,2,2"]
+|===
+|Sub-type |Modality |Description
+
+|Capability |`CAN` |Statement of possibility or ability. Describes what the system is
+capable of.
+
+|Possibility |`MAY` |Truly optional action. The actor may choose to perform it.
+
+|Statement |(none) |Informational provision without a modality keyword. Not a compliance
+requirement.
+|===
+
+Example of a capability provision:
+
+[source,mmel]
+----
+provision SMSEffectivePerformanceIndicator {
+  condition "Performance indicators can be evaluated to determine whether the SMS is effectively implemented and maintained"
+  modality CAN
+}
+----
+
+Example of a possibility provision:
+
+[source,mmel]
+----
+provision PreferenceOrderO {
+  subject#1 StandardDataRegistry
+  condition "Select company standards in cases where the requirements cannot be covered by the documents previously mentioned"
+  modality MAY
+  reference {
+    Ref43
+  }
+}
+----
+
+Example of a Statement (informational provision without modality):
+
+[source,mmel]
+----
+provision Provision1 {
+  condition "Crimson is Ribose's internal manual system, providing manual documents (e.g., policy and procedures) for staff"
+}
+----
+
+A provision without a `modality` field is an informational statement. It
+carries no compliance obligation and is used for documentation, evidence
+reference, or descriptive context.
+
+=== Provision with subjects
+
+Provisions may bind entities to numbered subject slots using `subject#N`
+fields. The bound entity names are substituted into the condition text at
+evaluation time. See <<subject-binding>> for full documentation of this
+feature.
+
+=== Provision with references
+
+Provisions link to normative source clauses via the `reference { }` block.
+Each reference ID corresponds to a `reference` declaration that provides the
+document title, clause number, and clause title.
+
+[source,mmel]
+----
+provision ChangeDrivenByMultilateral {
+  condition "The changes are driven by other orders of preference being defined in bilateral or multilateral projects"
+  modality SHALL
+  reference {
+    Ref44
+  }
+}
+----
+
+=== Provision referencing by processes
+
+Provisions are referenced by processes via the `validate_provision` property.
+A process may reference one or more provisions, indicating that it must satisfy
+all of them for compliance.
+
+[source,mmel]
+----
+process UnderstandOrganizationContext {
+  name "Management of issues"
+  modality SHALL
+  reference_data_registry {
+    IssueRegistry
+  }
+  validate_provision {
+    UnderstandContext
+  }
+  output {
+    IssueRegistry
+  }
+}
+----
+
+A process referencing multiple provisions:
+
+[source,mmel]
+----
+process DetermineIssue {
+  name "Determine issues"
+  modality SHALL
+  validate_provision {
+    DetermineAllIssue
+    DetermineExternalIssue
+    DetermineInternalIssue
+  }
+  output {
+    IssueRegistry
+  }
+}
+----
+
+=== Examples from production models
+
+==== BS 202000 (Standardization management system)
+
+The BS 202000 model contains over 200 provisions with extensive use of subject
+bindings. Typical patterns include:
+
+A provision with a single subject:
+
+[source,mmel]
+----
+provision SMObjectivesMonitor {
+  subject#1 SMObjectiveRegistry
+  condition "{ Objectives for the SMS (Data) } are monitored"
+  modality SHALL
+}
+----
+
+A provision with multiple subjects:
+
+[source,mmel]
+----
+provision AssignConform {
+  subject#2 VisionRegistry
+  subject#1 MissionRegistry
+  condition "Assign responsibility and authority for ensuring that the SMS conforms to the { Mission for the organization (Data) } and { Vision for the organization (Data) } of the organization"
+  modality SHALL
+}
+----
+
+A provision with a role as subject:
+
+[source,mmel]
+----
+provision CompetenceDocumentation {
+  subject#1 worker
+  condition "Retain appropriate documented information as evidence of competence of {Worker (ID: worker)}"
+  modality SHALL
+}
+----
+
+A provision with three subjects:
+
+[source,mmel]
+----
+provision TopManagementEstablish {
+  subject#3 DirectionRegistry
+  subject#2 VisionRegistry
+  subject#1 MissionRegistry
+  condition "Establishe { Mission for the organization (Data) }, { Vision for the organization (Data) }, { Direction for the organization (Data) } for the organization"
+  modality SHALL
+}
+----
+
+==== BS 16341 (Selection of standards)
+
+The BS 16341 model contains provisions with subject bindings referencing
+standard data registries:
+
+[source,mmel]
+----
+provision PreferenceOrderN {
+  subject#1 StandardDataRegistry
+  condition "Select Military standards of partner nations, such as MIL Standards (USA)"
+  modality SHALL
+  reference {
+    Ref43
+  }
+}
+
+provision PriorConsent {
+  subject#1 Purchaser
+  condition "Prior consent from { Purchaser (Role) } shall be obtained"
+  modality SHALL
+  reference {
+    Ref44
+  }
+}
+----

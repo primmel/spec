@@ -1,0 +1,18 @@
+= MN 113-8: MMEL Terminology Model
+:docnumber: 113.8
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Terminology Model
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-terminology-overview.adoc[]
+include::sections/02-term-entries.adoc[]
+include::sections/03-term-forms.adoc[]
+include::sections/04-multilingual-support.adoc[]
+include::sections/05-formal-grammar.adoc[]

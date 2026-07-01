@@ -1,0 +1,145 @@
+[[link-construct]]
+== Link construct
+
+=== General
+
+The `link` construct defines a cross-model reference, allowing a process to
+point to a related external model, repository, or web resource. Links are
+declared as top-level elements in a `.mmel` file and referenced by processes
+via the `links { }` property.
+
+Links provide a lightweight mechanism for declaring that a process has a
+relationship to an external model or resource, without specifying the detailed
+element-to-element correspondence that `map_profile` or `.map` files provide.
+
+=== Syntax
+
+[source,mmel]
+----
+link <LinkID> {
+  title "Link title"              <1>
+  description "Link description"  <2>
+  link "target-identifier"        <3>
+  type REPO | URL                 <4>
+}
+----
+
+<1> Human-readable title for the link.
+<2> Description of the linked resource.
+<3> The target identifier. Interpretation depends on the link type.
+<4> The link type, which determines how the `link` field is interpreted.
+
+=== Link types
+
+MMEL defines the following link types:
+
+[cols="1,3"]
+|===
+|Type |Description
+
+|`REPO` |References another MMEL model by its namespace identifier. The `link`
+field contains the target model's namespace string.
+|`URL` |References an external web resource. The `link` field contains a URL
+pointing to the resource.
+|`TABLE_REFERENCE` |References an internal table within the current model or
+a linked model. The `link` field contains the table identifier.
+|===
+
+=== Link type: REPO
+
+The `REPO` link type is used to reference another MMEL model. The `link` field
+contains the namespace identifier of the target model as declared in its
+`metadata.namespace` field.
+
+This is the primary link type for cross-model navigation, enabling tools to
+resolve and load the referenced model.
+
+.Example: Cross-model repository link
+[source,mmel]
+----
+link Link1 {
+  title "ISO 13485 Clause 7"
+  description "Medical devices -- Quality management systems -- Requirements for regulatory purposes"
+  link "BS13485"
+  type REPO
+}
+
+link Link2 {
+  title "ISO 13485 clause 8.2"
+  description "Medical devices -- Quality management systems -- Requirements for regulatory purposes"
+  link "BS13485"
+  type REPO
+}
+----
+
+In this example, both links reference the `BS13485` namespace, indicating that
+the processes using these links relate to the ISO 13485 model. The `title` and
+`description` fields provide context about which specific clauses are relevant.
+
+=== Link type: URL
+
+The `URL` link type references an external web resource. The `link` field
+contains the full URL.
+
+.Example: URL link to web resource
+[source,mmel]
+----
+link Link1 {
+  title "Data Protection Notice Generator"
+  description "Data Protection Notice Generator"
+  link "https://apps.pdpc.gov.sg/dp-notice-generator/introduction"
+  type URL
+}
+----
+
+=== Link type: TABLE_REFERENCE
+
+The `TABLE_REFERENCE` link type references an internal table within the current
+model. The `link` field contains the identifier of the referenced table
+construct.
+
+.Example: Table reference link
+[source,mmel]
+----
+link TableLink1 {
+  title "Reference to permitted voltages table"
+  description "Cross-reference to voltage ratings table"
+  link "PermittedVoltages"
+  type TABLE_REFERENCE
+}
+----
+
+=== Link usage in processes
+
+Processes reference links via the `links { }` property block. A process may
+reference multiple links:
+
+[source,mmel]
+----
+process IncorporateProductRealization {
+  name "Incorporate product realization process"
+  validate_provision {
+    Provision6
+  }
+  links {
+    Link1
+  }
+}
+
+process ProductionAndPost-productionInformation {
+  name "Production and post-production information"
+  actor Manufacturer
+  validate_provision {
+    Provision5
+    Provision84
+  }
+  links {
+    Link2
+  }
+  subprocess Page15
+}
+----
+
+The `links` property does not imply a mapping; it merely declares an
+associative relationship. For detailed element-to-element alignment, use
+`map_profile` or `.map` files.

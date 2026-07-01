@@ -1,0 +1,94 @@
+[[measurement-overview]]
+== Measurement overview
+
+=== Purpose
+
+This part of the MMEL specification defines the measurement and validation
+features of the Multi-Modal Modelling Language (MMEL). Measurements provide
+quantitative monitoring of process KPIs, enabling compliance engineers and
+system architects to define, collect, and validate numeric values against
+process requirements.
+
+Measurements complement provisions by providing quantitative compliance
+checks: while provisions define qualitative requirements ("the organization
+shall establish documented policies"), measurements define quantitative
+thresholds ("the failed login rate shall not exceed 40%").
+
+=== Measurement architecture
+
+Measurements in MMEL form a layered architecture connecting data collection
+to process validation:
+
+.Measurement types and derivation
+----
+NUMERIC ───────────────────────────────────> single value
+DATALIST ──── .max, .min, .sum, ──────────> aggregation
+              .count, .average
+DERIVED ───── "[A].sum / [B]" ────────────> computed expression
+TRUE/FALSE ── boolean toggle ──────────────> conditional branching
+DURATION ──── time span ───────────────────> temporal monitoring
+TEXT ──────── text input ──────────────────> qualitative data
+TABLE_REFERENCE ─ lookup from table ──────> data-driven value
+TABLE_OPTIONS ── options from table ───────> selectable options
+     |
+     +-- validate_measurement { "[X] >= 0.95" }
+          |
+          +-- Evaluated against process KPIs
+----
+
+=== Connection to processes
+
+Measurements connect to processes through two mechanisms:
+
+`validate_measurement`::
+A process property that declares a measurement expression that must evaluate
+to true for the process to be considered compliant. The expression references
+measurement IDs and applies comparison and arithmetic operators.
+
+Gateway edge conditions::
+A subprocess edge condition that references measurement variables to determine
+which outgoing path from an exclusive gateway is taken. This enables
+parameterized process flows based on measurement values.
+
+=== User-defined vs derived measurements
+
+MMEL distinguishes two categories of measurements:
+
+User-defined measurements::
+Measurements whose values are provided externally (by users, sensors, or
+data collection systems). Types include NUMERIC, DATALIST, TRUE/FALSE,
+DURATION, TEXT, TABLE_REFERENCE, and TABLE_OPTIONS. Their values are set
+at runtime through evidence collection.
+
+Derived measurements::
+Measurements whose values are computed from other measurements using a
+formula. The DERIVED type requires a `definition` field containing a
+mathematical expression that references other measurement IDs.
+
+=== Usage modes
+
+Measurements support two usage modes:
+
+Single use (provide instance)::
+A measurement value is provided once for a specific process instance. The
+user enters the value when executing the process, and it is validated
+against the `validate_measurement` expression. Example: entering the
+number of failed logins for a monitoring period.
+
+API (collect data continuously)::
+Measurement data is collected continuously through automated systems or
+APIs. The values are aggregated and evaluated against validation
+expressions on an ongoing basis. Example: continuously monitoring
+connection counts and triggering alerts when thresholds are exceeded.
+
+=== Relationship to other MMEL parts
+
+This part builds on the core MMEL syntax defined in MN 113 and relates to
+other parts as follows:
+
+* MN 113 (Core specification) -- defines the base syntax for measurements
+and validate_measurement
+* MN 113-4 (Compliance and Requirements) -- defines provisions and
+conformance testing, which work alongside measurements
+* MN 113-3 (Process Model) -- defines processes that carry
+`validate_measurement` bindings and gateway edge conditions

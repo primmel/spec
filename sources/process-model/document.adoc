@@ -1,0 +1,21 @@
+= MN 113-3: MMEL Process Modelling
+:docnumber: 113.3
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Process Modelling
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-process-modelling-overview.adoc[]
+include::sections/02-processes.adoc[]
+include::sections/03-events.adoc[]
+include::sections/04-gateways.adoc[]
+include::sections/05-subprocesses.adoc[]
+include::sections/06-approvals.adoc[]
+include::sections/07-process-flow-edges.adoc[]
+include::sections/08-formal-grammar.adoc[]

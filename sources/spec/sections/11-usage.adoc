@@ -1,0 +1,107 @@
+[[usage]]
+== Usage
+
+=== Defining a compliance model
+
+A compliance model represents a standard or regulation expressed in MMEL.
+
+Steps to creating a compliance model:
+
+. Understand the normative document structure.
+.. Identify the clauses and sub-clauses that contain requirements.
+.. Identify the actors/roles responsible for each requirement.
+
+. Define the roles.
++
+[source,mmel]
+----
+role Organisation {
+  name "Organisation"
+}
+
+role DPO {
+  name "Data Protection Officer"
+}
+----
+
+. Define the provisions for each requirement.
++
+[source,mmel]
+----
+provision Provision1 {
+  condition "The organisation shall have data protection policies and practices"
+  modality SHALL
+  reference {
+    DPTM-doc-ref1-1-1
+  }
+}
+----
+
+. Define the data classes and data registers for records.
++
+[source,mmel]
+----
+class DataProtectionPolicy#data {
+  attribute1 {
+    definition "Internal data protection policy"
+    modality SHALL
+  }
+}
+
+data_registry DataProtectionPolicy {
+  title "Data protection policies"
+  data_class DataProtectionPolicy#data
+}
+----
+
+. Define the processes that implement the provisions.
++
+[source,mmel]
+----
+process DataProtectionPolicies {
+  name "Establish data protection policies"
+  actor Organisation
+  validate_provision {
+    Provision1
+  }
+  output {
+    DataProtectionPolicy
+  }
+}
+----
+
+. Define the subprocess diagrams with flow layout.
+
+. Define the references for traceability.
++
+[source,mmel]
+----
+reference DPTM-doc-ref1-1-1 {
+  document "DPTM certification requirements"
+  clause "1.1.1"
+  title "Governance and Transparency"
+}
+----
+
+=== Defining an implementation model
+
+An implementation model represents how an organization implements a standard.
+It follows the same steps as a compliance model but additionally:
+
+. Uses `links` to reference the compliance model(s) it implements.
+. Uses `validate_measurement` to define operational KPIs.
+. Uses `reference_data_registry` to read from data stores populated by other
+processes.
+
+=== Defining a model mapping
+
+Model mappings align processes across different models.
+
+. Identify the source and target models by namespace.
+. For each source process, identify the corresponding target process(es).
+. Create a `.map` file with the mapping entries.
+
+The mapping is stored in a `.map` JSON file where each entry maps a source
+process ID to one or more target process IDs, each with a description and
+justification.
+

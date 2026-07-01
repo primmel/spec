@@ -1,0 +1,64 @@
+== Model Editor
+
+The Model Editor is the primary interface for viewing and editing MMEL models. It provides a visual diagram canvas along with controls for navigation, display, and model management.
+
+=== Model Editor interface
+
+The Model Editor interface consists of the following areas:
+
+[cols="1,3"]
+|===
+| Area | Description
+
+| UI display panel | The main canvas for viewing and editing diagrams. Displays the current diagram with all its flow components and connections.
+| Path display | Shows the path of the current diagram within the model hierarchy, indicating which process or subprocess is being viewed.
+| Menu toolbar | Provides access to model-level operations such as saving, importing, and model settings.
+|===
+
+==== Control components
+
+The editor provides the following display controls:
+
+[cols="1,2"]
+|===
+| Control | Description
+
+| Zoom in | Increases the magnification of the diagram
+| Zoom out | Decreases the magnification of the diagram
+| Fit diagram | Automatically scales the diagram to fit the viewport
+| Lock diagram | Locks the diagram to prevent accidental edits
+|===
+
+==== Show/Hide options
+
+The editor offers toggle options for controlling the visibility of diagram elements:
+
+[cols="1,2"]
+|===
+| Option | Description
+
+| Show/Hide data components | Toggle the display of data-related elements (registries, classes) on the diagram
+| Show/Hide remove edge button | Toggle the display of edge deletion controls on connection lines
+| Show/Hide element IDs | Toggle the display of internal element identifiers on diagram nodes
+|===
+
+=== Saving the model
+
+The Model Editor provides multiple levels of saving:
+
+==== Save update to model
+
+Saves the current edits to the model in memory. The changes are preserved within the current editing session but are not yet committed to the repository.
+
+==== Save model to repository
+
+Commits the model (including all in-memory changes) to the repository for persistent storage. This makes the model available to other users and sessions.
+
+[IMPORTANT]
+====
+Always save to the repository before closing the editor to avoid losing work.
+====
+
+==== Future: undo/redo support
+
+Undo and redo functionality is planned for a future release. Once implemented, it will allow reverting and reapplying changes within an editing session.

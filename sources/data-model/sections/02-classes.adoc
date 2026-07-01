@@ -1,0 +1,383 @@
+[[classes]]
+== Classes
+
+=== General
+
+Classes define data structures in MMEL. There are two kinds of classes:
+
+* *data classes* -- identified by the `#data` suffix, linked to data registers,
+representing persistent records
+* *helper classes* -- without the `#data` suffix, used as reusable complex types
+embedded as fields within other classes
+
+=== Syntax
+
+==== Data class syntax
+
+[source,mmel]
+----
+class <ClassName>#data {
+  <fieldName>: <type> {             <1>
+    definition "Field description"  <2>
+    modality SHALL                  <3>
+    reference {                     <4>
+      <ReferenceID>
+    }
+    satisfy {                       <5>
+      <constraint-category>
+    }
+  }
+  <fieldName> {                     <6>
+    definition "Field description"
+    modality SHOULD
+  }
+}
+----
+
+<1> Explicitly typed field with colon notation.
+<2> Human-readable field definition.
+<3> Optional modality keyword indicating obligation for this field.
+<4> Optional normative references.
+<5> Optional satisfy block specifying a validation constraint category.
+<6> Untyped field (implicitly string).
+
+==== Helper class syntax
+
+[source,mmel]
+----
+class <ClassName> {
+  <fieldName> {
+    definition "Field description"
+    modality SHALL
+  }
+  <fieldName>: <type> {
+    definition "Field description"
+  }
+}
+----
+
+Helper classes follow the same syntax as data classes but without the `#data`
+suffix. They cannot be linked directly to data registers.
+
+=== Explicit type vs implicit type
+
+Fields may be declared with or without an explicit type:
+
+* *Explicit type* -- `fieldName: type { ... }` uses a colon followed by the type
+name
+* *Implicit type* -- `fieldName { ... }` omits the type, defaulting to string
+
+[source,mmel]
+----
+class Scope#data {
+  name: string {              <1>
+    definition "Name/Title"
+  }
+  scope {                     <2>
+    definition "Scope"
+  }
+  review: datetime {          <3>
+    definition "Last Reviewed"
+  }
+}
+----
+
+<1> Explicit string type.
+<2> Implicit string type (no colon or type name).
+<3> Explicit datetime type.
+
+=== Field properties
+
+Each class field may contain the following properties:
+
+[cols="1,1,3"]
+|===
+|Property |Required |Description
+
+|`definition` |no |Human-readable description of the field's purpose
+|`modality` |no |RFC 2119 keyword indicating obligation level for this field
+|`reference` |no |List of reference IDs linking this field to normative sources
+|`satisfy` |no |Validation constraint category for tooling
+|===
+
+==== Modality on fields
+
+The `modality` property on a class field indicates the obligation level for that
+field within the data structure:
+
+[source,mmel]
+----
+class RiskPlan#data {
+  scope {
+    definition "Scope"
+    modality SHALL               <1>
+    reference {
+      ISO14971-doc-ref3-4
+    }
+  }
+  Criteria {
+    definition "Criteria for risk acceptability"
+    modality SHALL               <2>
+  }
+}
+----
+
+<1> This field is mandatory (SHALL).
+<2> This field is also mandatory (SHALL).
+
+==== Normative references on fields
+
+Fields can link to normative references, providing traceability from data
+structure elements to their source standards:
+
+[source,mmel]
+----
+class RiskManagementFile#data {
+  plan: reference(RiskPlan) {
+    definition "Risk Management Plan"
+    modality SHALL
+    reference {                     <1>
+      ISO14971-doc-ref3-4
+    }
+  }
+  hazards: reference(Hazards) {
+    definition "Known and foreseeable hazards"
+    modality SHALL                  <2>
+  }
+}
+----
+
+<1> This field is traceable to clause 3.4 of ISO 14971.
+<2> This field has no normative reference.
+
+=== Data classes
+
+Data classes are the primary data structure definitions in MMEL. The `#data`
+suffix marks a class as a data class, enabling it to be linked to a data
+register.
+
+==== Example: RiskManagementFile#data
+
+The following data class, from a medical device risk management model, defines a
+record that aggregates references to multiple subsidiary data classes:
+
+[source,mmel]
+----
+class RiskManagementFile#data {
+  plan: reference(RiskPlan) {
+    definition "Risk Management Plan"
+    modality SHALL
+    reference {
+      ISO14971-doc-ref3-4
+    }
+  }
+  change: reference(ChangeRecord) {
+    definition "Record of changes"
+    modality SHALL
+    reference {
+      ISO14971-doc-ref3-4
+    }
+  }
+  analysis: reference(RiskAnalysisRecord) {
+    definition "Risk analysis"
+    modality SHALL
+    reference {
+      ISO14971-doc-ref4-1
+    }
+  }
+  device: reference(MedicalDevice) {
+    definition "characteristics related to the safety of the medical device"
+    modality SHALL
+    reference {
+      ISO14971-doc-ref4-2
+    }
+  }
+  hazards: reference(Hazards) {
+    definition "Known and foreseeable hazards associated with the medical device"
+    modality SHALL
+  }
+  evaluation: reference(RiskEvaluationResult) {
+    definition "Risk evaluation results"
+    modality SHALL
+    reference {
+      ISO14971-doc-ref5
+    }
+  }
+  control: reference(RiskControlRecord) {
+    definition "Risk control records"
+    modality SHALL
+    reference {
+      ISO14971-doc-ref6-2
+    }
+  }
+}
+----
+
+This example demonstrates:
+
+* Multiple `reference()` typed fields pointing to other data classes
+* Each field carries `modality SHALL` indicating mandatory data
+* Most fields include normative `reference` links for traceability
+* Field names use the explicit type syntax (`name: type { ... }`)
+
+==== Example: Scope#data
+
+The following data class, from an ISO HLS (High-Level Structure) model, uses a
+mix of primitive types and references:
+
+[source,mmel]
+----
+class Scope#data {
+  name: string {
+    definition "Name/Title"
+  }
+  scope: string {
+    definition "Scope"
+  }
+  aspect: reference(Aspects#data) {
+    definition "Performance Aspect"
+  }
+  review: datetime {
+    definition "Last Reviewed"
+  }
+}
+----
+
+This example demonstrates:
+
+* `string` fields for textual data
+* `datetime` field for temporal data
+* `reference(Aspects#data)` for cross-class references
+* No modality keywords -- all fields are informational
+
+=== Helper classes
+
+Helper classes (also called non-data classes) define reusable complex types that
+can be embedded as fields within data classes. They are identified by the absence
+of the `#data` suffix and cannot be directly linked to data registers.
+
+==== Example: DocMeta helper class
+
+The following helper class, from a standardization management system model,
+defines a reusable metadata structure:
+
+[source,mmel]
+----
+class DocMeta {
+  identification {
+    definition "Identification"
+    modality SHALL
+  }
+  description {
+    definition "Description"
+    modality SHALL
+  }
+  format {
+    definition "Format"
+    modality SHALL
+  }
+  media {
+    definition "Media"
+    modality SHALL
+  }
+  review {
+    definition "Review for suitability and adequacy"
+    modality SHALL
+  }
+  approval {
+    definition "Approval for suitability and adequacy"
+    modality SHALL
+  }
+  title {
+    definition "Title"
+    modality MAY
+    satisfy {
+      description
+    }
+  }
+  refno {
+    definition "Reference number"
+    modality MAY
+    satisfy {
+      identification
+    }
+  }
+}
+----
+
+This helper class is then used as a field type in multiple data classes:
+
+[source,mmel]
+----
+class IssueData {
+  meta: DocMeta {                   <1>
+    definition "General documented information"
+    modality SHALL
+  }
+  issue {
+    definition "Issue"
+    modality SHALL
+  }
+  type: IssueType {
+    definition "Type"
+    modality SHALL
+  }
+}
+----
+
+<1> The `DocMeta` helper class is used as the type for the `meta` field.
+
+==== Example: NonapplicableJustification helper class
+
+[source,mmel]
+----
+class NonapplicableJustification {
+  requirement {
+    definition "Requirement that the organization determines is not applicable"
+    modality SHALL
+  }
+  justification {
+    definition "Justification"
+    modality SHALL
+  }
+}
+----
+
+Used within a data class with cardinality:
+
+[source,mmel]
+----
+class NonapplicableProductData {
+  meta: DocMeta {
+    definition "General documented information"
+    modality SHALL
+  }
+  type {
+    definition "Type of products and services covered in the SMS scope"
+    modality SHALL
+  }
+  nonApplication: NonapplicableJustification[0..*] {   <1>
+    definition "Non-applicable requirements and justifications"
+    modality SHALL
+  }
+}
+----
+
+<1> Helper class used as a field type with `[0..*]` cardinality (zero or more).
+
+=== Empty classes
+
+A class may be declared with no fields. This serves as a placeholder or marker
+type:
+
+[source,mmel]
+----
+class RiskControlMeasureReview#data {
+}
+
+class Policy#data {
+}
+----
+
+Empty data classes can still be linked to data registers and used as reference
+targets.

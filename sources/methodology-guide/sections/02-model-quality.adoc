@@ -1,0 +1,54 @@
+== Model quality
+
+=== Prefer more details over fewer
+
+When deciding between a more detailed and a less detailed representation, prefer the more detailed option. Greater detail provides better traceability and reduces ambiguity.
+
+=== Quality measures
+
+The following measures are used to assess model quality:
+
+==== Number of elements
+
+In general, a higher number of model elements is preferable. More elements indicate that the modeler has thoroughly decomposed the source document into its constituent parts.
+
+==== Coverage of original text
+
+The model should cover 100% of the normative content in the source document. Every requirement, process definition, data structure, and compliance obligation should have a corresponding model element.
+
+[IMPORTANT]
+====
+Coverage should be checked after completing a model. Any gaps in coverage represent content that has not been modeled and may lead to incomplete compliance tracking.
+====
+
+==== Semantic-equivalent elements
+
+The model should contain zero semantic-equivalent elements. That is, no two elements should represent the same concept from the source document. Each concept should be modeled exactly once.
+
+=== Quality judgment
+
+Model quality is ultimately judged manually by reviewing the model against the source document. The measures above serve as guidelines, but human review is essential to ensure:
+
+* Accuracy of interpretation
+* Correctness of modality assignment
+* Proper structuring of processes and data
+* Faithful representation of the source text
+
+=== Modeling challenges
+
+The following challenges are commonly encountered during modeling:
+
+==== Lack of field knowledge
+
+Modelers who are unfamiliar with the domain of the standard may misinterpret requirements. Understanding the subject matter is important for creating an accurate model.
+
+==== Ambiguous terms
+
+Some terms in standards are inherently ambiguous. For example, the word "applicable" may be interpreted differently depending on context:
+
+* Does "applicable requirements" mean all requirements, or only those relevant to a specific context?
+* The modeler must use best judgment and document any assumptions.
+
+==== Document interpretation variations
+
+Different modelers may interpret the same document differently, leading to structurally different but semantically equivalent models. This is expected and acceptable, provided each model accurately represents the source document.

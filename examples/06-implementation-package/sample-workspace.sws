@@ -1,0 +1,76 @@
+{
+  "docs": {
+    "AcmeCoffeeProgramme": {
+      "id": "AcmeCoffeeProgramme",
+      "store": {
+        "BeanLotRegistry": {
+          "id": "BeanLotRegistry",
+          "docs": {
+            "lot-2026-001": {
+              "id": "lot-2026-001",
+              "name": "Lot 2026-001 (Honduras)",
+              "attributes": {
+                "lot_id": "lot-2026-001",
+                "origin": "Honduras",
+                "received_on": "2026-04-10",
+                "supplier": "sup-001"
+              }
+            },
+            "lot-2026-002": {
+              "id": "lot-2026-002",
+              "name": "Lot 2026-002 (Ethiopia)",
+              "attributes": {
+                "lot_id": "lot-2026-002",
+                "origin": "Ethiopia",
+                "received_on": "2026-04-17",
+                "supplier": "sup-001"
+              }
+            }
+          }
+        },
+        "RoastBatchRegistry": {
+          "id": "RoastBatchRegistry",
+          "docs": {
+            "b-2026-001": {
+              "id": "b-2026-001",
+              "name": "Batch 2026-001",
+              "attributes": {
+                "batch_id": "b-2026-001",
+                "lot": "lot-2026-001",
+                "roast_level": "Medium",
+                "roast_date": "2026-04-12",
+                "moisture_pct": "10.4"
+              }
+            },
+            "b-2026-002": {
+              "id": "b-2026-002",
+              "name": "Batch 2026-002",
+              "attributes": {
+                "batch_id": "b-2026-002",
+                "lot": "lot-2026-002",
+                "roast_level": "Light",
+                "roast_date": "2026-04-19",
+                "moisture_pct": "9.1"
+              }
+            }
+          }
+        },
+        "SupplierRegistry": {
+          "id": "SupplierRegistry",
+          "docs": {
+            "sup-001": {
+              "id": "sup-001",
+              "name": "Highland Beans Co.",
+              "attributes": {
+                "supplier_name": "Highland Beans Co.",
+                "approved_on": "2026-01-05",
+                "approved_by": "operations.manager@acme.example"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "version": "v1.0.0-dev1"
+}

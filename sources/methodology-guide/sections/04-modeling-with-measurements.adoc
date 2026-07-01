@@ -1,0 +1,137 @@
+== Modeling with measurements
+
+This section provides a full walkthrough of creating measurements in a model, using BS 6004 clause 7.3 as an example.
+
+=== Walkthrough: BS 6004 clause 7.3
+
+BS 6004 clause 7.3 defines test requirements for electric cables. The tabulated data in Tables 3 through 6 specify the relationship between cable parameters and their acceptable test values.
+
+=== Database table from tabulated data
+
+The first step is to create a database table from the tabulated data in the standard. BS 6004 Tables 3 through 6 contain 67 records of cable test parameters.
+
+Create a table in the model and populate it with the data from the source tables:
+
+[source,mmel]
+----
+table CableTestData {
+  class CableTestData#data
+  source "Tables 3-6, BS 6004"
+  record_count 67
+}
+----
+
+Import the data from CSV or enter it manually using the Table view.
+
+=== User-provided measurement variables
+
+Define measurement variables that correspond to the input parameters the user will provide:
+
+[source,mmel]
+----
+measurement tm {
+  type NUMERIC
+  description "Measured test value"
+}
+
+measurement cable_type {
+  type TABLE_OPTIONS
+  table CableTestData
+  column "cable_type"
+  description "Type of cable under test"
+}
+
+measurement cross_section {
+  type TABLE_OPTIONS
+  table CableTestData
+  column "cross_section"
+  description "Cross-sectional area of conductor"
+}
+
+measurement conductor_class {
+  type TABLE_OPTIONS
+  table CableTestData
+  column "conductor_class"
+  description "Class of conductor"
+}
+----
+
+The `TABLE_OPTIONS` type creates a drop-down selection populated from the values in the specified table column.
+
+=== Derived measurements
+
+Define derived measurements that look up values from the database table:
+
+[source,mmel]
+----
+measurement tn {
+  type TABLE_REFERENCE
+  table CableTestData
+  column "tn"
+  lookup_by ["cable_type", "cross_section", "conductor_class"]
+  description "Nominal test value from reference table"
+}
+----
+
+The `TABLE_REFERENCE` type performs a table lookup using the specified key columns. The value of `tn` is automatically determined based on the user's selections for `cable_type`, `cross_section`, and `conductor_class`.
+
+=== TABLE_OPTIONS for choice fields
+
+`TABLE_OPTIONS` measurement variables present the user with a choice from values found in a specific column of the database table. This ensures that the user can only select values that exist in the reference data.
+
+[source,mmel]
+----
+measurement cable_type {
+  type TABLE_OPTIONS
+  table CableTestData
+  column "cable_type"
+}
+----
+
+=== TABLE_REFERENCE for derived values
+
+`TABLE_REFERENCE` measurement variables derive their value by looking up a record in the database table that matches the user-provided key values. This is used to retrieve reference values such as nominal test thresholds.
+
+[source,mmel]
+----
+measurement tn {
+  type TABLE_REFERENCE
+  table CableTestData
+  column "tn"
+  lookup_by ["cable_type", "cross_section", "conductor_class"]
+}
+----
+
+=== Adding measurement test at a Process
+
+Once the measurements are defined, add a measurement test to the relevant process. The test evaluates whether the measured value meets the acceptance criterion.
+
+For BS 6004 clause 7.3, the test checks whether the measured value `tm` is within the acceptable range relative to the nominal value `tn`:
+
+[source,mmel]
+----
+process TestCable {
+  actor TestingLaboratory
+  measurement_test "[tm] <= 0.9 * [tn] - 0.1"
+  validate_provision P_7_3
+}
+----
+
+In this test:
+
+* `[tm]` is the measured test value (user input)
+* `[tn]` is the nominal value (derived from the table lookup)
+* The formula `0.9 * [tn] - 0.1` defines the acceptance threshold
+* The test passes if the measured value is at or below the threshold
+
+=== Testing in Model Viewer
+
+After defining the measurements and tests, use the Model Viewer to verify the model:
+
+. Open the model in the Model Viewer.
+. Navigate to the process containing the measurement test.
+. Enter test values for the user-provided measurements (`tm`, `cable_type`, `cross_section`, `conductor_class`).
+. The derived measurement (`tn`) is automatically calculated.
+. The measurement test result is displayed, showing whether the test passes or fails.
+
+This interactive testing ensures that the measurement model behaves correctly before deployment.

@@ -1,0 +1,60 @@
+root HelloWorld
+
+version "v1.0.0-dev1"
+
+metadata {
+  title "Minimal Primmel model"
+  schema "MMEL 0.1"
+  edition "1"
+  author "Primmel project"
+  shortname "HelloWorld"
+  namespace "HelloWorld"
+}
+
+role Org {
+  name "Organization"
+}
+
+role Greeter {
+  name "Greeter"
+}
+
+start_event Start1 {
+}
+
+end_event End1 {
+}
+
+process Greet {
+  name "Greet the world"
+  actor Greeter
+}
+
+subprocess Root {
+  elements {
+    Start1 {
+      x 0
+      y 0
+    }
+    Greet {
+      x 0
+      y 100
+    }
+    End1 {
+      x 0
+      y 200
+    }
+  }
+  process_flow {
+    Edge1 {
+      from Start1
+      to Greet
+    }
+    Edge2 {
+      from Greet
+      to End1
+    }
+  }
+  data {
+  }
+}

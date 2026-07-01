@@ -1,0 +1,134 @@
+[[modality-keywords]]
+== Modality keywords
+
+=== General
+
+MMEL uses RFC 2119 modality keywords to indicate the obligation level of
+provisions and processes. These keywords are interpreted as described in
+RFC 2119 <<RFC2119>> and RFC 8174 <<RFC8174>>.
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+RFC 2119 and RFC 8174.
+
+=== Keyword definitions
+
+[cols="1,2,3"]
+|===
+|Keyword |Bindingness |Meaning
+
+|`SHALL` |Normative |This keyword indicates a mandatory requirement. Non-compliance
+means the model or implementation does not conform to the specification.
+There is no valid reason for not satisfying a SHALL requirement.
+
+|`MUST` |Normative |This keyword is a synonym for `SHALL`. It indicates a mandatory
+requirement with identical bindingness. Both keywords are provided for
+compatibility with different standards-writing conventions.
+
+|`SHOULD` |Normative |This keyword indicates a recommendation. The requirement should be
+satisfied, but there may exist valid reasons in particular circumstances
+to ignore it. The full implications of not following a SHOULD requirement
+must be carefully weighed.
+
+|`MAY` |Normative |This keyword indicates a truly optional action. The actor may choose
+to perform the described action, but there is no obligation to do so. The
+absence of the action does not constitute non-compliance.
+
+|`CAN` |Informative |This keyword indicates a statement of possibility or capability. It
+describes what the system or actor is able to do, rather than prescribing
+an obligation. CAN provisions are assertional rather than governing.
+|===
+
+=== Normative vs informative bindingness
+
+Modality keywords are divided into two bindingness categories:
+
+Normative keywords (`SHALL`, `MUST`, `SHOULD`, `MAY`)::
+These keywords create normative provisions that define compliance
+obligations. A model is evaluated against these provisions during
+conformance checking. `SHALL` and `MUST` create mandatory requirements;
+`SHOULD` creates recommendations; `MAY` creates optional actions.
+
+Informative keywords (`CAN`)::
+The `CAN` keyword creates informative provisions that describe capabilities
+rather than obligations. These are used for documentation and descriptive
+purposes and do not create compliance obligations.
+
+No modality keyword (Statement)::
+A provision without a modality keyword is a purely informational statement.
+It carries no bindingness and is used for descriptive context, evidence
+reference, or documentation.
+
+=== Usage in provisions
+
+Modality keywords appear in the `modality` field of provisions:
+
+[source,mmel]
+----
+provision StandardMeetContratual {
+  subject#1 StandardRegistry
+  condition "{ Standards (Data) } selected meet contractual requirements"
+  modality SHALL
+}
+----
+
+[source,mmel]
+----
+provision ApplyUpdatedEdition {
+  condition "Apply the new edition"
+  modality MAY
+  reference {
+    Ref44
+  }
+}
+----
+
+[source,mmel]
+----
+provision CustomerFeedback {
+  condition "Monitor customer perception using customer feedback on delivered products and services"
+  modality CAN
+}
+----
+
+=== Usage in processes
+
+Processes may also carry a `modality` field that indicates the overall
+obligation level of the process itself:
+
+[source,mmel]
+----
+process UnderstandOrganizationContext {
+  name "Management of issues"
+  modality SHALL
+  validate_provision {
+    UnderstandContext
+  }
+  output {
+    IssueRegistry
+  }
+}
+----
+
+When a process has both a `modality` and `validate_provision`, the process
+modality provides the overall obligation level, while each provision carries
+its own specific modality.
+
+=== Distribution in production models
+
+In the BS 202000 model (Standardization management system):
+
+* `SHALL` is the predominant modality, used for the majority of the 200+
+provisions, indicating mandatory requirements
+* `CAN` is used for approximately 10 provisions describing capabilities
+(e.g. "Performance indicators can be evaluated", "Monitor customer
+perception using market-share analysis")
+* `MAY` is used for optional actions in specific process contexts
+
+In the BS 16341 model (Selection of standards):
+
+* `SHALL` is used for all preference order provisions, indicating mandatory
+selection criteria
+* `MAY` is used for optional provisions (e.g. "Select company standards in
+cases where requirements cannot be covered")

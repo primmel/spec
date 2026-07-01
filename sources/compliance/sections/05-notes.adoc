@@ -1,0 +1,141 @@
+[[notes]]
+== Notes
+
+=== General
+
+Notes provide structured annotations associated with processes and other model
+elements. They carry explanatory text, classify the annotation type, and
+optionally link to normative references for traceability.
+
+=== Syntax
+
+[source,mmel]
+----
+note <NoteID> {
+  type NOTE | EXAMPLE | DEFINITION | TABLE_REFERENCE | TABLE_OPTIONS | FOOTNOTE  <1>
+  message "Note text"                  <2>
+  reference {                          <3>
+    <ReferenceID>
+  }
+}
+----
+
+<1> The note type classification. In `.mmel` model files, only `NOTE` is used.
+Other types appear in `.sdc` files or specific measurement contexts.
+<2> The note content text.
+<3> Optional normative references providing traceability.
+
+=== Note types
+
+MMEL supports the following note types across its file formats:
+
+[cols="1,1,3"]
+|===
+|Type |File context |Description
+
+|`NOTE` |`.mmel` and `.sdc` |The standard note type used in model files. Provides additional
+context, clarification, or guidance about a model element. This is the only
+note type that appears in `.mmel` files.
+
+|`EXAMPLE` |`.sdc` only |An illustrative example extracted from the normative document.
+Appears in Supplementary Document Content files alongside clause text.
+
+|`DEFINITION` |`.sdc` only |A formal definition extracted from the normative document.
+Appears in Supplementary Document Content files as part of the terms and
+definitions section.
+
+|`TABLE_REFERENCE` |`.sdc` and measurement context |A note that references a table for data lookup. Used in the
+context of TABLE_REFERENCE measurement types where the note describes the
+lookup semantics.
+
+|`TABLE_OPTIONS` |`.sdc` and measurement context |A note that describes selectable options from a table. Used in
+the context of TABLE_OPTIONS measurement types.
+
+|`FOOTNOTE` |proposed |A footnote annotation. This type is proposed for future use and
+is not yet implemented in production models.
+|===
+
+=== Notes in .mmel files
+
+In `.mmel` model files, notes use the `NOTE` type exclusively:
+
+[source,mmel]
+----
+note Note1 {
+  type NOTE
+  message "A documented quality management system process can be used to deal with safety in a systematic manner, in particular to enable the early identification of hazards and hazardous situations in complex medical devices and systems"
+  reference {
+    ISO14971-doc-ref3-1
+  }
+}
+----
+
+A note without a reference:
+
+[source,mmel]
+----
+note Note6 {
+  type NOTE
+  message "Not all parts of the plan need to be created at the same time. The plan or parts of it can be developed over time"
+  reference {
+    ISO14971-doc-ref3-4
+  }
+}
+----
+
+=== Notes in .sdc files
+
+In Supplementary Document Content files, note types appear as line prefixes
+within clause content:
+
+[source]
+----
+5.1.3#NOTE This is a note.
+5.1.3#EXAMPLE This is an example.
+5.1.3#DEFINITION This is a definition.
+----
+
+Each line uses the format `clause-number#TYPE content`, where the type prefix
+classifies the annotation. The `NOTE`, `EXAMPLE`, and `DEFINITION` prefixes
+correspond to the note types used in MMEL model elements.
+
+=== Note referencing by processes
+
+Processes reference notes via the `note { }` property. A process may reference
+multiple notes:
+
+[source,mmel]
+----
+process IdentifyRiskControlMeasure {
+  name "Identify risk control measure"
+  actor Manufacturer
+  validate_provision {
+    Provision43
+    Provision44
+  }
+  note {
+    Note25
+    Note26
+    Note27
+    Note28
+    Note29
+  }
+  subprocess Page11
+}
+----
+
+=== Note with table references
+
+In measurement contexts, notes may carry `TABLE_REFERENCE` or `TABLE_OPTIONS`
+types to annotate table lookup semantics:
+
+[source,mmel]
+----
+note NoteTableRef {
+  type TABLE_REFERENCE
+  message "Lookup value from table based on cable type and cross-sectional area"
+}
+----
+
+These note types are used alongside TABLE_REFERENCE and TABLE_OPTIONS
+measurement types to document the lookup behaviour.

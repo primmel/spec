@@ -1,0 +1,158 @@
+[[document-records]]
+== Document records
+
+=== General
+
+Document records are the fundamental data units stored in workspace state
+files. Each record represents a single data entry in a registry, with
+attributes matching the fields defined in the registry's data class.
+
+=== Record structure
+
+A document record has the following structure:
+
+[source,json]
+----
+{
+  "id": <RecordID>,
+  "name": "<RecordName>",
+  "attributes": {
+    "<fieldName>": "<value>",
+    "<fieldName>": "<value>"
+  },
+  "regid": "<RegistryID>"
+}
+----
+
+[cols="1,3"]
+|===
+|Field |Description
+
+|`id` |Unique identifier for the record. Generated automatically by tooling.
+|`name` |Human-readable name or description of the record.
+|`attributes` |Object containing field-value pairs matching the data class
+schema.
+|`regid` |The registry identifier this record belongs to.
+|===
+
+=== ID generation
+
+Record IDs are generated automatically by MMEL-compliant tooling. The ID:
+
+* is a 64-bit integer, typically generated as a unique random or sequential
+number.
+* is unique within the registry collection.
+* is used for cross-referencing between records (e.g. `reference` field types).
+
+Example IDs: `6400790380169285`, `1001`, `2001`.
+
+=== Name and attributes
+
+The `name` field provides a human-readable identifier for the record. This is
+typically entered by the user or generated from key attribute values during
+process execution.
+
+The `attributes` object contains the actual data of the record. Each key
+corresponds to a field name in the data class, and each value is the current
+data for that field:
+
+[source,json]
+----
+{
+  "id": 1001,
+  "name": "Cable procurement cost analysis",
+  "attributes": {
+    "price": "5000",
+    "deliverCost": "200",
+    "installation": "300",
+    "energy": "150",
+    "maintenance": "100",
+    "disposal": "50"
+  }
+}
+----
+
+=== Attribute types
+
+Attribute values in records correspond to the field types defined in the data
+class:
+
+[cols="1,3"]
+|===
+|Data class field type |Record attribute representation
+
+|`string` |JSON string value (e.g. `"5000"`, `"yes"`).
+|`boolean` |JSON string `"True"` or `"False"`.
+|`datetime` |JSON string in ISO 8601 format.
+|`role` |JSON string containing a role identifier.
+|`reference(Target#data)` |JSON string containing the referenced record's ID.
+|`<EnumName>` |JSON string containing one of the defined enumeration values
+(e.g. `"distinctive"`, `"good"`, `"basic"`).
+|Untyped (implicit) |JSON string value.
+|===
+
+NOTE: All attribute values are stored as JSON strings regardless of the
+logical data type. Tooling is responsible for type conversion during
+validation and display.
+
+=== Reference attributes
+
+When a data class field uses the `reference(Target#data)` type, the
+corresponding attribute value in the record stores the ID of the referenced
+record:
+
+[source,mmel]
+----
+class SupplierRating#data {
+  supplier: reference(SupplierCapacity#data) {
+    definition "Supplier's response"
+  }
+  rating: SRating {
+    definition "Rating"
+  }
+}
+----
+
+The corresponding record:
+
+[source,json]
+----
+{
+  "id": 2001,
+  "name": "Supplier A rating",
+  "attributes": {
+    "supplier": "1001",
+    "rating": "distinctive"
+  }
+}
+----
+
+The `supplier` attribute contains `"1001"`, which is the ID of a record in the
+`SupplierCapacity` registry. The `rating` attribute contains `"distinctive"`,
+which is one of the defined values in the `SRating` enumeration.
+
+=== JSON-LD repository format
+
+Workspace state files use a JSON structure that is compatible with JSON-LD
+conventions:
+
+* The `@context` field (in `.map` files) provides a JSON-LD context URI.
+* The `id` fields at each level serve as JSON-LD `@id` identifiers.
+* The hierarchical structure follows JSON-LD nested node patterns.
+
+This design enables future integration with linked data platforms and semantic
+web technologies, while remaining simple and self-contained for current
+tooling.
+
+=== Record retrieval
+
+Records within a registry are accessed by their ID:
+
+[source]
+----
+docs["<Namespace>"]["store"]["<RegistryID>"]["docs"]["<RecordID>"]
+----
+
+This path navigates through the workspace state file hierarchy to retrieve a
+specific record. Tools SHALL support this access pattern for reading and
+writing records.

@@ -1,0 +1,20 @@
+= MN 113-5: MMEL Measurements and Validation
+:docnumber: 113.5
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Measurements and Validation
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-measurement-overview.adoc[]
+include::sections/02-measurement-types.adoc[]
+include::sections/03-validation-expressions.adoc[]
+include::sections/04-table-lookup.adoc[]
+include::sections/05-view-profiles.adoc[]
+include::sections/06-gateway-conditions.adoc[]
+include::sections/07-formal-grammar.adoc[]

@@ -1,0 +1,153 @@
+[[data-register-population]]
+== Data register population
+
+=== General
+
+Data registers are populated at runtime through process execution. When a
+process runs, it writes data records to the registries specified in its
+`output { }` property. When a process needs to read existing data, it accesses
+registries specified in its `reference_data_registry { }` property.
+
+This clause describes the mechanism by which processes interact with data
+registries during workspace execution.
+
+=== Output binding: registry write
+
+When a process executes successfully, it produces data that is written to the
+registries listed in its `output { }` property:
+
+[source,mmel]
+----
+process GiveRating {
+  name "Give Ratings to suppliers"
+  actor SupplierSelectionPanel
+  reference_data_registry {
+    SupplierCapacity
+  }
+  output {
+    SupplierRating
+  }
+}
+----
+
+In this example:
+
+* The process reads from the `SupplierCapacity` registry to get supplier data.
+* Upon completion, it writes a new record to the `SupplierRating` registry.
+
+The output binding creates a new `DocumentRecord` in the workspace state file
+under the target registry. The record's `attributes` are populated with values
+corresponding to the data class fields of the registry.
+
+=== Reference data registry: registry read
+
+When a process needs to access existing data, it uses the
+`reference_data_registry { }` property:
+
+[source,mmel]
+----
+process GiveRating {
+  name "Give Ratings to suppliers"
+  actor SupplierSelectionPanel
+  reference_data_registry {
+    SupplierCapacity
+  }
+  output {
+    SupplierRating
+  }
+}
+----
+
+The `reference_data_registry` property indicates that this process reads from
+the `SupplierCapacity` registry. During execution, the tooling makes the
+records in that registry available to the process logic.
+
+=== Data flow between processes
+
+Processes form a data pipeline through registry bindings:
+
+.Data flow example
+----
+process SupplierExperience {
+  name "Provide supplier experience"
+  actor Supplier
+  output {
+    SupplierCapacity              <1>
+  }
+}
+
+process GiveRating {
+  name "Give Ratings to suppliers"
+  actor SupplierSelectionPanel
+  reference_data_registry {
+    SupplierCapacity              <2>
+  }
+  output {
+    SupplierRating                <3>
+  }
+}
+----
+
+<1> `SupplierExperience` writes to `SupplierCapacity`.
+<2> `GiveRating` reads from `SupplierCapacity` (consuming the output of
+`SupplierExperience`).
+<3> `GiveRating` writes to `SupplierRating` (producing new data for downstream
+consumers).
+
+This creates a data dependency chain:
+
+----
+SupplierExperience  --writes-->  SupplierCapacity  --read-by-->  GiveRating  --writes-->  SupplierRating
+----
+
+=== Lifecycle of a data record
+
+A data record follows this lifecycle within the workspace:
+
+.Record lifecycle
+----
+1. Creation:
+   A process with output binding creates a new DocumentRecord.
+   The record ID is generated automatically.
+   Attributes are populated from process execution data.
+
+2. Storage:
+   The record is stored in the workspace state file (.sws)
+   under the target registry's docs collection.
+
+3. Access:
+   Other processes with reference_data_registry binding
+   can read the record from the workspace state.
+
+4. Update:
+   Records may be updated by subsequent process executions
+   that write to the same registry.
+
+5. Deletion:
+   Records may be removed from the workspace state file
+   through explicit tooling operations.
+----
+
+=== Record creation
+
+When a process writes to a registry, the tooling:
+
+. Generates a unique numeric record ID.
+. Creates a `DocumentRecord` with the generated ID.
+. Populates the `attributes` object with values matching the data class fields.
+. Sets the `name` field to a human-readable description.
+. Stores the record in the workspace state file under the registry's `docs`
+collection.
+
+=== Schema validation
+
+The `attributes` of a record are validated against the data class referenced
+by the registry:
+
+* Field types (string, boolean, datetime, role, reference, enum) are checked.
+* Required fields (those with `modality SHALL`) must be present.
+* Reference fields must point to valid record IDs in the target registry.
+* Enum fields must contain values from the defined enumeration.
+
+Validation occurs at write time. If a record does not conform to the data class
+schema, the write operation SHALL fail with a validation error.

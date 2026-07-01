@@ -1,0 +1,42 @@
+{
+  "@context": "https://bsi-ribose-smart.org",
+  "@type": "MMEL_MAP",
+  "id": "AcmeCoffeeProgramme",
+  "mapSet": {
+    "defaultns": {
+      "id": "defaultns",
+      "mappings": {}
+    },
+    "OCS": {
+      "id": "OCS",
+      "mappings": {
+        "SourceBeans": {
+          "OCS#SourceBeans": {
+            "description": "",
+            "justification": ""
+          }
+        },
+        "AcmeRoastAndLog": {
+          "OCS#LogRoast": {
+            "description": "Acme combines roasting and logging into a single step, satisfying OCS's separate log requirement as a side effect.",
+            "justification": "Acme's roasting system writes the batch record automatically when the roaster confirms batch completion."
+          }
+        },
+        "TestBatchMoisture": {
+          "OCS#VerifyQuality": {
+            "description": "Acme's moisture test is the chosen implementation of OCS's broader quality verification requirement.",
+            "justification": "Acme has selected moisture as its quality gate. OCS clause 4.4 permits the organization to define its own threshold."
+          }
+        },
+        "ReviewSuppliers": {
+          "OCS#SourceBeans": {
+            "description": "Periodic supplier review sustains the approved-suppliers precondition that OCS 4.2 places on sourcing.",
+            "justification": "Cadence: every 12 months via SupplierReviewTimer."
+          }
+        }
+      }
+    }
+  },
+  "docs": {},
+  "version": "v1.0.0-dev1"
+}

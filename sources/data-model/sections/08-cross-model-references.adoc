@@ -1,0 +1,177 @@
+[[cross-model-references]]
+== Cross-model data references
+
+=== General
+
+MMEL supports cross-model references using the `Namespace#ElementID` notation.
+This enables data classes and references to refer to elements defined in other
+MMEL models, supporting model alignment and implementation traceability.
+
+=== Namespace notation
+
+Cross-model references use the format `Namespace#ElementID`, where:
+
+* `Namespace` -- identifies the source model by its namespace (as declared in
+the model's `metadata.namespace` field)
+* `#` -- separator between namespace and element identifier
+* `ElementID` -- the identifier of the specific element within that model
+
+This notation is used in several contexts within data modelling:
+
+* reference declarations (e.g. `reference BS20400#Ref35`)
+* data class references (e.g. `reference(BS20400#SomeData#data)`)
+* cross-model process references (e.g. `process BS20400#LCC { ... }`)
+
+=== Cross-model reference declarations
+
+Reference declarations may use cross-model notation to declare references that
+originate from another model:
+
+[source,mmel]
+----
+reference BS20400#Ref35 {
+  document "BS20400:2017 Sustainable procurement -- Guidance"
+  clause "7.2.3"
+}
+
+reference BS20400#Ref44 {
+  document "BS20400:2017 Sustainable procurement -- Guidance"
+  clause "7.4.1"
+}
+----
+
+In this example, the reference identifiers use the `BS20400#` prefix to indicate
+that these references originate from the model with namespace `BS20400`.
+
+=== Cross-model provision and process references
+
+When an implementation model references provisions from the standard it
+implements, cross-model notation is used:
+
+[source,mmel]
+----
+provision BS20400#Provision180 {
+  condition "LCC is a method that could be used to analyse the costs"
+  reference {
+    BS20400#Ref35
+  }
+}
+
+provision BS20400#Provision181 {
+  condition "When assessing the costs using an LCC approach, the organization should indicate in the procurement documents the data to be provided by the tenderers"
+  reference {
+    BS20400#Ref35
+  }
+}
+----
+
+These provisions are then referenced by processes in the implementation model:
+
+[source,mmel]
+----
+process BS20400#LCC {
+  name "Life Cycle Costing"
+  validate_provision {
+    BS20400#Provision180
+    BS20400#Provision181
+  }
+  subprocess BS20400#Page19
+}
+----
+
+=== Example: BS20400 implementation model
+
+The following excerpt from `BS20400impl(mapped).mmel` demonstrates an
+implementation model that references elements from the `BS20400` standard model:
+
+[source,mmel]
+----
+// Cross-model start events
+start_event BS20400#Start20 {
+}
+
+start_event BS20400#Start14 {
+}
+
+// Cross-model subprocess
+subprocess BS20400#Page19 {
+  elements {
+    BS20400#Start20 {
+      x -20
+      y -20
+    }
+    totalCostOfOwnership {
+      x -70
+      y 120
+    }
+    BS20400#MonetizedExternalities {
+      x -70
+      y 230
+    }
+  }
+  process_flow {
+    BS20400#Edge87 {
+      from BS20400#Start20
+      to totalCostOfOwnership
+    }
+  }
+  data {
+    TotalCostOfOwnership {
+      x -240
+      y 280
+    }
+    ExternalCost {
+      x -240
+      y 400
+    }
+  }
+}
+----
+
+This example demonstrates:
+
+* Cross-model element references (`BS20400#Start20`, `BS20400#Edge87`)
+* Mixed references -- local elements (`totalCostOfOwnership`) alongside
+cross-model elements (`BS20400#MonetizedExternalities`)
+* Data registry positions for local registries
+
+=== Cross-model data class references
+
+Data classes may reference other data classes across models using the
+cross-model notation in reference fields:
+
+[source,mmel]
+----
+class ManagementReviewData {
+  meta: DocMeta {
+    definition "General documented information"
+    modality SHALL
+  }
+  changes: reference(IssueData)[0..*] {       <1>
+    definition "Changes in external and internal issues"
+    modality SHALL
+  }
+  objectives: reference(ObjectiveData)[0..*] {
+    definition "The extent to which standardization objectives have been met"
+    modality SHALL
+  }
+  process: reference(SMSProcessData)[0..*] {
+    definition "Process performance and conformity"
+    modality SHALL
+  }
+}
+----
+
+<1> `IssueData` and `ObjectiveData` are classes defined in the same model, but
+could equally be cross-model references using the `Namespace#Class#data` format.
+
+=== Cross-model reference resolution
+
+When a tool encounters a `Namespace#ElementID` reference, it:
+
+. Looks up the model with the matching `metadata.namespace` value.
+. Resolves the `ElementID` within that model's declarations.
+. Treats the resolved element as if it were a local declaration.
+
+If the referenced model is not available, the tool SHOULD report a resolution
+error but MAY continue processing with an unresolved reference placeholder.

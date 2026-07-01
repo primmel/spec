@@ -1,0 +1,75 @@
+== Document Import
+
+Document Import is the process of loading content from an existing standard document into the MMEL model editor. This section describes the workflow and best practices.
+
+=== Document import workflow
+
+The document import workflow follows these steps:
+
+. Load the source document text into the editor
+. Review the loaded content and identify sections to convert
+. Select text elements and convert them to model components
+. Verify the imported components and adjust as needed
+
+=== Loading text from reference documents
+
+To begin, load the text of the reference document (the standard being modeled) into the Document Import interface. The editor parses the document structure, identifying:
+
+* Clauses and subclauses
+* Paragraphs and lists
+* Tables and figures
+* Terminology sections
+
+The parsed content is presented for selection and conversion.
+
+=== Selecting and converting text to model components
+
+Select portions of the loaded text and choose the target component type. The supported conversions include:
+
+[cols="1,2"]
+|===
+| Source content | Target component
+
+| Clause text | Section
+| Terminology entries | Terms and definitions
+| Requirement text | Provision
+| Clause references | Reference
+| Tabulated data | Table
+|===
+
+=== Auto-creating references from clause numbers
+
+When text is imported, any clause numbers detected in the content are automatically converted into references. For example, text containing "as specified in clause 9.2.1" will create a reference to clause 9.2.1 of the source document.
+
+=== Importing provisions with auto-detected modality
+
+Provisions are imported with their RFC 2119 modality keyword automatically detected from the source text:
+
+[cols="1,2"]
+|===
+| Keyword | Modality
+
+| SHALL | Mandatory requirement
+| SHOULD | Recommendation
+| MAY | Permission
+| CAN | Capability
+| MUST | Absolute requirement
+|===
+
+The detected modality is assigned to the provision, and the provision is linked to the corresponding reference in the source document.
+
+=== Suggestions for document import
+
+The following practices help ensure accurate and efficient document import:
+
+* **Review each imported component** -- auto-detection is helpful but may misinterpret context. Verify that each provision's modality and reference are correct.
+
+* **Import in logical order** -- start with structural components (sections, terms), then import provisions. This ensures that references and terms are available when provisions are created.
+
+* **Use batch operations** -- when multiple references or terms can be imported at once, use batch insertion to save time.
+
+* **Preserve original wording** -- the text of imported provisions should maintain the exact wording from the source document. Do not paraphrase or summarize.
+
+* **Check coverage** -- after import, verify that all requirements in the source document have corresponding provisions in the model. The coverage should be 100%.
+
+* **Verify cross-references** -- ensure that all clause references detected during import are correctly linked to the appropriate reference entries.

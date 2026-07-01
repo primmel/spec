@@ -1,0 +1,147 @@
+[[map-profile]]
+== Map profile
+
+=== General
+
+The `map_profile` construct defines element-to-element mappings from the
+current model to another model, embedding cross-model alignment directly within
+the `.mmel` file. This provides an inline alternative to external `.map` files
+for cases where the mapping is simple or where it is convenient to co-locate
+the mapping with the model definition.
+
+=== Syntax
+
+[source,mmel]
+----
+map_profile <TargetNamespace> {
+  mapping {
+    from <SourceElementID>          <1>
+    to <TargetElementID>            <2>
+  }
+  mapping {
+    from <SourceElementID>
+    to <TargetElementID>
+  }
+  // ... additional mapping blocks
+}
+----
+
+<1> The source element ID. May use cross-model `Namespace#ElementID` notation
+to reference elements from an external model.
+<2> The target element ID in the target model (identified by
+`<TargetNamespace>`).
+
+=== Description
+
+The `map_profile` identifier is the namespace of the target model. Each
+`mapping` block within the profile defines a single element-to-element
+correspondence. The `from` field specifies the source element, and the `to`
+field specifies the corresponding element in the target model.
+
+Multiple `map_profile` blocks may appear in a single `.mmel` file, each
+targeting a different namespace.
+
+=== Cross-model namespacing in from fields
+
+The `from` field supports the `Namespace#ElementID` notation for referencing
+elements that originate from another model. This is particularly useful in
+implementation models that import elements from a reference model and then map
+them to local processes.
+
+When the `from` field uses `Namespace#ElementID` notation:
+
+* The namespace prefix (before `#`) identifies the source model.
+* The element ID (after `#`) identifies the specific element within that model.
+* This indicates that the mapping originates from an element in the referenced
+model rather than a locally defined element.
+
+When the `from` field uses a plain identifier (without `#`):
+
+* The element is assumed to be defined locally in the current model.
+* The mapping indicates that the local element corresponds to the target model
+element.
+
+=== Example
+
+The following example is taken from an implementation model
+(`BS20400impl(mapped).mmel`) that maps its local processes to the BS 20400
+reference model:
+
+[source,mmel]
+----
+map_profile BS20400 {
+  mapping {
+    from totalCostOfOwnership
+    to TotalCostOfOwnership
+  }
+  mapping {
+    from BS20400#MonetizedExternalities
+    to MonetizedExternalities
+  }
+  mapping {
+    from GiveRating
+    to PrequalifySuppliers
+  }
+  mapping {
+    from SupplierExperience
+    to PrequalifySuppliers
+  }
+  mapping {
+    from SupplierFeedback
+    to PrequalifySuppliers
+  }
+  mapping {
+    from FormPanel
+    to PrequalifySuppliers
+  }
+  mapping {
+    from AwardContract
+    to AwardContract
+  }
+  mapping {
+    from GovernmentRequirement
+    to ConsultStakeholders
+  }
+  mapping {
+    from ReviewDemand
+    to AdaptRecommendations
+  }
+  mapping {
+    from ReviewDemand
+    to EngageStakeholdersSupport
+  }
+  mapping {
+    from Process1
+    to AggregateDemand
+  }
+}
+----
+
+In this example:
+
+* The `map_profile` targets namespace `BS20400`, indicating alignment with the
+BS 20400 reference model.
+* `from totalCostOfOwnership to TotalCostOfOwnership` maps a local process to
+a process in the BS 20400 model.
+* `from BS20400#MonetizedExternalities to MonetizedExternalities` uses
+cross-model namespacing to reference an element imported from the BS 20400
+model.
+* Multiple `from` entries can map to the same `to` target (e.g. `GiveRating`,
+`SupplierExperience`, `SupplierFeedback`, and `FormPanel` all map to
+`PrequalifySuppliers`), indicating that several implementation processes
+together satisfy one reference process.
+* A single `from` entry can also map to multiple targets via separate mapping
+blocks (e.g. `ReviewDemand` maps to both `AdaptRecommendations` and
+`EngageStakeholdersSupport`).
+
+=== Relationship to .map files
+
+`map_profile` provides inline mappings within the model file itself, while
+`.map` files provide external mappings in JSON format. The two mechanisms are
+complementary:
+
+* Use `map_profile` for simple, co-located mappings where the mapping is
+closely tied to the model definition.
+* Use `.map` files for complex mappings that include descriptions,
+justifications, and report templates, or where the mapping is maintained
+separately from the model.

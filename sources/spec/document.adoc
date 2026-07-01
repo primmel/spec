@@ -1,0 +1,26 @@
+= MN 113: Multi-Modal Modelling Language (MMEL) specification
+:docnumber: 113
+:edition: 1
+:revdate: 2026-05-21
+:copyright-year: 2026
+:language: en
+:title-main-en: Multi-Modal Modelling Language (MMEL) specification
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/00-front-matter.adoc[]
+include::sections/01-introduction.adoc[]
+include::sections/02-scope.adoc[]
+include::sections/03-normative-references.adoc[]
+include::sections/04-terms-and-definitions.adoc[]
+include::sections/05-principles-and-requirements.adoc[]
+include::sections/06-file-types.adoc[]
+include::sections/07-architecture.adoc[]
+include::sections/08-syntax-reference.adoc[]
+include::sections/09-model-structure.adoc[]
+include::sections/10-formal-grammar.adoc[]
+include::sections/11-usage.adoc[]
+include::sections/12-bibliography.adoc[]

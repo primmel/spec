@@ -1,0 +1,22 @@
+= MN 113-2: MMEL Data Modelling
+:docnumber: 113.2
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Data Modelling
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-data-modelling-overview.adoc[]
+include::sections/02-classes.adoc[]
+include::sections/03-enumerations.adoc[]
+include::sections/04-data-registries.adoc[]
+include::sections/05-field-types.adoc[]
+include::sections/06-cardinality.adoc[]
+include::sections/07-satisfy-blocks.adoc[]
+include::sections/08-cross-model-references.adoc[]
+include::sections/09-formal-grammar.adoc[]

@@ -1,0 +1,1440 @@
+[[syntax-reference]]
+== Syntax reference
+
+=== General
+
+MMEL uses a custom DSL syntax. This clause defines the complete syntax for all
+MMEL constructs.
+
+Identifiers in MMEL:
+
+* start with a letter or underscore
+* may contain letters, digits, underscores, hyphens, and apostrophes
+* are case-sensitive
+
+The `#data` suffix is reserved for data classes and data registry references.
+
+Cross-model references use the `Namespace#ElementID` notation. The namespace
+prefix (before `#`) identifies the source model, and the element ID (after `#`)
+identifies the specific element within that model. This notation is used in:
+
+* `reference` declarations -- e.g. `reference BS20400#Ref35` declares a
+reference that originates from model namespace `BS20400`
+* `map_profile` mappings -- e.g. `from BS20400#MonetizedExternalities` maps an
+element from the `BS20400` model
+
+=== Model header
+
+Every MMEL model begins with a header declaring the root element, version, and
+metadata.
+
+[source,mmel]
+----
+root <RootName>
+                                 <1>
+version "v1.0.0-dev1"            <2>
+
+metadata {                       <3>
+  title "Human-readable title"
+  schema "MMEL 0.1"             <4>
+  edition "1"
+  author "Author name"
+  shortname "ShortName"          <5>
+  namespace "Namespace"          <6>
+}
+----
+
+<1> Blank lines are freely allowed between top-level declarations.
+<2> Semantic version string.
+<3> Metadata block with key-value pairs.
+<4> Schema identifier (e.g. `"MMEL 0.1"`, `"SMART v0.1"`, `"MMEL 1.0"`).
+<5> Short name used in cross-model references.
+<6> Namespace for unique identification; used in map files to reference this
+model.
+
+The `root` declaration specifies the top-level model identifier. The `version`
+is a quoted string following semantic versioning conventions.
+
+The `metadata` block contains these fields:
+
+[cols="1,3"]
+|===
+|Field |Description
+
+|`title` |Human-readable title of the model
+|`schema` |Schema identifier and version
+|`edition` |Edition number or date
+|`author` |Authoring organization or person
+|`shortname` |Short identifier for cross-model references
+|`namespace` |Unique namespace identifier
+|===
+
+
+=== Roles
+
+Roles define organizational actors that can be assigned to processes and
+approvals.
+
+==== Syntax
+
+[source,mmel]
+----
+role <RoleID> {
+  name "Human-readable role name"
+}
+----
+
+==== Description
+
+The `name` attribute provides a human-readable display name for the role.
+
+Roles are referenced via `actor <RoleID>` in process and approval definitions.
+
+==== Example
+
+[source,mmel]
+----
+role Organisation {
+  name "Organisation"
+}
+
+role DPO {
+  name "Data Protection Officer"
+}
+
+role TopMan {
+  name "Top Management"
+}
+----
+
+
+=== Process definitions
+
+==== General
+
+Processes are the core behavioural units in MMEL. They represent tasks,
+activities, or operations within the model, and may carry compliance
+obligations, produce data outputs, and consume data inputs.
+
+==== Syntax
+
+[source,mmel]
+----
+process <ProcessID> {
+  name "Display name"
+  actor <RoleID>                              <1>
+  modality SHALL | SHOULD | MAY | CAN | MUST  <2>
+  validate_provision {                         <3>
+    <ProvisionID1>
+    <ProvisionID2>
+  }
+  validate_measurement {                       <4>
+    "<measurement expression>"
+  }
+  output {                                     <5>
+    <DataRegistryID1>
+    <DataRegistryID2>
+  }
+  reference_data_registry {                    <6>
+    <DataRegistryID>
+  }
+  subprocess <SubprocessID>                    <7>
+  links {                                      <8>
+    <LinkID1>
+    <LinkID2>
+  }
+  note {                                       <9>
+    <NoteID1>
+    <NoteID2>
+  }
+  table {                                      <10>
+    <TableID1>
+    <TableID2>
+  }
+  figure {                                     <11>
+    <FigureID1>
+  }
+}
+----
+
+<1> The role responsible for performing this process.
+<2> Modality keyword indicating obligation level.
+<3> Provisions this process must satisfy.
+<4> Measurement validation expressions.
+<5> Data registries this process populates/produces.
+<6> Data registries this process reads from.
+<7> Links to a child subprocess containing the detailed flow.
+<8> Cross-model links to other MMEL models.
+<9> Associated notes providing context.
+<10> Associated tables containing structured data.
+<11> Associated figures (diagrams/images).
+
+==== Properties
+
+Not all properties are required. The following table describes each property:
+
+[cols="1,1,3"]
+|===
+|Property |Required |Description
+
+|`name` |yes |Display name of the process
+|`actor` |no |Organizational role responsible for performing the process
+|`modality` |no |Obligation level for the process itself
+|`validate_provision` |no |List of provision IDs that this process must satisfy
+|`validate_measurement` |no |Measurement expression that must evaluate to true
+|`output` |no |Data registries that this process writes to
+|`reference_data_registry` |no |Data registries that this process reads from
+|`subprocess` |no |Reference to a child subprocess definition
+|`links` |no |Cross-model link references
+|`note` |no |Associated note references
+|`table` |no |Associated table references
+|`figure` |no |Associated figure references
+|===
+
+==== Minimal process example
+
+[source,mmel]
+----
+process InternalAudit {
+  name "Internal Audit"
+  actor Org
+}
+----
+
+==== Fully-specified process example
+
+[source,mmel]
+----
+process ExcludeEmissionSource {
+  name "Exclude emission source"
+  actor entity
+  modality MAY
+  validate_provision {
+    Provision45
+    Provision48
+    Provision98
+    Provision99
+  }
+  validate_measurement {
+    "[Excluded_Emission].max / [Total_Emission] < 0.01"
+  }
+  output {
+    Subject
+  }
+}
+----
+
+==== Process with subprocess reference
+
+[source,mmel]
+----
+process DocumentQMS {
+  name "Quality management system"
+  actor Org
+  validate_provision {
+    Provision2
+    Provision3
+    Provision4
+  }
+  output {
+    Procedure
+  }
+  subprocess Page1
+}
+----
+
+When a process references a subprocess, that subprocess contains the detailed
+process flow diagram for this activity.
+
+
+=== Events
+
+==== Start events
+
+Start events mark the beginning of a process flow within a subprocess.
+
+[source,mmel]
+----
+start_event <EventID> {
+}
+----
+
+Multiple start events may exist in a model (typically one per subprocess).
+
+==== End events
+
+End events mark the termination of a process flow.
+
+[source,mmel]
+----
+end_event <EventID> {
+}
+----
+
+==== Timer events
+
+Timer events represent temporal conditions or waiting periods.
+
+[source,mmel]
+----
+timer_event <EventID> {
+  type WAIT | REPEAT          <1>
+  para "description"          <2>
+}
+----
+
+<1> The timer type. `WAIT` indicates a temporal wait condition (a one-time
+delay or deadline). `REPEAT` indicates a recurring, periodic trigger.
+<2> Human-readable parameter describing the duration or condition.
+
+Timer events without parameters are also valid:
+
+[source,mmel]
+----
+timer_event TimerEvent0 {
+}
+----
+
+Timer events are used in process flows to represent delays, deadlines, or
+periodic triggers.
+
+===== Timer event types
+
+[cols="1,3"]
+|===
+|Type |Description
+
+|`WAIT` |A one-time temporal wait condition; the process pauses until the
+specified duration or deadline elapses
+|`REPEAT` |A recurring temporal trigger; the process activates at planned
+intervals (e.g. periodic audits, scheduled reviews)
+|===
+
+===== Examples
+
+[source,mmel]
+----
+timer_event TimerEvent1 {
+  type WAIT
+  para "at most 12 months"
+}
+
+timer_event AssessmentTimer {
+  type REPEAT
+  para "Planned intervals or when significant changes occur"
+}
+
+timer_event AuditTimer {
+  type REPEAT
+  para "Planned intervals"
+}
+----
+
+
+==== Signal catch events
+
+Signal catch events are intermediate events that pause process execution until
+a named signal is received from another part of the model or an external
+source.
+
+[source,mmel]
+----
+signal_catch_event <EventID> {
+  catch "<signal-name>"       <1>
+}
+----
+
+<1> The name of the signal to wait for.
+
+===== Example
+
+[source,mmel]
+----
+signal_catch_event EditionUpdated {
+  catch "StandardDataRegistryUpdated"
+}
+----
+
+Signal catch events are placed in subprocess flows like other events. When the
+flow reaches a signal catch event, execution pauses until the named signal is
+triggered elsewhere in the model.
+
+
+=== Gateways
+
+==== Exclusive gateways
+
+Exclusive gateways are decision points where exactly one outgoing path is
+taken. Each outgoing edge carries a descriptive label indicating the condition
+for that path.
+
+[source,mmel]
+----
+exclusive_gateway <GatewayID> {
+  label "Decision question?"
+}
+----
+
+The `label` field describes the decision being made. Outgoing edges use the
+`description` attribute to indicate which path applies.
+
+==== Example
+
+[source,mmel]
+----
+exclusive_gateway NeutralityGateway {
+  label "Has carbon neutrality been achieved?"
+}
+
+exclusive_gateway SubjectChangeGateway {
+  label "Any material change to the subject?"
+}
+
+exclusive_gateway CalculationGateway {
+  label "Is quantification based on calculations?"
+}
+----
+
+In a subprocess flow, the gateway's outgoing edges carry descriptions:
+
+[source,mmel]
+----
+Edge34 {
+  from SubjectChangeGateway
+  to EndEvent3
+  description "default"
+}
+Edge35 {
+  from SubjectChangeGateway
+  to Restart
+  description "Material change to the subject occurs"
+}
+----
+
+The `"default"` description marks the default fallback path from a gateway.
+
+
+=== Approval steps
+
+==== General
+
+Approval steps are specialized process elements representing approval
+workflows.
+
+==== Syntax
+
+[source,mmel]
+----
+approval <ApprovalID> {
+  name "Approval description"
+  actor <RoleID>                    <1>
+  modality SHALL                    <2>
+  approve_by <RoleID>               <3>
+  approval_record {                 <4>
+    <DataRegistryID>
+  }
+  reference {                       <5>
+    <ReferenceID>
+  }
+}
+----
+
+<1> The role initiating the approval request.
+<2> The modality/obligation of the approval.
+<3> The role that grants approval.
+<4> Data registry where the approval record is stored.
+<5> Normative references supporting this approval.
+
+==== Example
+
+[source,mmel]
+----
+approval Approval1 {
+  name "Approve quality policy statement"
+  modality SHALL
+  approve_by ManagementCommittee
+}
+
+approval Approval3 {
+  name "Endorse action plans"
+  actor Organisation
+  modality SHALL
+  approve_by Management
+}
+
+approval Approval4 {
+  name "Non-application of a standard requires written approval"
+  actor Contractor
+  modality SHALL
+  approve_by Purchaser
+  approval_record {
+    StandardApprovalDataRegistry
+  }
+  reference {
+    Ref41
+  }
+}
+----
+
+The `approval_record` property specifies the data registry where the resulting
+approval record is stored. This enables tracking which approvals have been
+granted, by whom, and when.
+
+
+=== Provisions
+
+==== General
+
+Provisions define compliance requirements. They are referenced by processes via
+`validate_provision`.
+
+==== Syntax
+
+[source,mmel]
+----
+provision <ProvisionID> {
+  condition "Requirement text"               <1>
+  modality SHALL | SHOULD | MAY | CAN | MUST <2>
+  reference {                                <3>
+    <ReferenceID1>
+    <ReferenceID2>
+  }
+}
+----
+
+<1> The requirement condition text.
+<2> RFC 2119 modality keyword.
+<3> Optional normative references.
+
+==== Examples
+
+A mandatory provision with normative reference:
+
+[source,mmel]
+----
+provision Provision1 {
+  condition "For the particular medical device being considered, the manufacturer shall establish and maintain a risk management file"
+  modality SHALL
+  reference {
+    ISO14971-doc-ref3-5
+  }
+}
+----
+
+An optional provision:
+
+[source,mmel]
+----
+provision Provision20 {
+  condition "Develop a method, provided it meets the principles and other requirements of PAS 2060"
+  modality MAY
+  reference {
+    ref421
+  }
+}
+----
+
+An informational provision without modality:
+
+[source,mmel]
+----
+provision Provision2 {
+  condition "URL: https://crimson.ribose.com"
+}
+----
+
+A provision without a modality keyword is an informational statement rather
+than a compliance requirement.
+
+
+=== Notes
+
+==== General
+
+Notes provide structured annotations associated with processes and other model
+elements.
+
+==== Syntax
+
+[source,mmel]
+----
+note <NoteID> {
+  type NOTE                        <1>
+  message "Note text"              <2>
+  reference {                      <3>
+    <ReferenceID>
+  }
+}
+----
+
+<1> The note classification. In `.mmel` model files, the type is `NOTE`.
+The `EXAMPLE` and `DEFINITION` classifications appear only in `.sdc` files
+(see <<file-types>>).
+<2> The note content.
+<3> Optional normative references.
+
+==== Example
+
+[source,mmel]
+----
+note Note1 {
+  type NOTE
+  message "The risk management file need not physically contain all the records and other documents; however, it should contain at least references or pointers to all required documentation."
+  reference {
+    ISO14971-doc-ref3-5
+  }
+}
+----
+
+
+=== Data modelling
+
+==== General
+
+MMEL provides UML-style data modelling through classes, enumerations, and
+data registers.
+
+==== Classes
+
+Classes define data structures. Classes with the `#data` suffix are *data
+classes* that can be linked to data registers.
+
+===== Syntax
+
+[source,mmel]
+----
+class <ClassName>#data {
+  <fieldName>: <type> {             <1>
+    definition "Field description"  <2>
+    modality SHALL                  <3>
+    reference {                     <4>
+      <ReferenceID>
+    }
+  }
+  <fieldName> {                     <5>
+    definition "Field description"
+    modality SHOULD
+    satisfy {                       <6>
+      <constraint-category>
+    }
+  }
+}
+----
+
+<1> Explicitly typed field with colon notation.
+<2> Human-readable field definition.
+<3> Optional modality keyword indicating obligation for this field.
+<4> Optional normative references.
+<5> Untyped field (implicitly string).
+<6> Optional satisfy block specifying a validation constraint category.
+
+===== Field types
+
+[cols="1,3"]
+|===
+|Type |Description
+
+|`string` |Text value
+|`boolean` |True/false value
+|`datetime` |Date and/or time value
+|`role` |Reference to a system role
+|`reference(Target#data)` |Reference to another data class
+|`<EnumName>` |An enumeration type
+|`<ComplexTypeName>` |A nested complex type (defined as a separate class without `#data`)
+|(none) |Defaults to string
+|===
+
+===== Cardinality
+
+References and nested types support multiplicity notation:
+
+[cols="1,2"]
+|===
+|Notation |Meaning
+
+|`[0..*]` |Zero or more (optional collection)
+|`[1..*]` |One or more (required collection)
+|(none) |Exactly one (default)
+|===
+
+===== Satisfy blocks
+
+A `satisfy` block on a class field specifies a validation constraint category.
+The value inside the block is a single identifier that names the constraint
+type this field must satisfy.
+
+[source,mmel]
+----
+class DocMeta#data {
+  title {
+    definition "Title"
+    modality MAY
+    satisfy {
+      description
+    }
+  }
+  author {
+    definition "Author"
+    modality MAY
+    satisfy {
+      description
+    }
+  }
+  refno {
+    definition "Reference number"
+    modality MAY
+    satisfy {
+      identification
+    }
+  }
+  language {
+    definition "Language"
+    modality MAY
+    satisfy {
+      format
+    }
+  }
+}
+----
+
+In this example, the `title` field satisfies the `description` constraint
+category, `refno` satisfies `identification`, and `language` satisfies
+`format`. These constraint categories are used by validation tooling to
+determine which fields fulfil which aspects of a document requirement.
+
+===== Example: Data class with references
+
+[source,mmel]
+----
+class RiskManagementFile#data {
+  plan: reference(RiskPlan) {
+    definition "Risk Management Plan"
+    modality SHALL
+    reference {
+      ISO14971-doc-ref3-4
+    }
+  }
+  hazards: reference(Hazards) {
+    definition "Known and foreseeable hazards"
+    modality SHALL
+  }
+  persons: reference(Role#data)[0..*] {
+    definition "Responsible persons"
+  }
+  checklist: auditchecklist[0..*] {
+    definition "Audit Checklist"
+  }
+}
+----
+
+===== Example: Data class with typed fields
+
+[source,mmel]
+----
+class Scope#data {
+  name: string {
+    definition "Name/Title"
+  }
+  scope: string {
+    definition "Scope"
+  }
+  aspect: reference(Aspects#data) {
+    definition "Performance Aspect"
+  }
+  review: datetime {
+    definition "Last Reviewed"
+  }
+}
+----
+
+==== Non-data classes (helper types)
+
+Classes without the `#data` suffix define reusable complex types that can be
+embedded as fields within data classes. They cannot be directly linked to
+data registers.
+
+[source,mmel]
+----
+class Exclusion {
+  source {
+    definition "Material GHG emission source"
+    modality SHALL
+    reference {
+      ref521
+    }
+  }
+  reason {
+    definition "Reason for the exclusion"
+    modality SHALL
+  }
+}
+----
+
+These are used as field types:
+
+[source,mmel]
+----
+class Subject#data {
+  exclusion: Exclusion {
+    definition "Exclusion"
+    modality SHALL
+  }
+  credit: CarbonCredit {
+    definition "Credits from carbon offset projects"
+  }
+}
+----
+
+==== Enumerations
+
+Enumerations define a set of named values with definitions.
+
+===== Syntax
+
+[source,mmel]
+----
+enum <EnumName> {
+  <Value1> {
+    definition "Description of value 1"
+  }
+  <Value2> {
+    definition "Description of value 2"
+  }
+}
+----
+
+===== Example
+
+[source,mmel]
+----
+enum HazardType {
+  Physical {
+    definition "Physical"
+  }
+  Chemical {
+    definition "Chemical"
+  }
+  Biological {
+    definition "Biological"
+  }
+}
+----
+
+Used as a field type:
+
+[source,mmel]
+----
+class Hazards#data {
+  type: HazardType {
+    definition "Hazard type"
+  }
+}
+----
+
+
+=== Data registers
+
+==== General
+
+Data registers define named, persistent data stores. Each registry is backed
+by a data class and represents a collection of records that processes can read
+from or write to.
+
+==== Syntax
+
+[source,mmel]
+----
+data_registry <RegistryName> {
+  title "Human-readable title"    <1>
+  data_class <ClassName>#data     <2>
+}
+----
+
+<1> Display title for the registry.
+<2> The data class defining the schema of records in this registry.
+
+==== Description
+
+Processes populate registries via `output { }` and read from them via
+`reference_data_registry { }`.
+
+==== Example
+
+[source,mmel]
+----
+data_registry RiskManagementFile {
+  title "Risk management file"
+  data_class RiskManagementFile#data
+}
+
+data_registry RiskPlan {
+  title "Risk management plan"
+  data_class RiskPlan#data
+}
+
+data_registry CarbonFootprint {
+  title "Carbon Footprint"
+  data_class CarbonFootprint#data
+}
+----
+
+
+=== Measurements
+
+==== General
+
+Measurements define quantitative values that can be monitored and validated
+against processes.
+
+==== Measurement types
+
+[cols="1,3"]
+|===
+|Type |Description
+
+|`NUMERIC` |A single numeric value
+|`DATALIST` |A collection of numeric values; supports `.max`, `.min`, `.sum` aggregations
+|`DERIVED` |A computed value derived from other measurements using an expression
+|`TRUE/FALSE` |A boolean value indicating a true/false condition
+|`DURATION` |A temporal duration value representing a time span
+|===
+
+==== Syntax
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type NUMERIC | DATALIST | DERIVED | TRUE/FALSE | DURATION
+  definition "<expression>"       <1>
+  description "Human description"
+}
+----
+
+<1> Required for DERIVED type. Contains a mathematical expression referencing
+other measurements.
+
+==== Examples
+
+Numeric measurement:
+
+[source,mmel]
+----
+measurement NumFailLogin {
+  type NUMERIC
+  description "Number of failed login attempts"
+}
+----
+
+Data list measurement:
+
+[source,mmel]
+----
+measurement NumConnection {
+  type DATALIST
+  description "Number of connections within 10 seconds (for each user)"
+}
+----
+
+Derived measurements:
+
+[source,mmel]
+----
+measurement Total_Emission {
+  type DERIVED
+  definition "[Included_Emission].sum + [Excluded_Emission].sum"
+  description "Total emission"
+}
+
+measurement Total_Included_Emissions_In_Percentage {
+  type DERIVED
+  definition "[Included_Emission].sum / [Total_Emission]"
+  description "Percentage of all included emissions"
+}
+----
+
+Boolean measurement:
+
+[source,mmel]
+----
+measurement implant {
+  type TRUE/FALSE
+  description "There is implantable medical device"
+}
+
+measurement outsourcing {
+  type TRUE/FALSE
+  description "There is outsourcing"
+}
+----
+
+Duration measurement (also used for timer event types):
+
+[source,mmel]
+----
+measurement AuditTimer {
+  type DURATION
+}
+measurement CompetenceReviewTimer {
+  type DURATION
+}
+----
+
+==== Measurement expressions
+
+Measurement expressions used in `validate_measurement` and DERIVED definitions:
+
+* `[MeasurementID]` -- References a measurement value
+* `.max` -- Maximum value in a DATALIST
+* `.min` -- Minimum value in a DATALIST
+* `.sum` -- Sum of all values in a DATALIST
+* Arithmetic operators: `+`, `-`, `*`, `/`
+* Comparison operators: `<`, `<=`, `>`, `>=`, `==`, `!=`
+
+Examples of validation expressions:
+
+[source,mmel]
+----
+validate_measurement {
+  "[NumFailLogin] / [NumLogin] <= 0.4"
+}
+
+validate_measurement {
+  "[Excluded_Emission].max / [Total_Emission] < 0.01"
+}
+
+validate_measurement {
+  "[Total_Included_Emissions_In_Percentage] >= 0.95"
+}
+----
+
+
+=== References
+
+==== General
+
+References define bibliographic links to external normative documents. They
+provide traceability from model elements to their source standards.
+
+==== Syntax
+
+[source,mmel]
+----
+reference <ReferenceID> {
+  document "Document title"
+  clause "Clause number"
+  title "Clause title"
+}
+----
+
+==== Example
+
+[source,mmel]
+----
+reference ISO14971-doc-ref3-4 {
+  document "Medical devices — Application of risk management to medical devices"
+  clause "3.4"
+  title "Risk management plan"
+}
+
+reference ref4-1-1 {
+  document "ISO 13485:2016"
+  clause "4.1.1"
+  title ""
+}
+----
+
+==== Usage
+
+References are used by:
+
+* `provision` -- links a requirement to its normative source
+* `class` field -- links a data field to the clause it implements
+* `approval` -- links an approval to its normative basis
+* `note` -- links an annotation to its source
+
+
+=== Links
+
+==== General
+
+Links define cross-model references, allowing a process to point to related
+external models, repositories, or web resources.
+
+==== Syntax
+
+[source,mmel]
+----
+link <LinkID> {
+  title "Link title"
+  description "Link description"
+  link "target-identifier"     <1>
+  type REPO | URL              <2>
+}
+----
+
+<1> The target identifier. For `REPO` links, this is the namespace of the
+target model. For `URL` links, this is a web URL.
+<2> The link type. `REPO` indicates a repository/model reference. `URL`
+indicates a web resource link.
+
+==== Link types
+
+[cols="1,3"]
+|===
+|Type |Description
+
+|`REPO` |References another MMEL model by its namespace identifier
+|`URL` |References an external web resource by its URL
+|===
+
+==== Examples
+
+Repository link (cross-model reference):
+
+[source,mmel]
+----
+process Process1 {
+  name ""
+  links {
+    Link1
+    Link2
+  }
+}
+
+link Link1 {
+  title "Link A"
+  description "Link A"
+  link "Link-A"
+  type REPO
+}
+
+link Link2 {
+  title "Link B"
+  description "Link B"
+  link "Link-B"
+  type REPO
+}
+----
+
+URL link (web resource):
+
+[source,mmel]
+----
+link Link1 {
+  title "Data Protection Notice Generator"
+  description "Data Protection Notice Generator"
+  link "https://apps.pdpc.gov.sg/dp-notice-generator/introduction"
+  type URL
+}
+----
+
+Links are referenced by processes via the `links { }` property. The `link`
+field contains the namespace identifier (for `REPO`) or URL (for `URL`) of
+the target, enabling cross-model navigation and external resource linking.
+
+
+=== Tables
+
+==== General
+
+Tables define structured tabular data with rows and columns. They can be used
+as standalone top-level definitions (referenced by processes) or as inline
+process properties.
+
+==== Syntax
+
+[source,mmel]
+----
+table <TableID> {
+  title "Table title"             <1>
+  columns "<number>"              <2>
+  display "<display-format>"      <3>
+  domain {                        <4>
+    "<column-constraints>"
+  }
+  data {                          <5>
+    "<col1>" "<col2>" ... "<colN>"
+  }
+}
+----
+
+<1> Human-readable table title.
+<2> Number of columns as a string.
+<3> Display format template (e.g. `"[Cable]: [Specification]"`), or
+`"undefined"` if no special display format.
+<4> Column constraint definitions -- each string defines valid values for a
+column (e.g. `",1,2"` for allowed values, `"true,false"` for boolean,
+`"3,4,5,6"` for enumeration).
+<5> Row data -- each line contains space-separated quoted column values.
+
+==== Description
+
+Tables serve as structured data containers for normative tables from standards
+documents (e.g. cable specifications, test schedules, permitted voltage
+ratings). The `domain` section constrains what values are valid for each
+column, and the `data` section contains the actual row data.
+
+Tables are referenced by processes via the `table { }` property:
+
+[source,mmel]
+----
+process Process1 {
+  name "Cable specification"
+  table {
+    PermittedVoltages
+    TestSchedule
+  }
+}
+----
+
+==== Example
+
+[source,mmel]
+----
+table PermittedVoltages {
+  title "Maximum permitted voltages against rated voltage of cable"
+  columns "5"
+  display "undefined"
+  domain {
+  }
+  data {
+    "Rated voltage of cable" "Maximum permanent permitted operating voltage of the system" "" "" ""
+    "" "a.c." "" "d.c." ""
+    "U_0 / U (V)" "Conductor–earth U_0max (V)" "Conductor–conductor U_m V" "Conductor–earth V" "Conductor–conductor V"
+    "300/500" "320" "550" "410" "820"
+  }
+}
+----
+
+
+=== Figures
+
+==== General
+
+Figures define images or diagrams embedded in the model as base64-encoded
+data. They can be used as standalone top-level definitions (referenced by
+processes) or as inline process properties.
+
+==== Syntax
+
+[source,mmel]
+----
+figure <FigureID> {
+  title "Figure title"            <1>
+  data "<base64-encoded-data>"    <2>
+}
+----
+
+<1> Human-readable figure title or caption.
+<2> Base64-encoded image data (typically PNG format).
+
+==== Description
+
+Figures store diagrammatic content from normative documents directly within the
+model file. The `data` field contains the full base64-encoded image data.
+
+Figures are referenced by processes via the `figure { }` property:
+
+[source,mmel]
+----
+process Process1 {
+  name "Risk management overview"
+  figure {
+    Figure1
+  }
+}
+----
+
+==== Example
+
+[source,mmel]
+----
+figure Figure1 {
+  title "Figure 1 — A schematic representation of the risk management process"
+  data "iVBORw0KGgoAAAANSUhEUgAAAnIAAAUWCAYAAAAW7F5X..."
+}
+----
+
+NOTE: The `data` field in actual model files contains the complete base64
+encoding of the image, which can be very long.
+
+
+=== Map profiles
+
+==== General
+
+Map profiles define element-to-element mappings from this model to another
+model, embedding cross-model alignment directly within the `.mmel` file rather
+than requiring a separate `.map` file.
+
+==== Syntax
+
+[source,mmel]
+----
+map_profile <TargetNamespace> {
+  mapping {
+    from <SourceElementID>          <1>
+    to <TargetElementID>            <2>
+  }
+}
+----
+
+<1> The source element ID. May use cross-model `Namespace#ElementID` notation.
+<2> The target element ID in the target model.
+
+==== Description
+
+Each `mapping` block defines a single element-to-element correspondence.
+Multiple mappings are defined within a single `map_profile` block. The
+`map_profile` identifier is the namespace of the target model.
+
+Cross-model references use the `Namespace#ElementID` notation (see
+<<syntax-reference>>). Source elements may reference elements from external
+models using this notation.
+
+==== Example
+
+[source,mmel]
+----
+map_profile BS20400 {
+  mapping {
+    from totalCostOfOwnership
+    to TotalCostOfOwnership
+  }
+  mapping {
+    from BS20400#MonetizedExternalities
+    to MonetizedExternalities
+  }
+  mapping {
+    from GiveRating
+    to PrequalifySuppliers
+  }
+  mapping {
+    from AwardContract
+    to AwardContract
+  }
+}
+----
+
+This defines a map profile that maps elements from this implementation model
+to elements in the `BS20400` model. Some source elements (like
+`BS20400#MonetizedExternalities`) reference elements from the target model
+namespace.
+
+
+=== Subprocesses (diagram containers)
+
+==== General
+
+Subprocesses are the primary organizational containers in MMEL. They define
+process flow diagrams with positioned elements, flow edges, and data store
+placements.
+
+==== Syntax
+
+[source,mmel]
+----
+subprocess <SubprocessID> {
+  elements {
+    <ElementID> {
+      x <integer>
+      y <integer>
+    }
+  }
+  process_flow {
+    Edge<EdgeNumber> {
+      from <SourceElementID>
+      to <TargetElementID>
+      description "Branch label"     <1>
+      condition "<condition expr>"    <2>
+    }
+  }
+  data {
+    <DataRegistryID> {
+      x <integer>
+      y <integer>
+    }
+  }
+}
+----
+
+<1> Optional. Labels the edge; used for gateway branches.
+<2> Optional. A condition expression, typically `"default"` for the default
+branch.
+
+==== Elements section
+
+Elements can be any of: `start_event`, `end_event`, `timer_event`,
+`signal_catch_event`, `exclusive_gateway`, `process`, or `approval` IDs. Each
+has `x` and `y` coordinates for diagram positioning.
+
+==== Process flow section
+
+Edges define directed connections between elements. The `from` and `to` fields
+reference element IDs.
+
+For gateway branches, the `description` field labels the decision path and
+`condition` holds the guard expression. The string `"default"` marks the
+default fallback path.
+
+==== Data section
+
+The `data` section positions data registry stores on the diagram. Each entry
+references a `data_registry` ID with `x` and `y` coordinates.
+
+==== Example
+
+[source,mmel]
+----
+subprocess Root {
+  elements {
+    Start0 {
+      x -120
+      y -510
+    }
+    DetermineSubject {
+      x -105
+      y -360
+    }
+    NeutralityGateway {
+      x -60
+      y 600
+    }
+    Declaration {
+      x -120
+      y 750
+    }
+  }
+  process_flow {
+    Edge0 {
+      from Start0
+      to DetermineSubject
+    }
+    Edge6 {
+      from BalanceOut
+      to NeutralityGateway
+    }
+    Edge7 {
+      from NeutralityGateway
+      to Declaration
+      description "Carbon neutrality has been achieved"
+    }
+    Edge28 {
+      from NeutralityGateway
+      to MakeCommitment
+      description "default"
+    }
+  }
+  data {
+    CarbonFootprintPlan {
+      x 375
+      y 870
+    }
+    Subject {
+      x 615
+      y 870
+    }
+  }
+}
+----
+

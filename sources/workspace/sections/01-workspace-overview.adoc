@@ -1,0 +1,75 @@
+[[workspace-overview]]
+== Workspace overview
+
+=== General
+
+The MMEL workspace is the runtime environment in which an organization executes
+a model and manages the resulting evidence. While a model defines the "what"
+(data structures, processes, compliance requirements), the workspace manages
+the "when" and "how much" -- the actual data records produced during process
+execution.
+
+=== Workspace concept
+
+A workspace represents a single organization's execution context for one or
+more MMEL models. It contains:
+
+* The data records stored in each data registry at a given point in time.
+* Document records that capture evidence of process execution.
+* The mapping state between implementation models and reference models.
+
+The workspace is the bridge between the static model definition and the
+dynamic reality of organizational operations.
+
+=== Execution workflow
+
+The typical MMEL execution workflow follows this sequence:
+
+. *Reference model* -- A standard or regulation is expressed as an MMEL
+reference model, defining processes, provisions, and data requirements.
+. *Implementation model* -- An organization creates an MMEL implementation
+model that defines how it will comply with the reference model, including
+concrete processes, data registries, and mappings to the reference model.
+. *Workspace execution* -- The organization executes the implementation model
+through its operational processes. As processes run, they populate data
+registries with records stored in workspace state files.
+. *Compliance verification* -- Tools evaluate the workspace state against the
+reference model's provisions to determine compliance status.
+
+.Reference model to workspace workflow
+----
++--------------------+     +--------------------+     +--------------------+
+| Reference Model    |     | Implementation     |     | Workspace          |
+| (.mmel)            |     | Model (.mmel)      |     | (.sws)             |
+|--------------------|     |--------------------|     |--------------------|
+| provision P1       |<----| map_profile { }    |     | docs {             |
+| process RefProc    |     | process ImplProc   |     |   Registry1 {      |
+| data_registry Ref  |     | data_registry Impl |     |     record1 { ... }|
+| reference R1       |     | output { Impl }    |     |     record2 { ... }|
++--------------------+     +--------------------+     |   }                |
+                            |                    |     | }                  |
+                            | .map file          |     +--------------------+
+                            | (mappings)         |
+                            +--------------------+
+----
+
+=== Organization and workspace relationship
+
+Each organization maintains its own workspace. The workspace is scoped to the
+organization's implementation model and contains data that is specific to that
+organization's operations.
+
+* A single organization may have multiple workspaces for different compliance
+domains (e.g. one for ISO 27001, another for ISO 13485).
+* A single workspace may aggregate data from multiple implementation models.
+* Workspace data is persisted in `.sws` (workspace state) files.
+
+=== Toolchain support
+
+MMEL-compliant tools:
+
+. SHALL be able to parse and display workspace state files (`.sws`).
+. SHOULD be able to populate workspace state through process execution
+simulations.
+. MAY support concurrent multi-user workspace editing.
+. MAY provide workspace diff and comparison capabilities.

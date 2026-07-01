@@ -1,0 +1,331 @@
+[[subprocesses]]
+== Subprocesses
+
+=== General
+
+Subprocesses are the primary organizational containers in MMEL. They define
+process flow diagrams with positioned elements, flow edges, and data store
+placements. Each subprocess represents a visual diagram within the model.
+
+=== Syntax
+
+[source,mmel]
+----
+subprocess <SubprocessID> {
+  elements {                                  <1>
+    <ElementID> {
+      x <integer>
+      y <integer>
+    }
+  }
+  process_flow {                              <2>
+    Edge<EdgeNumber> {
+      from <SourceElementID>
+      to <TargetElementID>
+      description "Branch label"
+      condition "<condition expr>"
+    }
+  }
+  data {                                      <3>
+    <DataRegistryID> {
+      x <integer>
+      y <integer>
+    }
+  }
+}
+----
+
+<1> Elements section: lists all elements placed in this diagram with their
+coordinates.
+<2> Process flow section: defines directed edges connecting elements.
+<3> Data section: positions data registry stores on the diagram.
+
+All three sections (`elements`, `process_flow`, `data`) are optional.
+
+=== Elements section
+
+The `elements` section lists all nodes placed in the subprocess diagram. Each
+element is identified by its ID (which references a top-level declaration) and
+has `x` and `y` coordinates for visual positioning.
+
+The following element types can be placed in a subprocess:
+
+[cols="1,2"]
+|===
+|Element Type |Referenced Declaration
+
+|`start_event` ID |`start_event` declaration
+|`end_event` ID |`end_event` declaration
+|`timer_event` ID |`timer_event` declaration
+|`signal_catch_event` ID |`signal_catch_event` declaration
+|`exclusive_gateway` ID |`exclusive_gateway` declaration
+|`process` ID |`process` declaration
+|`approval` ID |`approval` declaration
+|===
+
+Example of an elements section:
+
+[source,mmel]
+----
+elements {
+  Start0 {
+    x -120
+    y -510
+  }
+  DetermineSubject {
+    x -105
+    y -360
+  }
+  NeutralityGateway {
+    x -60
+    y 600
+  }
+  Declaration {
+    x -120
+    y 750
+  }
+  EndEvent0 {
+    x -200
+    y 900
+  }
+}
+----
+
+=== Process flow section
+
+The `process_flow` section defines directed edges connecting elements. Each edge
+has a `from` and `to` field referencing element IDs, and optional `description`
+and `condition` fields.
+
+See <<process-flow-edges>> for a full specification of edge types and patterns.
+
+=== Data section
+
+The `data` section positions data registry stores on the diagram. Each entry
+references a `data_registry` ID with `x` and `y` coordinates:
+
+[source,mmel]
+----
+data {
+  CarbonFootprintPlan {
+    x 375
+    y 870
+  }
+  Achievement {
+    x 495
+    y 870
+  }
+  Subject {
+    x 615
+    y 870
+  }
+}
+----
+
+Data registry placements do not affect the process flow logic but provide visual
+context for where data is stored relative to the process elements.
+
+=== Example: PAS 2060 root subprocess
+
+The following is the root subprocess from the PAS 2060 carbon neutrality model,
+showing the main process flow:
+
+[source,mmel]
+----
+subprocess root {
+  elements {
+    Start0 {
+      x -120
+      y -510
+    }
+    DetermineSubject {
+      x -105
+      y -360
+    }
+    QuantifyCarbon {
+      x -105
+      y -120
+    }
+    DevelopManagementPlan {
+      x -105
+      y 150
+    }
+    Action {
+      x -105
+      y 255
+    }
+    Requantify {
+      x -105
+      y 375
+    }
+    BalanceOut {
+      x -105
+      y 480
+    }
+    Declaration {
+      x -120
+      y 750
+    }
+    NeutralityGateway {
+      x -60
+      y 600
+    }
+    MakeCommitment {
+      x -105
+      y 45
+    }
+    TimerEvent1 {
+      x -180
+      y -90
+    }
+  }
+  process_flow {
+    Edge0 {
+      from Start0
+      to DetermineSubject
+    }
+    Edge3 {
+      from DevelopManagementPlan
+      to Action
+    }
+    Edge4 {
+      from Action
+      to Requantify
+    }
+    Edge5 {
+      from Requantify
+      to BalanceOut
+    }
+    Edge6 {
+      from BalanceOut
+      to NeutralityGateway
+    }
+    Edge7 {
+      from NeutralityGateway
+      to Declaration
+      description "Carbon neutrality has been achieved for the determined subject"
+    }
+    Edge28 {
+      from NeutralityGateway
+      to MakeCommitment
+      description "default"
+    }
+    Edge29 {
+      from Declaration
+      to MakeCommitment
+    }
+    Edge30 {
+      from MakeCommitment
+      to DevelopManagementPlan
+    }
+    Edge61 {
+      from MakeCommitment
+      to TimerEvent1
+    }
+    Edge62 {
+      from TimerEvent1
+      to MakeCommitment
+    }
+  }
+  data {
+    CarbonFootprintPlan {
+      x 375
+      y 870
+    }
+    Subject {
+      x 615
+      y 870
+    }
+  }
+}
+----
+
+=== Nested subprocesses
+
+A subprocess may contain processes that themselves reference other subprocesses,
+creating a hierarchical decomposition. For example, the PAS 2060 model defines
+the root subprocess containing `DetermineSubject` and `QuantifyCarbon` as
+elements, and each of these processes has its own `subprocess` property pointing
+to a separate child subprocess:
+
+[source,mmel]
+----
+process DetermineSubject {
+  name "Determine subject of carbon neutrality"
+  actor entity
+  modality SHALL
+  validate_provision {
+    Provision1
+  }
+  output {
+    Subject
+  }
+  subprocess Page0
+}
+
+process QuantifyCarbon {
+  name "Quantify carbon footprint"
+  actor entity
+  modality SHALL
+  validate_provision {
+    Provision0
+    Provision51
+  }
+  subprocess Page1
+}
+----
+
+The child subprocesses `Page0` and `Page1` each contain their own elements and
+flows:
+
+[source,mmel]
+----
+subprocess Page0 {
+  elements {
+    Start1 {
+      x 0
+      y -390
+    }
+    DetermineSubjectDetails {
+      x -45
+      y -285
+    }
+  }
+  process_flow {
+    Edge10 {
+      from Start1
+      to DetermineSubjectDetails
+    }
+  }
+}
+
+subprocess Page1 {
+  elements {
+    Start2 {
+      x 30
+      y -135
+    }
+    DetermineMethodology {
+      x -30
+      y -30
+    }
+    CalculationGateway {
+      x 30
+      y 90
+    }
+  }
+  process_flow {
+    Edge49 {
+      from Start2
+      to DetermineMethodology
+    }
+    Edge50 {
+      from DetermineMethodology
+      to CalculationGateway
+    }
+  }
+}
+----
+
+This hierarchical structure enables top-down decomposition of complex processes
+into manageable sub-diagrams.

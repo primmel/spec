@@ -1,0 +1,48 @@
+= Primmel specification
+:copyright-year: 2026
+:language: en
+:mn-document-class: ribose
+:local-cache-only:
+
+Primmel is the public successor to MMEL (Multi-Modal Modelling Language), a
+domain-specific modelling language developed jointly by Ribose and BSI for the
+BSI SMART programme and now adopted as the basis of OIML SMART for legal
+metrology certification.
+
+Primmel unifies data modelling, process modelling, compliance tracking,
+quantitative measurement, and cross-model mapping into a single executable
+notation. The same model serves as a referenceable standard, an executable
+programme, and an audit target.
+
+== Specification parts
+
+[cols="1,3", options="header"]
+|===
+|Part |Covers
+|link:spec/[Specification] |Core language reference: identifiers, file types, syntax, formal grammar
+|link:data-model/[Data model] |Classes, enumerations, data registries, field types, cardinality
+|link:process-model/[Process model] |Processes, events, gateways, subprocesses, approvals
+|link:compliance/[Compliance] |Provisions, modality keywords, references, notes
+|link:measurement/[Measurement] |NUMERIC, DATALIST, DERIVED, TABLE_REFERENCE; validation expressions
+|link:mapping/[Mapping] |Cross-model alignment, `.map` files, coverage
+|link:documentation/[Documentation] |Tables, figures, multimedia, term entries
+|link:terminology/[Terminology] |Multilingual term definitions
+|link:workspace/[Workspace and runtime] |Workspace state files (`.sws`), runtime data flow
+|link:authoring-guide/[Authoring guide] |How to author Primmel models
+|link:methodology-guide/[Methodology guide] |How to model standards with Primmel
+|===
+
+== Examples
+
+The `examples/` directory in the source repository holds fictional, anonymised
+Primmel artifacts that demonstrate each language primitive. The reading order
+and per-example explanations are in `examples/README.adoc`.
+
+* link:https://github.com/primmel/spec/tree/main/examples/[Browse `examples/` in source]
+* link:https://github.com/primmel/spec/blob/main/examples/README.adoc[Examples walkthrough]
+* link:https://github.com/primmel/spec/tree/main/examples/06-implementation-package/[Full implementation package (`.mmel` + `.sdc` + `.map` + `.sws`)]
+
+== Source
+
+This specification is developed in the open at
+link:https://github.com/primmel/spec[github.com/primmel/spec].

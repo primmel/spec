@@ -1,0 +1,18 @@
+= MMEL Modeling Methodology Guide
+:docnumber: MN 113-B
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Modeling Methodology Guide
+:doctype: report
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-methodology-overview.adoc[]
+include::sections/02-model-quality.adoc[]
+include::sections/03-modeling-steps.adoc[]
+include::sections/04-modeling-with-measurements.adoc[]
+include::sections/05-modeling-with-branching.adoc[]

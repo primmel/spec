@@ -1,0 +1,211 @@
+[[satisfy-blocks]]
+== Satisfy blocks
+
+=== General
+
+A `satisfy` block on a class field specifies a validation constraint category.
+It is used by validation tooling to determine which fields fulfil which aspects
+of a document or data requirement.
+
+=== Syntax
+
+[source,mmel]
+----
+<fieldName> {
+  definition "Field description"
+  modality MAY
+  satisfy {
+    <constraint-category>
+  }
+}
+----
+
+The `satisfy` block contains a single identifier naming the constraint category
+that this field satisfies.
+
+=== Constraint categories
+
+Constraint categories are user-defined identifiers that name the type of
+constraint or requirement aspect that a field addresses. Commonly used
+categories include:
+
+[cols="1,3"]
+|===
+|Category |Description
+
+|`description` |The field provides descriptive content about the data element
+|`identification` |The field provides identifying information (e.g. reference
+numbers, codes)
+|`format` |The field specifies the format or representation of the data
+|`media` |The field specifies the storage or transmission medium
+|===
+
+These categories are not predefined by MMEL; model authors may define any
+constraint categories appropriate to their domain.
+
+=== Example: DocMeta class with satisfy blocks
+
+The following helper class, from a standardization management system model
+(BS 202000), defines document metadata fields with satisfy blocks:
+
+[source,mmel]
+----
+class DocMeta {
+  identification {
+    definition "Identification"
+    modality SHALL
+  }
+  description {
+    definition "Description"
+    modality SHALL
+  }
+  format {
+    definition "Format"
+    modality SHALL
+  }
+  media {
+    definition "Media"
+    modality SHALL
+  }
+  review {
+    definition "Review for suitability and adequacy"
+    modality SHALL
+  }
+  approval {
+    definition "Approval for suitability and adequacy"
+    modality SHALL
+  }
+  title {
+    definition "Title"
+    modality MAY
+    satisfy {
+      description                   <1>
+    }
+  }
+  author {
+    definition "Author"
+    modality MAY
+    satisfy {
+      description                   <2>
+    }
+  }
+  date {
+    definition "Date"
+    modality MAY
+    satisfy {
+      description                   <3>
+    }
+  }
+  refno {
+    definition "Reference number"
+    modality MAY
+    satisfy {
+      identification               <4>
+    }
+  }
+  language {
+    definition "Language"
+    modality MAY
+    satisfy {
+      format                        <5>
+    }
+  }
+  software {
+    definition "Software version"
+    modality MAY
+    satisfy {
+      format                        <6>
+    }
+  }
+  graphics {
+    definition "Graphics"
+    modality MAY
+    satisfy {
+      format                        <7>
+    }
+  }
+  paper {
+    definition "Paper"
+    modality MAY
+    satisfy {
+      media                          <8>
+    }
+  }
+  electronic {
+    definition "Electronic"
+    modality MAY
+    satisfy {
+      media                          <9>
+    }
+  }
+}
+----
+
+<1> `title` satisfies the `description` constraint category.
+<2> `author` satisfies the `description` constraint category.
+<3> `date` satisfies the `description` constraint category.
+<4> `refno` satisfies the `identification` constraint category.
+<5> `language` satisfies the `format` constraint category.
+<6> `software` satisfies the `format` constraint category.
+<7> `graphics` satisfies the `format` constraint category.
+<8> `paper` satisfies the `media` constraint category.
+<9> `electronic` satisfies the `media` constraint category.
+
+=== Satisfy on data class fields
+
+The `satisfy` block can also appear on fields within data classes:
+
+[source,mmel]
+----
+class IssueData {
+  meta: DocMeta {
+    definition "General documented information"
+    modality SHALL
+  }
+  issue {
+    definition "Issue"
+    modality SHALL
+  }
+  type: IssueType {
+    definition "Type"
+    modality SHALL
+  }
+  pfactor[0..*] {
+    definition "Positive factor or condition"
+    modality CAN
+    satisfy {                        <1>
+      issue
+    }
+  }
+  nfactor[0..*] {
+    definition "Negative factor or condition"
+    modality CAN
+    satisfy {                        <2>
+      issue
+    }
+  }
+}
+----
+
+<1> `pfactor` satisfies the `issue` constraint category.
+<2> `nfactor` satisfies the `issue` constraint category.
+
+=== How satisfy is used by validation tooling
+
+The `satisfy` block provides metadata for validation and compliance-checking
+tools. When a standard requires that a document have certain properties (e.g.
+"description", "identification", "format"), the satisfy blocks allow tooling to
+verify that the data class includes fields that cover each required constraint
+category.
+
+The typical validation workflow is:
+
+. A standard defines document requirements (e.g. a document SHALL have
+identification, description, format, and media properties).
+. The model defines a class with fields, each annotated with `satisfy` blocks
+indicating which constraint category they fulfil.
+. Validation tooling checks that for each required constraint category, at least
+one field with a matching `satisfy` block exists.
+
+Multiple fields MAY satisfy the same constraint category. For example, in the
+`DocMeta` class above, both `title`, `author`, and `date` satisfy `description`.

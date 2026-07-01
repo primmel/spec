@@ -1,0 +1,112 @@
+[[architecture]]
+== Architecture
+
+=== General
+
+The MMEL architecture consists of three interconnected model trees and a set of
+cross-cutting concerns:
+
+* *Data model tree* -- class definitions, enumerations, and data registers
+* *Process model tree* -- processes, events, gateways, and subprocesses
+* *Compliance model* -- provisions, references, and notes
+* *Measurement model* -- measurement definitions and validation expressions
+* *Cross-model alignment* -- links and mapping files
+
+.MMEL architecture overview
+----
++--------------------+     +--------------------+
+|    Process Tree    |     |    Data Model      |
+|--------------------|     |--------------------|
+| start_event        |     | class#data         |
+| end_event          |     | enum               |
+| timer_event        |     | data_registry      |
+| signal_catch_event |     +--------------------|
+| exclusive_gateway  |          |
+| process            |          |
+| subprocess         |          |
+| approval           |          |
++--------------------+          |
+         |                      |
+         | validate_provision   | output / reference_data_registry
+         | validate_measurement |
+         |                      |
+         v                      v
++--------------------+     +--------------------+
+| Compliance Model   |     | Measurement Model  |
+|--------------------|     |--------------------|
+| provision          |     | measurement        |
+| reference          |     |   NUMERIC          |
+| note               |     |   DATALIST         |
++--------------------+     |   DERIVED          |
+         |                 |   TRUE/FALSE       |
+         | reference { }   |   DURATION         |
+         v                 +--------------------+
++--------------------+
+| Normative Sources  |     +--------------------+
+|--------------------|     | Cross-model        |
+| external documents |     |--------------------|
+| .sdc clause files  |     | link (REPO|URL)    |
++--------------------+     | map_profile        |
+                           | .map / .json files |
+                           +--------------------+
+
++--------------------+     +--------------------+
+| Supplementary      |     | Document Content   |
+|--------------------|     |--------------------|
+| table              |     | figure             |
+| (rows/columns)     |     | (base64 image)     |
++--------------------+     +--------------------+
+----
+
+
+=== Process-document mapping
+
+MMEL models the relationship between *processes* and the *documents/data*
+they produce and consume:
+
+.Process-document data flow
+----
+process ──output { }──> data_registry ──data_class──> class#data
+                                                 │
+process <──reference_data── data_registry <───────┘
+          { }
+----
+
+A process writes to a data registry via `output { }`, and reads from a data
+registry via `reference_data_registry { }`. The data registry is backed by a
+data class that defines the schema of records.
+
+=== Compliance architecture
+
+The compliance architecture connects normative documents to implementation:
+
+.Compliance traceability chain
+----
+Normative Document (external)
+  │
+  ├── Clause content (.sdc file)
+  │
+  └── reference { document, clause, title }
+       │
+       └── provision { condition, modality, reference }
+            │
+            └── process.validate_provision { ProvisionID }
+                 │
+                 └── Evaluated during compliance checking
+----
+
+=== Measurement architecture
+
+Measurements provide quantitative monitoring of process KPIs:
+
+.Measurement types and derivation
+----
+NUMERIC ──────────────────────────────────> single value
+DATALIST ──── .max, .min, .sum ───────────> aggregation
+DERIVED ───── "[A].sum / [B]" ────────────> computed expression
+     │
+     └── validate_measurement { "[X] >= 0.95" }
+          │
+          └── Evaluated against process KPIs
+----
+

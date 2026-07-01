@@ -1,0 +1,204 @@
+root OrderFulfillment
+
+version "v1.0.0-dev1"
+
+metadata {
+  title "Order fulfillment flow"
+  schema "MMEL 0.1"
+  edition "1"
+  author "Primmel project"
+  shortname "OrderFulfillment"
+  namespace "OrderFulfillment"
+}
+
+role Warehouse {
+  name "Warehouse"
+}
+
+role Finance {
+  name "Finance"
+}
+
+role CustomerService {
+  name "Customer service"
+}
+
+start_event OrderStart {
+}
+
+start_event RestockStart {
+}
+
+end_event OrderShipped {
+}
+
+end_event OrderCancelled {
+}
+
+timer_event PaymentWindow {
+  type WAIT
+  para "72 hours after order placed"
+}
+
+timer_event RestockTimer {
+  type REPEAT
+  para "First of every month"
+}
+
+exclusive_gateway StockCheck {
+  label "Is the item in stock?"
+}
+
+exclusive_gateway PaymentConfirmed {
+  label "Was payment received within the window?"
+}
+
+process FulfillOrder {
+  name "Fulfill a customer order"
+  actor Warehouse
+  subprocess OrderFlow
+}
+
+process PickAndPack {
+  name "Pick and pack the order"
+  actor Warehouse
+}
+
+process CancelOrder {
+  name "Cancel the order"
+  actor Warehouse
+}
+
+process RefundCustomer {
+  name "Refund the customer"
+  actor Finance
+}
+
+process ScheduleRestock {
+  name "Schedule restock for next cycle"
+  actor CustomerService
+  subprocess RestockFlow
+}
+
+process OrderNewInventory {
+  name "Place a purchase order with the supplier"
+  actor CustomerService
+}
+
+subprocess OrderFlow {
+  elements {
+    OrderStart {
+      x 0
+      y 0
+    }
+    StockCheck {
+      x 0
+      y 100
+    }
+    PaymentWindow {
+      x -150
+      y 220
+    }
+    PaymentConfirmed {
+      x -150
+      y 330
+    }
+    PickAndPack {
+      x -150
+      y 440
+    }
+    OrderShipped {
+      x -150
+      y 550
+    }
+    CancelOrder {
+      x 150
+      y 220
+    }
+    RefundCustomer {
+      x 150
+      y 330
+    }
+    OrderCancelled {
+      x 150
+      y 440
+    }
+  }
+  process_flow {
+    Edge1 {
+      from OrderStart
+      to StockCheck
+    }
+    Edge2 {
+      from StockCheck
+      to PaymentWindow
+      description "Item is in stock"
+    }
+    Edge3 {
+      from StockCheck
+      to CancelOrder
+      description "default"
+    }
+    Edge4 {
+      from PaymentWindow
+      to PaymentConfirmed
+    }
+    Edge5 {
+      from PaymentConfirmed
+      to PickAndPack
+      description "Payment received"
+    }
+    Edge6 {
+      from PaymentConfirmed
+      to RefundCustomer
+      description "default"
+    }
+    Edge7 {
+      from PickAndPack
+      to OrderShipped
+    }
+    Edge8 {
+      from CancelOrder
+      to OrderCancelled
+    }
+    Edge9 {
+      from RefundCustomer
+      to OrderCancelled
+    }
+  }
+  data {
+  }
+}
+
+subprocess RestockFlow {
+  elements {
+    RestockStart {
+      x 0
+      y 0
+    }
+    OrderNewInventory {
+      x 0
+      y 100
+    }
+    RestockTimer {
+      x 0
+      y 200
+    }
+  }
+  process_flow {
+    Edge1 {
+      from RestockStart
+      to OrderNewInventory
+    }
+    Edge2 {
+      from OrderNewInventory
+      to RestockTimer
+    }
+    Edge3 {
+      from RestockTimer
+      to OrderNewInventory
+    }
+  }
+  data {
+  }
+}

@@ -1,0 +1,81 @@
+[[terms-and-definitions]]
+== Terms and definitions
+
+=== model
+
+collection of interrelated definitions that together describe the data
+structures, processes, compliance requirements, and measurements of a domain
+
+=== element
+
+named definition within a model, such as a class, process, provision, or
+measurement
+
+=== process
+
+behavioural unit representing a task, activity, or operation within a model,
+which may carry compliance obligations and produce data outputs
+
+=== provision
+
+compliance requirement expressed as a condition with a modality keyword
+(SHALL, SHOULD, MAY, CAN, MUST), traceable to normative references
+
+=== modality
+
+keyword indicating the obligation level of a provision, following RFC 2119
+semantics
+
+[example]
+====
+SHALL indicates a mandatory requirement; MAY indicates a truly optional one.
+====
+
+=== data class
+
+type definition that describes the schema of records stored in a data register,
+denoted with the `#data` suffix
+
+=== data register
+
+persistent, named data store backed by a data class, representing a collection
+of records that processes can read from or write to
+
+=== reference
+
+bibliographic link from a model element to an external normative document
+clause, providing traceability
+
+=== measurement
+
+quantitative value definition of type NUMERIC, DATALIST, DERIVED, TRUE/FALSE, or
+DURATION, used for KPI monitoring and validation
+
+=== mapping
+
+alignment between processes in different models, defined in a `.map` file,
+used for standards alignment and implementation traceability
+
+=== role
+
+organizational actor that can be assigned to processes and approvals
+
+=== map profile
+
+set of element-to-element mappings from one model to another, defining
+cross-model process alignment within a single model file
+
+=== table
+
+tabular data construct defining structured rows and columns, either as a
+standalone definition or as a process property
+
+=== figure
+
+image or diagram embedded as base64-encoded data within a model
+
+=== signal catch event
+
+intermediate event that pauses process execution until a named signal is
+received
+

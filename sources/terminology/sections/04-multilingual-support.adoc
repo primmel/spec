@@ -1,0 +1,161 @@
+[[multilingual-support]]
+== Multilingual support
+
+=== General
+
+MMEL terminology entries support multilingual designations, enabling models to
+define terms in multiple languages with regional variants. This is essential
+for international standards that are published in multiple languages and for
+organizations operating across linguistic boundaries.
+
+=== Language codes
+
+The `language` property uses ISO 639 two-letter or three-letter language codes:
+
+[cols="1,2"]
+|===
+|Code |Language
+
+|`en` |English
+|`fr` |French
+|`de` |German
+|`es` |Spanish
+|`zh` |Chinese
+|`ja` |Japanese
+|`ko` |Korean
+|`ar` |Arabic
+|`ru` |Russian
+|`pt` |Portuguese
+|===
+
+The default language is `"en"` (English) if the `language` property is omitted.
+
+=== Country codes
+
+The `country` property uses ISO 3166 two-letter country codes to distinguish
+regional term variants:
+
+[cols="1,2"]
+|===
+|Code |Country
+
+|`GB` |United Kingdom
+|`US` |United States
+|`AU` |Australia
+|`CA` |Canada
+|`CN` |China
+|`JP` |Japan
+|`DE` |Germany
+|`FR` |France
+|===
+
+=== Regional term variants
+
+When a term has different preferred forms in different countries sharing a
+language, separate term entries (or separate `alt` entries within the same term
+entry) document the regional variants:
+
+[source,mmel]
+----
+term_entry personal_data_en_gb {
+  term "personal data"
+  definition "any information relating to an identified or identifiable natural person"
+  language "en"
+  country "GB"
+  part_of_speech noun
+  form_type fullForm
+}
+
+term_entry personal_data_en_us {
+  term "personally identifiable information"
+  alt "PII"
+  definition "information that can be used to distinguish or trace an individual's identity"
+  language "en"
+  country "US"
+  part_of_speech noun
+  form_type fullForm
+}
+----
+
+In this example, the same concept uses "personal data" in UK/GB English and
+"personally identifiable information" in US English. Both entries define the
+same underlying concept but reflect regional usage differences.
+
+=== Deprecated term handling
+
+Deprecated terms are preserved for backward compatibility and cross-referencing
+with older documents:
+
+[source,mmel]
+----
+term_entry carbon_offset {
+  term "carbon offset"
+  deprecated "carbon credit"
+  deprecated "emission offset"
+  definition "reduction in greenhouse gas emissions to compensate for emissions made elsewhere"
+  language "en"
+  part_of_speech noun
+  form_type fullForm
+}
+----
+
+Multiple `deprecated` entries are allowed in a single term entry. Tools SHOULD
+warn users when deprecated term forms are used in new content.
+
+=== Derivation provenance
+
+Term entries may indicate the origin or source of a term definition through
+the `scope_note` property or through references:
+
+[source,mmel]
+----
+term_entry risk {
+  term "risk"
+  definition "effect of uncertainty on objectives"
+  scope_note "Definition adapted from ISO 31000:2018, 3.1"
+  language "en"
+  part_of_speech noun
+  form_type fullForm
+}
+----
+
+The `scope_note` field can document the provenance of a definition, including
+the source standard, clause number, and any adaptations made for the MMEL
+model context.
+
+=== Multilingual term sets
+
+For full multilingual coverage of a concept, term entries are created for each
+language, all sharing the same concept but with language-specific designations
+and definitions:
+
+[source,mmel]
+----
+// English
+term_entry risk_en {
+  term "risk"
+  definition "effect of uncertainty on objectives"
+  language "en"
+  part_of_speech noun
+}
+
+// French
+term_entry risk_fr {
+  term "risque"
+  definition "effet de l'incertitude sur les objectifs"
+  language "fr"
+  part_of_speech noun
+}
+
+// German
+term_entry risk_de {
+  term "Risiko"
+  definition "Auswirkung von Unsicherheit auf Ziele"
+  language "de"
+  part_of_speech noun
+}
+----
+
+Future editions of MMEL may introduce a concept grouping mechanism that links
+multilingual term entries for the same concept without requiring naming
+conventions.

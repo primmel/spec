@@ -1,0 +1,268 @@
+root BeanFreshnessProgramme
+
+version "v1.0.0-dev1"
+
+metadata {
+  title "Bean freshness compliance and measurement"
+  schema "MMEL 0.1"
+  edition "1"
+  author "Primmel project"
+  shortname "BeanFreshnessProgramme"
+  namespace "BeanFreshnessProgramme"
+}
+
+role QA {
+  name "Quality assurance"
+}
+
+role Roaster {
+  name "Roaster"
+}
+
+class RoastBatch#data {
+  batch_id: string {
+    definition "Batch identifier"
+    modality SHALL
+  }
+  moisture_pct: string {
+    definition "Measured moisture percentage by mass"
+    modality SHALL
+    satisfy {
+      MoistureRecorded
+    }
+  }
+  aged: boolean {
+    definition "Whether the batch is classified as aged stock"
+    modality MAY
+  }
+}
+
+data_registry RoastBatchRegistry {
+  title "Roast batches"
+  data_class RoastBatch#data
+}
+
+reference BFS-4-2 {
+  document "Bean Freshness Standard (fictional)"
+  clause "4.2"
+  title "Moisture content"
+}
+
+reference BFS-4-2-note {
+  document "Bean Freshness Standard (fictional)"
+  clause "4.2 NOTE"
+  title "Moisture measurement tolerance"
+}
+
+reference BFS-4-3 {
+  document "Bean Freshness Standard (fictional)"
+  clause "4.3"
+  title "Aged stock handling"
+}
+
+reference BFS-4-4 {
+  document "Bean Freshness Standard (fictional)"
+  clause "4.4"
+  title "Quality grade lookup"
+}
+
+provision MoistureRecorded {
+  condition "Every roast batch shall have its moisture content recorded"
+  modality SHALL
+  reference {
+    BFS-4-2
+  }
+}
+
+provision MoistureWithinRange {
+  condition "Moisture content shall be between 8 percent and 12 percent by mass"
+  modality SHALL
+  reference {
+    BFS-4-2
+  }
+}
+
+provision StandardMeetFreshness {
+  subject#1 RoastBatchRegistry
+  condition "{ Roast batches (Data) } selected meet the freshness requirements"
+  modality SHALL
+  reference {
+    BFS-4-2
+  }
+}
+
+provision DiscountAgedStock {
+  condition "Aged stock may be sold at a discounted price with clear labelling"
+  modality MAY
+  reference {
+    BFS-4-3
+  }
+}
+
+note MoistureNote {
+  type NOTE
+  message "The moisture tolerance reflects typical commercial storage conditions; tighter tolerances may apply for export-grade stock."
+  reference {
+    BFS-4-2-note
+  }
+}
+
+table FreshnessGradeTable {
+  title "Freshness grade lookup"
+  columns "3"
+  display "[grade]: [threshold_pct]"
+  domain {
+  }
+  data {
+    "grade" "threshold_pct" "description"
+    "A" "10" "Premium freshness"
+    "B" "11" "Standard freshness"
+    "C" "12" "Acceptable freshness"
+  }
+}
+
+measurement MoistureReading {
+  type DATALIST
+  description "Per-batch moisture readings in percent by mass"
+}
+
+measurement MaxMoisture {
+  type DERIVED
+  definition "[MoistureReading].max"
+  description "Highest moisture reading across all batches"
+}
+
+measurement MinMoisture {
+  type DERIVED
+  definition "[MoistureReading].min"
+  description "Lowest moisture reading across all batches"
+}
+
+measurement AvgMoisture {
+  type DERIVED
+  definition "[MoistureReading].average"
+  description "Average moisture reading across all batches"
+}
+
+measurement TotalTestedBatchCount {
+  type DERIVED
+  definition "[MoistureReading].count"
+  description "Number of batches with a moisture reading on file"
+}
+
+measurement RequiredGrade {
+  type TEXT
+  description "Contractual freshness grade (A, B, or C)"
+}
+
+measurement RequiredMaxMoisture {
+  type TABLE_REFERENCE
+  definition "FreshnessGradeTable,1,0,2"
+  description "Maximum moisture percent for the required grade"
+}
+
+start_event Start1 {
+}
+
+end_event Pass {
+}
+
+end_event Fail {
+}
+
+exclusive_gateway MoistureGateway {
+  label "Is the moisture reading within the required grade threshold?"
+}
+
+process TestMoisture {
+  name "Test moisture content of a roast batch"
+  actor QA
+  modality SHALL
+  validate_provision {
+    MoistureRecorded
+    MoistureWithinRange
+    StandardMeetFreshness
+  }
+  validate_measurement {
+    "[MaxMoisture] <= 12"
+    "[MinMoisture] >= 8"
+    "[MaxMoisture] <= [RequiredMaxMoisture]"
+  }
+  reference_data_registry {
+    RoastBatchRegistry
+  }
+  note {
+    MoistureNote
+  }
+}
+
+process SellAgedStock {
+  name "Sell aged stock at discount"
+  actor Roaster
+  modality MAY
+  validate_provision {
+    DiscountAgedStock
+  }
+}
+
+subprocess Root {
+  elements {
+    Start1 {
+      x 0
+      y 0
+    }
+    TestMoisture {
+      x 0
+      y 100
+    }
+    MoistureGateway {
+      x 0
+      y 220
+    }
+    Pass {
+      x -120
+      y 340
+    }
+    SellAgedStock {
+      x 120
+      y 340
+    }
+    Fail {
+      x 120
+      y 450
+    }
+  }
+  process_flow {
+    Edge1 {
+      from Start1
+      to TestMoisture
+    }
+    Edge2 {
+      from TestMoisture
+      to MoistureGateway
+    }
+    Edge3 {
+      from MoistureGateway
+      to Pass
+      description "Moisture is within the required threshold"
+      condition "[MaxMoisture] <= [RequiredMaxMoisture]"
+    }
+    Edge4 {
+      from MoistureGateway
+      to SellAgedStock
+      description "Batch is aged but still marketable"
+      condition "[MaxMoisture] <= 12"
+    }
+    Edge5 {
+      from MoistureGateway
+      to Fail
+      description "default"
+    }
+  }
+  data {
+    RoastBatchRegistry {
+      x 250
+      y 130
+    }
+  }
+}

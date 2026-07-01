@@ -1,0 +1,280 @@
+[[field-types]]
+== Field types
+
+=== General
+
+Class fields in MMEL may be declared with explicit types or left untyped
+(implicitly string). This clause specifies all available field types.
+
+=== Type reference
+
+[cols="1,1,3"]
+|===
+|Type |Notation |Description
+
+|String |`string` |Text value
+|Boolean |`boolean` |True/false value
+|Datetime |`datetime` |Date and/or time value
+|Role |`role` |Reference to a system role
+|Reference |`reference(Target#data)` |Reference to another data class
+|Enumeration |`<EnumName>` |An enumeration type (e.g. `HazardType`)
+|Helper class |`<ClassName>` |A nested complex type (class without `#data`)
+|Untyped |(none) |Defaults to string
+|===
+
+=== Primitive types
+
+==== String
+
+The `string` type represents textual data:
+
+[source,mmel]
+----
+class TotalCostOfOwnership#data {
+  price: string {
+    definition "Purchase Price"
+  }
+  deliverCost: string {
+    definition "Delivery cost"
+  }
+  installation: string {
+    definition "Installation Cost"
+  }
+}
+----
+
+==== Boolean
+
+The `boolean` type represents a true/false value:
+
+[source,mmel]
+----
+class auditchecklist {
+  bibitem: reference(BibItem#data) {
+    definition "Bibitem"
+  }
+  clause: string {
+    definition "Clause number"
+  }
+  evidence: string {
+    definition "Evidence"
+  }
+  compliance: boolean {             <1>
+    definition "Compliance"
+  }
+}
+----
+
+<1> The `compliance` field is a boolean indicating whether compliance was
+achieved.
+
+==== Datetime
+
+The `datetime` type represents a date and/or time value:
+
+[source,mmel]
+----
+class audit#data {
+  name: string {
+    definition "Name/Title"
+  }
+  date: datetime {                  <1>
+    definition "Date/Time"
+  }
+}
+----
+
+<1> The `date` field stores the audit date and time.
+
+==== Role
+
+The `role` type references a system role defined in the model:
+
+[source,mmel]
+----
+class Role#data {
+  name: string {
+    definition "Name/Title"
+  }
+  People: string {
+    definition "People"
+  }
+  role: role {                      <1>
+    definition "System role"
+  }
+  responsibilities: string {
+    definition "General responsibilities"
+  }
+}
+----
+
+<1> The `role` field references a system role.
+
+=== Reference types
+
+Reference types create links between data classes, enabling relational data
+structures. A reference field points to a record in another data class.
+
+==== Syntax
+
+[source,mmel]
+----
+<fieldName>: reference(<TargetClassName>#data) {
+  definition "Description"
+}
+----
+
+The target class name may include the `#data` suffix or omit it, depending on
+whether the target is a data class or helper class.
+
+==== Single reference
+
+A reference without cardinality denotes exactly one related record:
+
+[source,mmel]
+----
+class Scope#data {
+  name: string {
+    definition "Name/Title"
+  }
+  aspect: reference(Aspects#data) {   <1>
+    definition "Performance Aspect"
+  }
+}
+----
+
+<1> Each scope record references exactly one performance aspect.
+
+==== Reference with cardinality
+
+References may include cardinality to indicate collections:
+
+[source,mmel]
+----
+class audit#data {
+  persons: reference(Role#data)[0..*] {     <1>
+    definition "Responsible persons"
+  }
+  bibitem: reference(BibItem#data)[0..*] {  <2>
+    definition "Relevant bibliographic items"
+  }
+  standard: reference(Standards#data)[0..*] {
+    definition "Relevant standards"
+  }
+}
+----
+
+<1> Zero or more responsible persons.
+<2> Zero or more bibliographic items.
+
+==== Reference to data class vs helper class
+
+References typically point to data classes (with `#data` suffix), but can also
+reference helper classes when used as nested types:
+
+[source,mmel]
+----
+class PartyRequirementData {
+  party: reference(PartyData)[0..*] {       <1>
+    definition "Requirement of interested parties"
+    modality SHALL
+  }
+}
+----
+
+<1> Reference to `PartyData`, another class used as a data structure.
+
+=== Enumeration types
+
+An enumeration type constrains a field to a predefined set of values:
+
+[source,mmel]
+----
+class Hazards#data {
+  type: HazardType {              <1>
+    definition "Hazard type"
+  }
+}
+
+enum HazardType {
+  Physical {
+    definition "Physical"
+  }
+  Chemical {
+    definition "Chemical"
+  }
+  Biological {
+    definition "Biological"
+  }
+}
+----
+
+<1> The `type` field is constrained to `Physical`, `Chemical`, or `Biological`.
+
+=== Helper class types
+
+A helper class (without `#data` suffix) can be used as a field type to embed a
+nested structure:
+
+[source,mmel]
+----
+class IssueData {
+  meta: DocMeta {                 <1>
+    definition "General documented information"
+    modality SHALL
+  }
+  issue {
+    definition "Issue"
+    modality SHALL
+  }
+  pfactor[0..*] {
+    definition "Positive factor or condition"
+    modality CAN
+  }
+}
+----
+
+<1> The `meta` field embeds the full `DocMeta` structure as a nested type.
+
+Helper class fields may also include cardinality:
+
+[source,mmel]
+----
+class NonapplicableProductData {
+  meta: DocMeta {
+    definition "General documented information"
+    modality SHALL
+  }
+  nonApplication: NonapplicableJustification[0..*] {   <1>
+    definition "Non-applicable requirements and justifications"
+    modality SHALL
+  }
+}
+----
+
+<1> Zero or more embedded `NonapplicableJustification` structures.
+
+=== Untyped fields
+
+When a field declaration omits the type (`:` and type name), it defaults to
+string:
+
+[source,mmel]
+----
+class RiskPlan#data {
+  scope {                         <1>
+    definition "Scope"
+    modality SHALL
+    reference {
+      ISO14971-doc-ref3-4
+    }
+  }
+  Assignment {                    <2>
+    definition "Responsibilities and authorities"
+    modality SHALL
+  }
+}
+----
+
+<1> Untyped field, implicitly `string`.
+<2> Untyped field, implicitly `string`.

@@ -1,0 +1,267 @@
+[[gateways]]
+== Gateways
+
+=== General
+
+Gateways are decision points in a process flow where the path diverges. MMEL
+supports exclusive gateways, where exactly one outgoing path is taken.
+
+=== Exclusive gateway syntax
+
+[source,mmel]
+----
+exclusive_gateway <GatewayID> {
+  label "Decision question?"
+}
+----
+
+The `label` property contains the decision question or condition that determines
+which outgoing path is taken. The `label` is optional; gateways without a label
+are valid.
+
+=== Edge descriptions for branching paths
+
+Gateway branching is expressed through the `description` property on outgoing
+edges. Each outgoing edge from a gateway carries a description that labels the
+decision path:
+
+[source,mmel]
+----
+Edge47 {
+  from NATOGateway
+  to SelectStandardB
+  description "Yes"
+}
+
+Edge48 {
+  from NATOGateway
+  to SelectStandardC
+  description "No"
+}
+----
+
+=== Default branch
+
+The string `"default"` as the edge description marks the default fallback path
+from a gateway. When none of the explicit conditions match, the default path is
+taken:
+
+[source,mmel]
+----
+Edge28 {
+  from NeutralityGateway
+  to MakeCommitment
+  description "default"
+}
+----
+
+An edge with `description "default"` and `condition "default"` is the default
+branch:
+
+[source,mmel]
+----
+Edge47 {
+  from SingleSourceDominanceGateway
+  to ApplyOverallCoverageRule
+  description "default"
+  condition "default"
+}
+----
+
+=== Gateway without conditions
+
+When a gateway has multiple outgoing edges without explicit `condition`
+expressions, the flow is fulfilled if any one of the outgoing paths is
+fulfilled. The `description` field provides a human-readable label for each
+branch, but the actual branching decision may be determined by the tool or
+runtime based on the process context.
+
+Example from the BS 16341 model:
+
+[source,mmel]
+----
+exclusive_gateway NATOGateway {
+  label "Is it for NATO nations: some standards are ratified (without reservations) with the intention of implementation for e.g. achieving the required interoperability between forces?"
+}
+----
+
+With branching edges:
+
+[source,mmel]
+----
+Edge47 {
+  from NATOGateway
+  to SelectStandardB
+  description "Yes"
+}
+Edge48 {
+  from NATOGateway
+  to SelectStandardC
+  description "No"
+}
+----
+
+=== Gateway with measurement expression conditions
+
+Gateways may have outgoing edges with `condition` expressions that contain
+measurement-based guards. The condition is a string expression evaluated against
+measurement values to determine which path is taken.
+
+Example from the PAS 2060 model with the Single Source Dominance gateway:
+
+[source,mmel]
+----
+exclusive_gateway SingleSourceDominanceGateway {
+  label "Does a single source contribute more than 50% of the total emissions"
+}
+----
+
+With condition-guarded edges:
+
+[source,mmel]
+----
+Edge46 {
+  from SingleSourceDominanceGateway
+  to AlternativeCoverageValidation
+  description "A single source contributes more than 50% of the total emissions"
+  condition "[Largest_Emission_In_Percentage] > 0.5"
+}
+
+Edge47 {
+  from SingleSourceDominanceGateway
+  to ApplyOverallCoverageRule
+  description "default"
+  condition "default"
+}
+----
+
+When `[Largest_Emission_In_Percentage]` exceeds 0.5 (50%), the alternative
+coverage validation path is taken. Otherwise, the default overall coverage rule
+path applies.
+
+Example from the BS 13485 medical devices model:
+
+[source,mmel]
+----
+exclusive_gateway SterileMedicalDevicesGateway {
+  label "Sterile medical devices?"
+}
+----
+
+With condition-guarded edges:
+
+[source,mmel]
+----
+Edge3 {
+  from SterileMedicalDevicesGateway
+  to EndEvent2
+  description "no"
+  condition "default"
+}
+Edge4 {
+  from SterileMedicalDevicesGateway
+  to DocumentRequirementsForContamination
+  description "Yes"
+  condition "[sterile] = 'true'"
+}
+----
+
+When the `[sterile]` measurement is `'true'`, the path to contamination control
+documentation is taken. Otherwise, the default path leads to the end event.
+
+=== Gateway examples
+
+==== Carbon neutrality gateway (PAS 2060)
+
+[source,mmel]
+----
+exclusive_gateway NeutralityGateway {
+  label "Has carbon neutrality been achieved?"
+}
+
+exclusive_gateway SubjectChangeGateway {
+  label "Any material change to the subject?"
+}
+
+exclusive_gateway CalculationGateway {
+  label "Is quantification based on calculations?"
+}
+
+exclusive_gateway GovernmentFactorAvailable {
+  label "Are factors from national (Government) publications available"
+}
+
+exclusive_gateway RecurringEventGateway {
+  label "Is the subject a non-recurring event such as a wedding or concert?"
+}
+
+exclusive_gateway HistoricReductionGateway {
+  label "Are historic reductions from the defined subject, not otherwise taken into account, to be taken into account?"
+}
+----
+
+==== Standard selection gateways (BS 16341)
+
+[source,mmel]
+----
+exclusive_gateway NATOGateway {
+  label "Is it for NATO nations: some standards are ratified (without reservations) with the intention of implementation for e.g. achieving the required interoperability between forces?"
+}
+
+exclusive_gateway ConstructionGateway {
+  label "Is the purchaser in construction sector or some standards are related to European Technical Approvals (ETA)?"
+}
+
+exclusive_gateway NoSuitableGateway {
+  label "For the present application no suitable standards or standard-like documents are available (up to this process)?"
+}
+
+exclusive_gateway RequirementMetGateway {
+  label "The necessary requirements cannot be met by the application of the aforementioned standards or standard-like documents"
+}
+----
+
+==== Quality management gateways (BS 13485)
+
+[source,mmel]
+----
+exclusive_gateway OutsourcingGateway {
+  label "Outsourcing of process?"
+}
+
+exclusive_gateway SterileMedicalDevicesGateway {
+  label "Sterile medical devices?"
+}
+
+exclusive_gateway NonFulfillmentGateway {
+  label "Any non-fulfilment of requirements?"
+}
+
+exclusive_gateway ChangeValidationGateway {
+  label "Validation required?"
+}
+----
+
+==== Standardization management gateways (BS 202000)
+
+[source,mmel]
+----
+exclusive_gateway ProcessChangeGateway {
+  label "Have a change to the process"
+}
+
+exclusive_gateway AdverseEffectGateway {
+  label "Any adverse effects of the change?"
+}
+----
+
+=== Gateways without labels
+
+A gateway without a `label` property is valid and acts as a routing point where
+the branching logic is determined solely by the edge conditions:
+
+[source,mmel]
+----
+exclusive_gateway EGate1 {
+}
+----

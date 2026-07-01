@@ -1,0 +1,368 @@
+[[measurement-types]]
+== Measurement types
+
+=== General
+
+MMEL supports the following measurement types. Each type defines how the
+measurement value is collected, stored, and used in validation expressions.
+
+=== NUMERIC
+
+A single numeric value. Used for scalar measurements such as counts,
+percentages, voltages, or any single quantitative value.
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type NUMERIC
+  description "Human-readable description"
+}
+----
+
+==== Example
+
+[source,mmel]
+----
+measurement NumFailLogin {
+  type NUMERIC
+  description "Number of failed login attempts"
+}
+
+measurement NumLogin {
+  type NUMERIC
+  description "Number of login attempts"
+}
+
+measurement OpV {
+  type NUMERIC
+  description "Maximum permanent operating voltage"
+}
+
+measurement thickness {
+  type NUMERIC
+  description "Radial thickness of the insulation"
+}
+----
+
+In validation expressions, NUMERIC values are referenced directly:
+`[OpV] <= 820`, `[thickness] >= [thicknessReq] * 0.9 - 0.1`.
+
+=== DATALIST
+
+A list (collection) of numeric values. Supports aggregation operators for
+computing statistics over the list.
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type DATALIST
+  description "Human-readable description"
+}
+----
+
+DATALIST measurements support the following aggregation operators:
+
+[cols="1,2"]
+|===
+|Operator |Description
+
+|`.max` |Maximum value in the list
+|`.min` |Minimum value in the list
+|`.sum` |Sum of all values in the list
+|`.count` |Number of values in the list
+|`.average` |Arithmetic mean of all values in the list
+|===
+
+==== Example
+
+[source,mmel]
+----
+measurement NumConnection {
+  type DATALIST
+  description "Number of connections within 10 seconds (for each user)"
+}
+
+measurement Excluded_Emission {
+  type DATALIST
+  description "Excluded emissions"
+}
+
+measurement Included_Emission {
+  type DATALIST
+  description "Emissions of the subject (including Scope 1, Scope 2 and Scope 3)"
+}
+----
+
+In validation expressions, DATALIST values use aggregation operators:
+`[NumConnection].max <= 100`, `[Included_Emission].sum / [Total_Emission]`.
+
+=== DERIVED
+
+A computed value derived from other measurements using a mathematical
+expression. The `definition` field is required and contains the computation
+formula.
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type DERIVED
+  definition "<expression>"
+  description "Human-readable description"
+}
+----
+
+The `definition` field contains an expression that references other
+measurement IDs using the `[MeasurementID]` notation, with optional
+aggregation operators and arithmetic operations.
+
+==== Example
+
+[source,mmel]
+----
+measurement Total_Emission {
+  type DERIVED
+  definition "[Included_Emission].sum + [Excluded_Emission].sum"
+  description "Total emission"
+}
+
+measurement Largest_Emission_In_Percentage {
+  type DERIVED
+  definition "[Included_Emission].max / [Total_Emission]"
+  description "The largest emission source"
+}
+
+measurement Total_Emission_Excluded_Max {
+  type DERIVED
+  definition "[Total_Emission] - [Included_Emission].max"
+  description "The total emission excluding the largest emission"
+}
+
+measurement Excluded_Emssions_Without_Max_In_Percentage {
+  type DERIVED
+  definition "[Excluded_Emission].sum / [Total_Emission_Excluded_Max]"
+  description "Percentage of excluded emissions"
+}
+
+measurement Total_Included_Emissions_In_Percentage {
+  type DERIVED
+  definition "[Included_Emission].sum / [Total_Emission]"
+  description "Percentage of all included emissions"
+}
+----
+
+DERIVED measurements can reference other DERIVED measurements, creating
+computation chains. The order of evaluation follows the dependency graph.
+
+=== TRUE/FALSE
+
+A boolean toggle measurement. Used for conditional branching in gateway
+edges and for binary conditions in validation expressions.
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type TRUE/FALSE
+  description "Human-readable description"
+}
+----
+
+==== Example
+
+[source,mmel]
+----
+measurement dc {
+  type TRUE/FALSE
+  description "The cable is for d.c."
+}
+
+measurement target {
+  type TRUE/FALSE
+  description "The cable is for conductor-conductor"
+}
+
+measurement implant {
+  type TRUE/FALSE
+  description "There is implantable medical device"
+}
+
+measurement outsourcing {
+  type TRUE/FALSE
+  description "There is outsourcing"
+}
+----
+
+In gateway edge conditions, TRUE/FALSE measurements are compared with
+string literals: `[dc] = 'true'`, `[target] = 'true'`.
+
+=== DURATION
+
+A temporal duration value representing a time span. Used for timer events
+and time-based monitoring.
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type DURATION
+  description "Human-readable description"
+}
+----
+
+==== Example
+
+[source,mmel]
+----
+measurement AuditTimer {
+  type DURATION
+}
+
+measurement CompetenceReviewTimer {
+  type DURATION
+}
+----
+
+DURATION measurements are used with timer events to define temporal
+conditions.
+
+=== TEXT
+
+A text input measurement. Used for qualitative data collection where the
+value is a free-text string rather than a numeric value.
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type TEXT
+  description "Human-readable description"
+}
+----
+
+==== Example
+
+[source,mmel]
+----
+measurement ComplianceNote {
+  type TEXT
+  description "Additional compliance notes"
+}
+----
+
+TEXT measurements are referenced in validation expressions for string
+comparisons.
+
+=== TABLE_REFERENCE
+
+A measurement whose value is looked up from a table within the model. Used
+for data-driven specifications where the required value depends on other
+parameters (e.g. cable type and cross-sectional area determine the required
+insulation thickness).
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type TABLE_REFERENCE
+  definition "<table_name>,<column_index>,<filter_spec>,..."
+  description "Human-readable description"
+}
+----
+
+The `definition` field contains a comma-separated lookup specification.
+See <<table-lookup>> for full documentation of the lookup syntax.
+
+==== Example
+
+[source,mmel]
+----
+measurement thicknessReq {
+  type TABLE_REFERENCE
+  definition "data,4,0,type,2,area,3,class"
+  description "Requirement of the radial thickness of insulation"
+}
+
+measurement sheathReq {
+  type TABLE_REFERENCE
+  definition "data,5,0,type,2,area,3,class"
+  description "Requirement of radial thickness of sheath"
+}
+
+measurement isCircular {
+  type TABLE_REFERENCE
+  definition "data,13,0,type"
+  description "Is the cable circular"
+}
+----
+
+=== TABLE_OPTIONS
+
+A measurement that provides selectable options from a table. Used for
+parameterized model views where the user selects from a set of valid options
+determined by table data.
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type TABLE_OPTIONS
+  definition "<table_name>,<column_index>,<filter_spec>,..."
+  description "Human-readable description"
+}
+----
+
+The `definition` field uses the same lookup syntax as TABLE_REFERENCE but
+returns matching rows as selectable options rather than a single value.
+See <<table-lookup>> for full documentation.
+
+==== Example
+
+[source,mmel]
+----
+measurement type {
+  type TABLE_OPTIONS
+  definition "data,0,2,area,3,class"
+  description "Type of cable (e.g., 6181Y)"
+}
+
+measurement area {
+  type TABLE_OPTIONS
+  definition "data,2,0,type,3,class"
+  description "Nominal cross-sectional area of conductors"
+}
+
+measurement class {
+  type TABLE_OPTIONS
+  definition "data,3,2,area,0,type"
+  description "Class of conductor (1 / 2)"
+}
+----
+
+=== DATAITEM (deprecated)
+
+The DATAITEM measurement type is deprecated and superseded by NUMERIC. It
+was used in earlier versions of MMEL for single numeric values.
+
+[source,mmel]
+----
+measurement <MeasurementID> {
+  type DATAITEM
+  description "Human-readable description"
+}
+----
+
+DATAITEM is documented here for backward compatibility only. New models
+SHALL use the NUMERIC type instead. Tools SHALL accept DATAITEM for
+backward compatibility but SHOULD emit a deprecation warning.
+
+=== Summary of measurement types
+
+[cols="1,2,2"]
+|===
+|Type |Category |Description
+
+|`NUMERIC` |User-defined |Single numeric value
+|`DATALIST` |User-defined |List of numeric values with aggregation operators
+|`DERIVED` |Computed |Formula referencing other measurements
+|`TRUE/FALSE` |User-defined |Boolean toggle for conditional branching
+|`DURATION` |User-defined |Time span for temporal monitoring
+|`TEXT` |User-defined |Free-text input
+|`TABLE_REFERENCE` |Lookup |Single value looked up from a table
+|`TABLE_OPTIONS` |Lookup |Selectable options from a table
+|`DATAITEM` |User-defined |Deprecated single numeric value (use NUMERIC)
+|===

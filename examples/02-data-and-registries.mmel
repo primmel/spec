@@ -1,0 +1,182 @@
+root RoasteryLogbook
+
+version "v1.0.0-dev1"
+
+metadata {
+  title "Roastery logbook — data primitives"
+  schema "MMEL 0.1"
+  edition "1"
+  author "Primmel project"
+  shortname "RoasteryLogbook"
+  namespace "RoasteryLogbook"
+}
+
+role Roaster {
+  name "Roaster"
+}
+
+role QA {
+  name "Quality assurance"
+}
+
+enum RoastLevel {
+  Light {
+    definition "Light roast"
+  }
+  Medium {
+    definition "Medium roast"
+  }
+  Dark {
+    definition "Dark roast"
+  }
+}
+
+class BeanLot#data {
+  lot_id: string {
+    definition "Supplier lot identifier"
+    modality SHALL
+  }
+  origin: string {
+    definition "Country or region of origin"
+    modality SHALL
+  }
+  received_on: datetime {
+    definition "Date received at the roastery"
+    modality SHALL
+  }
+  certified_organic: boolean {
+    definition "Whether the lot is certified organic"
+    modality MAY
+  }
+}
+
+class RoastProfile {
+  name {
+    definition "Profile name (e.g. City+, Full City)"
+  }
+  target_level: RoastLevel {
+    definition "Target roast level"
+  }
+  development_time: string {
+    definition "Target development time in seconds"
+  }
+  notes {
+    definition "Roaster's notes"
+  }
+}
+
+class RoastBatch#data {
+  batch_id: string {
+    definition "Unique batch identifier"
+    modality SHALL
+  }
+  lot: reference(BeanLot#data) {
+    definition "Bean lot used for this batch"
+    modality SHALL
+  }
+  profile: RoastProfile {
+    definition "Roast profile applied"
+    modality SHALL
+  }
+  roast_level: RoastLevel {
+    definition "Actual roast level achieved"
+    modality SHALL
+  }
+  roast_date: datetime {
+    definition "Date the batch was roasted"
+    modality SHALL
+  }
+  moisture_pct: string {
+    definition "Measured moisture percentage"
+    modality MAY
+  }
+  roasted_by: role {
+    definition "Roaster who ran the batch"
+    modality SHALL
+  }
+}
+
+data_registry BeanLotRegistry {
+  title "Bean lots"
+  data_class BeanLot#data
+}
+
+data_registry RoastBatchRegistry {
+  title "Roast batch logbook"
+  data_class RoastBatch#data
+}
+
+start_event Start1 {
+}
+
+process ReceiveBeans {
+  name "Receive a bean lot from an approved supplier"
+  actor Roaster
+  output {
+    BeanLotRegistry
+  }
+}
+
+process RoastBatch {
+  name "Roast a batch of beans"
+  actor Roaster
+  reference_data_registry {
+    BeanLotRegistry
+  }
+  output {
+    RoastBatchRegistry
+  }
+}
+
+process InspectBatch {
+  name "Inspect a roasted batch"
+  actor QA
+  reference_data_registry {
+    RoastBatchRegistry
+  }
+}
+
+subprocess Root {
+  elements {
+    Start1 {
+      x 0
+      y 0
+    }
+    ReceiveBeans {
+      x -100
+      y 100
+    }
+    RoastBatch {
+      x -100
+      y 200
+    }
+    InspectBatch {
+      x -100
+      y 300
+    }
+  }
+  process_flow {
+    Edge1 {
+      from Start1
+      to ReceiveBeans
+    }
+    Edge2 {
+      from ReceiveBeans
+      to RoastBatch
+    }
+    Edge3 {
+      from RoastBatch
+      to InspectBatch
+    }
+  }
+  data {
+    BeanLotRegistry {
+      x 150
+      y 130
+    }
+    RoastBatchRegistry {
+      x 150
+      y 230
+    }
+  }
+}

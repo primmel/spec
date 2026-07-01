@@ -1,0 +1,95 @@
+[[process-modelling-overview]]
+== Process modelling overview
+
+=== General
+
+This document specifies the process modelling facilities of the Multi-Modal
+Modelling Language (MMEL), as defined in <<MN113>>. MMEL process modelling
+provides BPMN-style behavioural diagrams integrated with compliance tracking,
+measurement validation, and data register I/O.
+
+The process modelling subsystem of MMEL encompasses:
+
+* *processes* -- behavioural units representing tasks or activities, optionally
+bound to compliance provisions, measurement validations, and data registries
+* *events* -- start events, end events, timer events, and signal catch events
+that control the lifecycle and timing of process flows
+* *gateways* -- exclusive decision points where exactly one outgoing path is
+taken based on a condition
+* *approvals* -- specialized process elements representing approval workflows
+with designated approvers and optional data registry storage
+* *subprocesses* -- diagram containers that organize elements, flow edges, and
+data store placements into visual process flow diagrams
+* *process flow edges* -- directed connections between elements, optionally
+carrying descriptions and conditions for gateway branching
+
+=== Relationship to BPMN
+
+MMEL process modelling is a superset of BPMN (Business Process Model and
+Notation) concepts. The following table maps BPMN concepts to their MMEL
+equivalents:
+
+[cols="1,2,2"]
+|===
+|BPMN Concept |MMEL Equivalent |Notes
+
+|Start Event |`start_event` |One per diagram; marks process flow beginning
+|End Event |`end_event` |Optional; marks process flow termination
+|Timer Catch Event |`timer_event` with `type WAIT` |Temporal wait condition
+|Timer Boundary Event |`timer_event` with `type REPEAT` |Recurring periodic trigger
+|Signal Catch Event |`signal_catch_event` |Pauses until named signal received
+|Exclusive Gateway |`exclusive_gateway` |Decision point with labelled branches
+|Task/Activity |`process` |With compliance, measurement, and data bindings
+|Sub-Process |`subprocess` |Diagram container with elements and edges
+|User Task |`approval` |Approval workflow with designated approver
+|Sequence Flow |`Edge<N>` |Directed connection with optional condition
+|Data Store |`data_registry` (in `data` section) |Positioned on diagram
+|Data Output Association |`output { }` on process |Writes to data registry
+|Data Input Association |`reference_data_registry { }` |Reads from data registry
+|===
+
+=== What MMEL adds beyond BPMN
+
+MMEL extends BPMN with the following capabilities:
+
+* *Compliance bindings* -- processes carry `validate_provision { }` properties
+that bind them to regulatory provisions with RFC 2119 modality keywords
+* *Measurement validation* -- processes carry `validate_measurement { }`
+properties with quantitative expressions (e.g. `"[X] >= 0.95"`) for KPI
+monitoring
+* *Data register I/O* -- processes explicitly declare `output { }` and
+`reference_data_registry { }` bindings to persistent data stores
+* *Cross-model links* -- processes reference external models via `links { }`
+properties
+* *Normative traceability* -- all compliance bindings trace back to normative
+document clauses via `reference` declarations
+* *Tabular and figure content* -- processes may reference `table { }` and
+`figure { }` definitions containing structured data or embedded images
+
+=== Node types
+
+MMEL supports the following node types within process flow diagrams:
+
+[cols="1,2,2"]
+|===
+|Node Type |Keyword |Purpose
+
+|Process |`process` |Task or activity with compliance and data bindings
+|Approval |`approval` |Approval workflow with approver and record storage
+|Start Event |`start_event` |Entry point of a process flow
+|End Event |`end_event` |Termination point of a process flow
+|Timer Event |`timer_event` |Temporal condition (wait, repeat, or duration)
+|Signal Catch Event |`signal_catch_event` |Intermediate event waiting for a signal
+|Exclusive Gateway |`exclusive_gateway` |Decision point with branching paths
+|===
+
+=== Process reuse
+
+A process definition can appear in multiple subprocess diagrams. When the same
+process ID is placed in multiple subprocess `elements` sections, all instances
+share the same definition -- including name, actor, modality, provision
+bindings, measurement validations, and data bindings.
+
+Updating a process definition updates it everywhere it is used. This ensures
+that compliance obligations and data bindings remain consistent across all
+diagrams that reference the process.

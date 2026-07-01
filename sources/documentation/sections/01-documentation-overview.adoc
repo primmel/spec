@@ -1,0 +1,79 @@
+[[documentation-overview]]
+== Documentation models overview
+
+=== General
+
+MMEL models capture not only process flows, data structures, and compliance
+requirements, but also the document content that accompanies these definitions.
+Document content in MMEL includes tables, figures, multimedia elements,
+sections, and Supplementary Document Content (SDC) files.
+
+These documentation constructs enable MMEL models to serve as a single source
+of truth that combines normative text, structured data, visual diagrams, and
+process definitions.
+
+=== Document content types
+
+MMEL supports the following document content types:
+
+[cols="1,3"]
+|===
+|Content type |Description
+
+|Table |Structured tabular data with rows, columns, and domain constraints.
+Tables are defined as top-level constructs and referenced by processes.
+|Figure |Images or diagrams embedded as base64-encoded data (typically PNG).
+Figures are referenced by processes and provide visual representations.
+|Multimedia |Support for video, 3D models, and other rich media (future extension).
+Currently only figures are functional.
+|Section |Document section definitions with internal IDs, titles, and text
+contents. Used for document generation.
+|SDC files |Supplementary Document Content files (`.sdc`) that store
+clause-level content extracted from source normative documents.
+|===
+
+=== Publication component types
+
+MMEL documentation constructs map to the following publication component types:
+
+[cols="1,2"]
+|===
+|Component type |MMEL construct
+
+|`table` |`table { title, columns, display, domain, data }`
+|`figure` |`figure { title, data }`
+|`code` |Future extension (not currently supported)
+|`mathematicalFormula` |Future extension (not currently supported)
+|`textual` |SDC files, sections, notes
+|===
+
+=== Relationship to processes
+
+Document content is associated with processes through property references:
+
+[source,mmel]
+----
+process RiskManagementProcess {
+  name "Risk management process"
+  actor Manufacturer
+  validate_provision {
+    Provision1
+  }
+  note {
+    Note1
+    Note2
+  }
+  figure {
+    Figure1
+  }
+  table {
+    PermittedVoltages
+    TestSchedule
+  }
+  subprocess Page2
+}
+----
+
+Processes can reference multiple tables, figures, and notes. This association
+provides traceability from the normative document content to the process that
+implements or describes it.

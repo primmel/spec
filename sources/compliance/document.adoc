@@ -1,0 +1,21 @@
+= MN 113-4: MMEL Compliance and Requirements
+:docnumber: 113.4
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Compliance and Requirements
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-compliance-overview.adoc[]
+include::sections/02-provisions.adoc[]
+include::sections/03-modality-keywords.adoc[]
+include::sections/04-references.adoc[]
+include::sections/05-notes.adoc[]
+include::sections/06-subject-binding.adoc[]
+include::sections/07-conformance-testing.adoc[]
+include::sections/08-formal-grammar.adoc[]

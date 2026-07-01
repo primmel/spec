@@ -1,0 +1,155 @@
+[[sdc-files]]
+== SDC files
+
+=== General
+
+Supplementary Document Content (SDC) files store clause-level content extracted
+from source normative documents. They use the `.sdc` file extension and provide
+a plain-text representation of the clauses, notes, examples, and definitions
+from external standards and regulations.
+
+SDC files serve as the bridge between external normative documents and MMEL
+model elements, enabling traceability from provisions and references back to
+the original source text.
+
+=== File format
+
+An SDC file consists of two parts separated by a `###` delimiter:
+
+. *Header section* -- metadata about the source document.
+. *Body section* -- clause-level content entries.
+
+==== Header section
+
+The header section uses the following fields:
+
+[source]
+----
+namespace#<NamespaceID>
+title#<DocumentTitle>
+version#<VersionString>
+###
+----
+
+[cols="1,3"]
+|===
+|Field |Description
+
+|`namespace#<NamespaceID>` |The namespace identifier for this SDC file.
+Typically matches the model namespace with a `-doc` suffix.
+|`title#<DocumentTitle>` |The full title of the source normative document.
+|`version#<VersionString>` |Semantic version of the SDC content.
+|===
+
+The `###` separator marks the end of the header and the beginning of the body.
+
+==== Body section
+
+The body section contains content entries, one per line. Each entry uses the
+format:
+
+[source]
+----
+<clause-number>#<content-text>
+----
+
+[cols="1,3"]
+|===
+|Component |Description
+
+|`<clause-number>` |The clause or sub-clause number from the normative document
+(e.g. "1.1.1", "4.2", "5.3.1").
+|`<content-text>` |The text content of that clause. Multiple entries with the
+same clause number represent a multi-sentence or multi-paragraph clause.
+|===
+
+=== Example
+
+The following example shows an SDC file for the DPTM (Data Protection Trust
+Mark) certification requirements:
+
+[source]
+----
+namespace#DPTM-doc
+title#DPTM certification requirements
+version#v1.0.0-dev1
+###
+1#Governance and Transparency
+
+1.1#Establish data protection policies and practices
+
+1.1.1#Governance and Transparency
+
+1.1.1#Organisation shall have data protection policies and practices
+1.1.1#approved by management,
+1.1.1#setting out the organisation's approach to managing personal data (include management of special categories of personal data such as personal data of a sensitive nature) for
+1.1.1#various stakeholders
+1.1.1#such as:
+
+1.1.1#- Employees - Internal data protection policy and notice
+
+1.1.1#- Customers, Job applicants, visitors etc - External data protection notices
+
+1.1.1#- Third party vendors - Third party agreement for management of the organisation's personal data
+
+1.2#Establish queries, complaints and dispute resolution handling processes
+----
+
+In this example:
+
+* The header declares the namespace `DPTM-doc`, the document title, and version.
+* The `###` separator divides header from body.
+* Clause `1.1.1` has multiple content entries, representing the full text of
+that clause split across several lines.
+
+=== Annotation types
+
+Content entries may be prefixed with annotation keywords that classify the type
+of content:
+
+[cols="1,3"]
+|===
+|Annotation |Description
+
+|`NOTE` |An informational note providing additional context or clarification.
+|`EXAMPLE` |An illustrative example demonstrating the application of a
+requirement.
+|`DEFINITION` |A formal definition of a term used in the normative document.
+|===
+
+.Annotation examples
+[source]
+----
+5.1.3#NOTE This is a note providing additional context.
+5.1.3#EXAMPLE This is an example illustrating the requirement.
+5.1.3#DEFINITION A term being formally defined.
+----
+
+These annotation types correspond to the note types used in `.mmel` model
+files. The `NOTE` annotation maps to the `note` construct with `type NOTE`,
+the `EXAMPLE` annotation corresponds to examples in normative text, and the
+`DEFINITION` annotation corresponds to term definitions.
+
+=== Relationship to note types in .mmel files
+
+SDC annotations align with the note classification system in MMEL models:
+
+[cols="1,2"]
+|===
+|SDC annotation |MMEL note type
+
+|`NOTE` |`note { type NOTE ... }`
+|`EXAMPLE` |`note { type EXAMPLE ... }` (currently used only in SDC files)
+|`DEFINITION` |`note { type DEFINITION ... }` (currently used only in SDC
+files)
+|===
+
+When an SDC file is loaded alongside a model, tools can match clause content
+to model references, providing full traceability from provisions to their
+source text.
+
+=== File encoding
+
+SDC files SHALL use UTF-8 encoding. Content text is plain text (not formatted
+in any markup language). Line breaks within a single clause are represented as
+separate entries with the same clause number.

@@ -1,0 +1,71 @@
+[[data-modelling-overview]]
+== Data modelling overview
+
+=== General
+
+This document specifies the data modelling facilities of the Multi-Modal
+Modelling Language (MMEL), as defined in <<MN113>>. MMEL data modelling provides
+UML-style data structure definitions integrated with process flows, compliance
+tracking, and quantitative monitoring.
+
+The data modelling subsystem of MMEL encompasses:
+
+* *data classes* -- structured type definitions identified by the `#data` suffix,
+linked to persistent data stores
+* *helper classes* -- reusable complex types without the `#data` suffix, embedded
+as fields within other classes
+* *enumerations* -- named sets of values used as field types
+* *data registers* -- named, persistent data stores backed by data classes
+
+=== Relationship to UML class diagrams
+
+MMEL data modelling is a superset of UML class diagram concepts. The following
+table maps UML class diagram concepts to their MMEL equivalents:
+
+[cols="1,2,2"]
+|===
+|UML Concept |MMEL Equivalent |Notes
+
+|Class |`class Name#data { ... }` |Fields, types, references, cardinality
+|Enumeration |`enum Name { ... }` |Named enumeration with definitions
+|Association/Aggregation |`reference(Target#data)` |With cardinality `[0..*]`, `[1..*]`
+|Multiplicity |`[0..*]`, `[1..*]`, `[1..1]` |On references and nested types
+|Composition |Nested type fields |e.g. `meta: DocMeta`
+|Attribute |Class field |Typed or untyped (implicitly string)
+|Data Store (UML object) |`data_registry` |Persistent store backed by a data class
+|Constraint |`satisfy { }` block |Validation constraint categories on fields
+|Stereotype |`#data` suffix |Distinguishes data classes from helper classes
+|===
+
+=== Architecture
+
+MMEL data modelling connects data structures to process flows and compliance
+requirements through data registers.
+
+.Data model architecture
+----
+class#data ──data_class──> data_registry <──output── process
+                                        <──reference_data── process
+                                               │
+                                               v
+                                        Stored documents (.sws)
+----
+
+A data class defines the schema of records. A data register is the persistent
+store for those records. Processes write to registers via `output { }` and read
+from them via `reference_data_registry { }`.
+
+The full data flow from class definition to runtime storage is:
+
+.Class to process flow
+----
+class definition (schema)
+  │
+  └── data_registry declaration (named store)
+       │
+       ├── process.output { RegistryID }  (writes records)
+       │
+       ├── process.reference_data_registry { RegistryID }  (reads records)
+       │
+       └── .sws file  (runtime data state)
+----

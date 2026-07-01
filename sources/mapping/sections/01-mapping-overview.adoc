@@ -1,0 +1,92 @@
+[[mapping-overview]]
+== Cross-model mapping overview
+
+=== General
+
+Cross-model alignment is a fundamental capability of MMEL that enables
+traceability between different standards, regulations, and organizational
+implementation models. A single organization typically needs to demonstrate
+compliance with multiple standards simultaneously, and MMEL provides the
+mechanisms to express how processes in one model correspond to processes in
+another.
+
+This document specifies the two mechanisms MMEL provides for cross-model
+alignment:
+
+. *Inline constructs within `.mmel` files* -- the `link` construct and
+`map_profile` construct embedded directly in model definitions.
+. *External `.map` files* -- separate JSON files that define comprehensive
+process-to-process mappings with descriptions and justifications.
+
+=== Reference model and implementation model
+
+In the MMEL ecosystem, models fall into two broad categories:
+
+Reference model::
+A model that represents a standard, regulation, or specification as published
+by a standards body. It defines the "what" -- the requirements and processes
+that conforming organizations must fulfil. Reference models use provisions
+with modality keywords and normative references to express mandatory and
+recommended requirements.
++
+For example, BS 20400 (Sustainable procurement) and ISO 14971 (Risk management
+for medical devices) are modelled as reference models.
+
+Implementation model::
+A model that represents how a specific organization implements one or more
+reference standards. It defines the "how" -- the concrete processes, data
+registries, and organizational roles that the organization uses to comply.
+Implementation models use `map_profile` or `.map` files to declare which of
+their processes satisfy which reference model processes.
++
+For example, "ABC Company Ltd" (in `BS20400impl.mmel`) is an implementation
+model that maps its procurement processes to the BS 20400 reference model.
+
+The mapping relationship is directional: implementation model processes are
+mapped *to* reference model processes, indicating that fulfilling the
+implementation process implies fulfilling the reference requirement.
+
+.Cross-model alignment workflow
+----
++---------------------+          +---------------------+
+| Implementation      |          | Reference           |
+| Model (.mmel)       |          | Model (.mmel)       |
+|---------------------|          |---------------------|
+| role Org { }        |          | role Manufacturer   |
+| process Procurement |  <=====  | process SCM { }     |
+|   map_profile { }   |  .map   | provision P1 { }    |
+|   links { }         |  file   | reference R1 { }    |
++---------------------+          +---------------------+
+         |                                |
+         | workspace (.sws)               | SDC (.sdc)
+         v                                v
+  +-------------+                  +-------------+
+  | Runtime     |                  | Normative   |
+  | Evidence    |                  | Source      |
+  +-------------+                  +-------------+
+----
+
+=== Toolchain overview
+
+The MMEL cross-model mapping toolchain supports the following workflow:
+
+. *Author* reference models and implementation models as `.mmel` files.
+. *Define* cross-model mappings using either `map_profile` blocks within
+`.mmel` files or separate `.map` files.
+. *Validate* mapping completeness using coverage analysis (see
+<<mapping-coverage>>).
+. *Discover* implicit mappings through transitive and inherited mapping logic
+(see <<auto-mapping>>).
+. *Generate* compliance reports using the report template system with Liquid
+templates (see <<report-templates>>).
+
+MMEL-compliant tools SHALL be able to parse both `map_profile` blocks and
+`.map` files. Tools SHOULD be able to perform coverage analysis and auto-mapping
+discovery. Tools MAY support report template generation.
+
+=== Normative references
+
+* <<RFC2119>>, _Key words for use in RFCs to Indicate Requirement Levels_,
+March 1997.
+* <<RFC8174>>, _Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words_,
+May 2017.

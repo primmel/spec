@@ -1,0 +1,105 @@
+root NewRoastApproval
+
+version "v1.0.0-dev1"
+
+metadata {
+  title "New roast profile approval"
+  schema "MMEL 0.1"
+  edition "1"
+  author "Primmel project"
+  shortname "NewRoastApproval"
+  namespace "NewRoastApproval"
+}
+
+role HeadRoaster {
+  name "Head roaster"
+}
+
+role OperationsManager {
+  name "Operations manager"
+}
+
+class RoastProfileApproval#data {
+  profile_name: string {
+    definition "Name of the proposed roast profile"
+    modality SHALL
+  }
+  target_bean: string {
+    definition "Target bean variety"
+    modality SHALL
+  }
+  approved_at: datetime {
+    definition "Approval timestamp"
+    modality SHALL
+  }
+  approved_by: role {
+    definition "Operations manager who approved"
+    modality SHALL
+  }
+  notes {
+    definition "Approval notes"
+  }
+}
+
+data_registry RoastProfileApprovalRegistry {
+  title "Roast profile approval records"
+  data_class RoastProfileApproval#data
+}
+
+reference InternalRoastPolicy-3-1 {
+  document "Internal Roast Policy (fictional)"
+  clause "3.1"
+  title "New roast profile sign-off"
+}
+
+start_event Start1 {
+}
+
+approval ApproveNewRoast {
+  name "Approve a new roast profile"
+  actor HeadRoaster
+  modality SHALL
+  approve_by OperationsManager
+  approval_record {
+    RoastProfileApprovalRegistry
+  }
+  reference {
+    InternalRoastPolicy-3-1
+  }
+}
+
+end_event End1 {
+}
+
+subprocess Root {
+  elements {
+    Start1 {
+      x 0
+      y 0
+    }
+    ApproveNewRoast {
+      x 0
+      y 100
+    }
+    End1 {
+      x 0
+      y 220
+    }
+  }
+  process_flow {
+    Edge1 {
+      from Start1
+      to ApproveNewRoast
+    }
+    Edge2 {
+      from ApproveNewRoast
+      to End1
+    }
+  }
+  data {
+    RoastProfileApprovalRegistry {
+      x 200
+      y 130
+    }
+  }
+}

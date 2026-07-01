@@ -1,0 +1,248 @@
+== Modeling steps
+
+=== Handling simple parts
+
+The following mappings describe how common parts of a standard are represented in the model:
+
+[cols="1,2"]
+|===
+| Source content | Model component
+
+| Standard number | Namespace (e.g., `BS6004`)
+| Foreword, Introduction, Scope, Normative references | Model sections
+| Terms and definitions | Model terms
+| Figures | Multimedia (Figure type)
+| Tables | Model tables
+|===
+
+=== Interpretation of flow patterns
+
+Flow patterns in the source text are identified by specific language cues and mapped to MMEL flow components:
+
+==== Process
+
+The requirement to perform an activity is modeled as a Process. Typical indicators include:
+
+* "require [actor] to [activity]"
+* "the [actor] shall [activity]"
+* "require process to fulfil requirements"
+
+==== Approval
+
+The requirement for someone to approve something is modeled as an Approval:
+
+* "require approval for [something]"
+* "[actor] shall approve [something]"
+
+==== Start event and End event
+
+* **Start event** -- marks the beginning of a flow (one per diagram, automatically placed)
+* **End event** -- marks the end of a flow path (one or more per diagram)
+
+==== Timer event
+
+References to time periods or intervals are modeled as Timer events:
+
+* "at planned intervals" -> Timer event with REPEAT mode
+* "within [time period]" -> Timer event with WAIT mode
+
+==== Gateway
+
+Conditional language that creates branching is modeled using Gateways:
+
+* "if [condition], then [action]"
+* "where [condition] applies"
+
+==== Serial connection
+
+When Process 1 must be completed before Process 2 begins, the processes are connected by an edge in series:
+
+[source]
+----
+[Start] -> [Process 1] -> [Process 2] -> [End]
+----
+
+==== Parallel connection
+
+When both processes are required but no specific order is mandated, they are modeled as parallel paths. Both must be completed for the overall flow to be satisfied.
+
+==== Self connection
+
+When a process is repeated, it may be connected back to itself, typically with a Timer event:
+
+[source]
+----
+[Process] <- [Timer (REPEAT)]
+----
+
+==== Gateway with conditions
+
+When a gateway has conditions on its outgoing edges, the flow takes the path whose condition is satisfied:
+
+[source]
+----
+[Gateway] -- condition A --> [Process A]
+          |- condition B --> [Process B]
+----
+
+==== Gateway without conditions
+
+When a gateway has no conditions, the flow is fulfilled if any one of the outgoing paths is fulfilled (like an OR gateway):
+
+[source]
+----
+[Gateway] --> [Process A]
+          |-> [Process B]
+  (fulfilled if either A or B is completed)
+----
+
+=== Three-step methodology
+
+The modeling process follows three steps:
+
+==== Step 1: Find requirements (provisions)
+
+Identify all provisions in the source document. Each provision is a basic unit consisting of:
+
+* **Actor** -- who is responsible
+* **Modality** -- the RFC 2119 keyword (SHALL, SHOULD, MAY, CAN, MUST)
+* **Required evidence** -- what must be demonstrated or documented
+
+==== Step 2: Identify relationships
+
+Group provisions under processes. Determine:
+
+* Which provisions belong to the same process
+* Which processes are subprocesses of others
+* The chronological order of processes
+
+==== Step 3: Convert to diagrams
+
+Every subprocess becomes a diagram. Create diagrams for each subprocess and populate them with the appropriate flow components:
+
+* Place processes for each activity
+* Add approvals where needed
+* Insert timer events for time-based requirements
+* Use gateways for conditional logic
+* Connect components with edges to define the flow
+
+=== Full walkthrough: BS 202000 clause 9.2.1 (Internal audit)
+
+This section demonstrates the complete modeling process for BS 202000 clause 9.2.1 on internal audits.
+
+==== Source text analysis
+
+The clause requires the organization to conduct internal audits. The key requirements are identified as follows:
+
+==== Conduct internal audit
+
+The primary process -- the organization must conduct internal audits:
+
+[source,mmel]
+----
+process ConductInternalAudit {
+  actor Organization
+  modality SHALL
+}
+----
+
+==== Check SMS conformance
+
+The audit must check that the SMS (Safety Management System) conforms to:
+
+* The organization's own requirements
+* The requirements of BS 202000
+* Whether the SMS is effectively implemented and maintained
+
+==== Plan, establish, implement, and maintain audit program
+
+These actions form a subprocess of the overall audit process:
+
+[source,mmel]
+----
+process PlanAuditProgram {
+  actor Organization
+  modality SHALL
+}
+
+process EstablishAuditProgram {
+  actor Organization
+  modality SHALL
+}
+
+process ImplementAuditProgram {
+  actor Organization
+  modality SHALL
+}
+
+process MaintainAuditProgram {
+  actor Organization
+  modality SHALL
+}
+----
+
+==== Define criteria and scope
+
+[source,mmel]
+----
+process DefineAuditCriteriaAndScope {
+  actor Organization
+  modality SHALL
+}
+----
+
+==== Select auditor
+
+[source,mmel]
+----
+process SelectAuditor {
+  actor Organization
+  modality SHALL
+}
+----
+
+==== Conduct audits
+
+[source,mmel]
+----
+process ConductAudits {
+  actor Organization
+  modality SHALL
+}
+----
+
+==== Report results
+
+[source,mmel]
+----
+process ReportAuditResults {
+  actor Organization
+  modality SHALL
+}
+----
+
+==== Take correction
+
+[source,mmel]
+----
+process TakeCorrection {
+  actor Organization
+  modality SHALL
+}
+----
+
+==== Timer for planned intervals
+
+The source text states audits must occur "at planned intervals," which is modeled with a Timer event:
+
+[source,mmel]
+----
+timer_event PlannedIntervals {
+  mode REPEAT
+  value "planned intervals"
+}
+----
+
+==== Documentation as independent path
+
+The documentation requirement forms an independent path in the diagram, representing record-keeping that occurs alongside the audit process.

@@ -1,0 +1,109 @@
+[[term-entries]]
+== Term entries
+
+=== General
+
+Term entries define individual terminology concepts within an MMEL model. Each
+term entry specifies a preferred term, optional alternative and deprecated
+forms, a definition, and classification metadata.
+
+=== Proposed syntax
+
+[source,mmel]
+----
+term_entry <ID> {
+  term "<preferred-term>"                     <1>
+  alt "<admitted-term>"                       <2>
+  deprecated "<deprecated-term>"              <3>
+  definition "Definition text"                <4>
+  scope_note "Scope note text"                <5>
+  language "en"                               <6>
+  country "GB"                                <7>
+  part_of_speech noun | verb | adjective | adverb  <8>
+  form_type fullForm | abbreviation | acronym | symbol | equation | formula | variant  <9>
+}
+----
+
+=== Properties
+
+[cols="1,1,1,3"]
+|===
+|Property |Required |Repeatable |Description
+
+|`term` |yes |no |The preferred (primary) term designation. This is the
+canonical form used in normative text.
+|`alt` |no |yes |An admitted (acceptable alternative) term. Multiple `alt`
+entries may appear in a single term entry.
+|`deprecated` |no |yes |A deprecated term that should no longer be used but
+is documented for backward compatibility.
+|`definition` |yes |no |The formal definition of the concept. Shall be
+concise, unique within the model, and state the concept rather than describe
+usage.
+|`scope_note` |no |no |Additional context about the scope or application of
+the term.
+|`language` |no |no |ISO 639 language code indicating the language of this
+term entry. Defaults to `"en"` if not specified.
+|`country` |no |no |ISO 3166 country code indicating the regional variant.
+Used when term usage differs between countries sharing a language.
+|`part_of_speech` |no |no |The grammatical part of speech of the term.
+|`form_type` |no |no |The form classification of the term designation.
+|===
+
+=== Example
+
+[source,mmel]
+----
+term_entry risk_management {
+  term "risk management"
+  alt "risk control"
+  deprecated "risk handling"
+  definition "systematic application of management policies, procedures and practices to the tasks of communicating, consulting, establishing the context, and identifying, analysing, evaluating, treating, monitoring and reviewing risk"
+  scope_note "This term applies to the organizational processes described in ISO 31000."
+  language "en"
+  country "GB"
+  part_of_speech noun
+  form_type fullForm
+}
+----
+
+=== Term entry identifier
+
+The `<ID>` following the `term_entry` keyword is the internal identifier for
+the term entry within the model. It:
+
+* follows standard MMEL identifier rules (starts with a letter or underscore,
+may contain letters, digits, underscores, and hyphens).
+* is used for cross-referencing term entries from other model elements.
+* is independent of the term text itself.
+
+=== Multiple alternative terms
+
+A single term entry may include multiple `alt` entries to list all admitted
+forms:
+
+[source,mmel]
+----
+term_entry data_controller {
+  term "data controller"
+  alt "controller"
+  alt "PII controller"
+  deprecated "data owner"
+  definition "entity that determines the purposes and means of processing personal data"
+  language "en"
+  part_of_speech noun
+  form_type fullForm
+}
+----
+
+=== Relationship to model elements
+
+Term entries are top-level declarations in MMEL model files, analogous to
+classes, enums, and provisions. They can be referenced from:
+
+* `definition` fields in class field properties.
+* `message` fields in note constructs.
+* `condition` fields in provision constructs.
+* `scope_note` fields in other term entries.
+
+This integration ensures that all text in the model uses consistently defined
+terminology.

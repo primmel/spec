@@ -1,0 +1,247 @@
+[[gateway-conditions]]
+== Gateway conditions
+
+=== General
+
+Gateway conditions are measurement-based expressions used on the edges of
+exclusive gateways in subprocess diagrams. They determine which outgoing path
+from a gateway is taken based on the current values of measurement variables.
+This enables parameterized process flows that adapt to measurement data.
+
+=== Edge condition syntax
+
+In a subprocess `process_flow` section, edges may carry a `condition`
+attribute:
+
+[source,mmel]
+----
+subprocess <SubprocessID> {
+  process_flow {
+    Edge<EdgeNumber> {
+      from <GatewayID>
+      to <ProcessID>
+      description "Branch label"
+      condition "<condition expression>"
+    }
+  }
+}
+----
+
+The `condition` attribute contains a measurement expression or the special
+value `"default"`.
+
+=== With conditions (parameterized branching)
+
+When gateway edges carry measurement-based conditions, the path is selected
+by evaluating the condition against the current measurement values. Exactly
+one edge whose condition evaluates to true is followed.
+
+==== Boolean measurement conditions
+
+TRUE/FALSE measurements are compared with string literals:
+
+[source,mmel]
+----
+Edge3 {
+  from DCGateway
+  to DCEarthGateway
+  description "Yes"
+  condition "[dc] = 'true'"
+}
+----
+
+This edge is taken when the `dc` measurement (TRUE/FALSE type) has the value
+`'true'`, indicating the cable is for direct current.
+
+[source,mmel]
+----
+Edge4 {
+  from ACEarthGateway
+  to RatedVoltageEarthAC
+  description "Yes"
+  condition "[target] = 'true'"
+}
+----
+
+This edge is taken when the `target` measurement indicates
+conductor-to-conductor mode.
+
+==== Table lookup conditions
+
+TABLE_REFERENCE measurements return values that can be compared numerically:
+
+[source,mmel]
+----
+Edge8 {
+  from CableTable6Gateway
+  to TwoPulleyFlexingTest
+  description "Yes"
+  condition "[tableRef] = 6"
+}
+----
+
+This edge is taken when the looked-up table reference value equals 6.
+
+[source,mmel]
+----
+Edge9 {
+  from CableTable6Gateway
+  to AlternativeTest
+  description "No"
+  condition "[tableRef] < 6"
+}
+----
+
+==== Is-circular conditions
+
+[source,mmel]
+----
+Edge2 {
+  from DimensionCableTypeGateway
+  to DimensionsForCircularCables
+  description "Yes"
+  condition "[isCircular] = 'true'"
+}
+Edge3 {
+  from DimensionCableTypeGateway
+  to DimensionsForFlatCables
+  description "No"
+  condition "default"
+}
+----
+
+=== Without conditions (default gateway behavior)
+
+When a gateway has no edge conditions (or only `"default"` conditions), it
+follows the default gateway behavior: the gateway is fulfilled if at least
+one of its outgoing paths is fulfilled.
+
+The `"default"` condition marks the fallback path from a gateway:
+
+[source,mmel]
+----
+Edge5 {
+  from ACEarthGateway
+  to RatedVoltageConductorAC
+  description "No"
+  condition "default"
+}
+----
+
+An edge with `condition "default"` is taken when no other edge from the same
+gateway has a condition that evaluates to true. Every gateway SHOULD have
+exactly one edge with the `"default"` condition as a fallback.
+
+=== Condition writer
+
+The condition expression format in gateway edges follows the same rules as
+`validate_measurement` expressions:
+
+* `[MeasurementID]` references a measurement value
+* `= 'true'` or `= 'false'` for boolean comparisons
+* `= <number>` for numeric equality
+* `< <number>` and `> <number>` for numeric comparison
+* `"default"` for the default fallback path
+
+=== Examples
+
+==== DC/AC branching in BS 6004
+
+The BS 6004 model uses gateway conditions to branch between DC and AC test
+paths based on the `dc` and `target` measurements:
+
+[source,mmel]
+----
+subprocess Page1 {
+  process_flow {
+    Edge3 {
+      from DCGateway
+      to DCEarthGateway
+      description "Yes"
+      condition "[dc] = 'true'"
+    }
+    Edge4 {
+      from ACEarthGateway
+      to RatedVoltageEarthAC
+      description "Yes"
+      condition "[target] = 'true'"
+    }
+    Edge5 {
+      from ACEarthGateway
+      to RatedVoltageConductorAC
+      description "No"
+      condition "default"
+    }
+    Edge6 {
+      from DCEarthGateway
+      to RatedVoltageEarthDC
+      description "Yes"
+      condition "[target] = 'true'"
+    }
+    Edge7 {
+      from DCEarthGateway
+      to RatedVoltageConductorDC
+      description "No"
+      condition "default"
+    }
+  }
+}
+----
+
+This creates a two-level branching structure:
+
+. First, branch on DC vs AC (`[dc] = 'true'`)
+. Then, for each branch, select conductor-to-earth vs conductor-to-conductor
+(`[target] = 'true'`)
+
+==== Circular vs flat cable in BS 6004
+
+[source,mmel]
+----
+subprocess Page17 {
+  process_flow {
+    Edge2 {
+      from DimensionCableTypeGateway
+      to DimensionsForCircularCables
+      description "Yes"
+      condition "[isCircular] = 'true'"
+    }
+    Edge3 {
+      from DimensionCableTypeGateway
+      to DimensionsForFlatCables
+      description "No"
+      condition "default"
+    }
+  }
+}
+----
+
+The `isCircular` measurement is a TABLE_REFERENCE that returns `'true'` or
+`'false'` based on the cable type, determining which dimensional path to
+follow.
+
+==== Voltage validation with measurement expressions
+
+The validation expressions on processes that follow gateway branches test
+against specific thresholds:
+
+[source,mmel]
+----
+process RatedVoltageEarthAC {
+  name "Rated Voltage for conductor-earth (ac)"
+  validate_measurement {
+    "[OpV] <= 320"
+  }
+}
+
+process RatedVoltageEarthDC {
+  name "Rated Voltage for conductor-earth (dc)"
+  validate_measurement {
+    "[OpV] <= 410"
+  }
+}
+----
+
+The gateway conditions select the appropriate test path, and the
+`validate_measurement` on each process tests against the correct threshold
+for that path.

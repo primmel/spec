@@ -1,0 +1,119 @@
+[[terminology-formal-grammar]]
+== Formal grammar for terminology
+
+=== General
+
+This clause provides a proposed EBNF grammar for terminology constructs in
+MMEL. This grammar extends the base MMEL grammar defined in MN 113.
+
+=== EBNF grammar
+
+[source,ebnf]
+----
+(* Terminology constructs -- extends MMEL Declaration production *)
+
+TermEntryDecl    ::= 'term_entry' IDENTIFIER '{' TermField* '}'
+
+TermField        ::= 'term' STRING
+                   | 'alt' STRING
+                   | 'deprecated' STRING
+                   | 'definition' STRING
+                   | 'scope_note' STRING
+                   | 'language' STRING
+                   | 'country' STRING
+                   | 'part_of_speech' POS_TYPE
+                   | 'form_type' FORM_TYPE
+
+POS_TYPE         ::= 'noun'
+                   | 'verb'
+                   | 'adjective'
+                   | 'adverb'
+
+FORM_TYPE        ::= 'fullForm'
+                   | 'abbreviation'
+                   | 'acronym'
+                   | 'symbol'
+                   | 'equation'
+                   | 'formula'
+                   | 'variant'
+----
+
+=== Extension to MMEL Declaration
+
+The `TermEntryDecl` production is added to the `Declaration` production in the
+base MMEL grammar:
+
+[source,ebnf]
+----
+Declaration     ::= RoleDecl
+                  | StartEventDecl
+                  | EndEventDecl
+                  | TimerEventDecl
+                  | SignalCatchEventDecl
+                  | GatewayDecl
+                  | ProcessDecl
+                  | ApprovalDecl
+                  | ClassDecl
+                  | EnumDecl
+                  | DataRegistryDecl
+                  | ProvisionDecl
+                  | NoteDecl
+                  | ReferenceDecl
+                  | MeasurementDecl
+                  | LinkDecl
+                  | TableDecl
+                  | FigureDecl
+                  | MapProfileDecl
+                  | SubprocessDecl
+                  | TermEntryDecl         (* NEW *)
+----
+
+=== Constraints
+
+The following constraints apply to term entries:
+
+. Every `term_entry` SHALL contain exactly one `term` field.
+. Every `term_entry` SHALL contain exactly one `definition` field.
+. A `term_entry` MAY contain zero or more `alt` fields.
+. A `term_entry` MAY contain zero or more `deprecated` fields.
+. A `term_entry` MAY contain at most one `scope_note` field.
+. A `term_entry` MAY contain at most one `language` field.
+. A `term_entry` MAY contain at most one `country` field.
+. A `term_entry` MAY contain at most one `part_of_speech` field.
+. A `term_entry` MAY contain at most one `form_type` field.
+
+=== Example parse
+
+Given the following term entry:
+
+[source,mmel]
+----
+term_entry data_controller {
+  term "data controller"
+  alt "controller"
+  deprecated "data owner"
+  definition "entity that determines the purposes and means of processing personal data"
+  scope_note "Term adapted from GDPR Article 4(7)"
+  language "en"
+  part_of_speech noun
+  form_type fullForm
+}
+----
+
+The parse result is:
+
+----
+TermEntryDecl {
+  id = "data_controller"
+  fields = [
+    Term("data controller"),
+    Alt("controller"),
+    Deprecated("data owner"),
+    Definition("entity that determines the purposes and means of processing personal data"),
+    ScopeNote("Term adapted from GDPR Article 4(7)"),
+    Language("en"),
+    PartOfSpeech(Noun),
+    FormType(FullForm)
+  ]
+}
+----

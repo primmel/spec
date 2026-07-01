@@ -1,0 +1,106 @@
+= Acme Coffee Programme — implementation package
+
+This package demonstrates the full Primmel workflow as a fictional
+organisation (Acme Corporation) implements a fictional standard (the Office
+Coffee Standard, OCS). It mirrors the patterns used in real implementation
+models: cross-model aliasing via `OCS#ElementID`, multi-page subprocesses,
+gateway conditions, timer loops, and dual mapping (`.mmel` `map_profile` plus
+standalone `.map`).
+
+== Files in this package
+
+[cols="1,4", options="header"]
+|===
+|File |Purpose
+|`ocs-standard.sdc` |The source standard. Clause-level content extracted into SDC format, including `NOTE` and `EXAMPLE` annotations.
+|`acme-coffee-programme.mmel` |Acme's implementation model. Local processes interleave with `OCS#`-prefixed aliases imported from the standard.
+|`acme-to-ocs.map` |JSON mapping from Acme processes to OCS processes. Mirrors the `map_profile OCS { ... }` block in the model.
+|`sample-workspace.sws` |Bean lots, roast batches, and an approved supplier as actual records in a workspace.
+|===
+
+== Patterns to look for
+
+=== Cross-model aliasing (`OCS#ElementID`)
+
+An implementation model can reference elements defined in a standard model by
+prefixing their IDs with the standard's namespace and `#`. In
+`acme-coffee-programme.mmel` this appears as:
+
+* `process OCS#SourceBeans { ... }` — a local declaration of a standard process
+* `provision OCS#Provision4-2-1 { ... }` — a local declaration of a standard provision
+* `reference OCS#Ref4-2 { ... }` — a local declaration of a standard reference
+* `start_event OCS#Start1 { }` — a local declaration of a standard start event
+
+These aliased elements are then referenced by Acme's own processes via
+`validate_provision { OCS#Provision4-2-1 }`, signaling "this Acme process
+satisfies that OCS requirement."
+
+=== Subject bindings (`subject#N`)
+
+The provision `StandardMeetQuality` uses a `subject#1` binding to link the
+provision's evaluation to records in `RoastBatchRegistry`. The condition text
+uses `{ Roast batches (Data) }` as a placeholder for the bound subject. This
+pattern is heavily used in real models for data-aware compliance evaluation.
+
+=== Multi-page subprocesses
+
+The model has four subprocesses: `Root` (the top-level flow), `BeanSourcingFlow`,
+`QualityCheckFlow`, and `SupplierReviewFlow`. Each subprocess has its own
+`start_event` and can be entered independently. This mirrors the page-based
+diagram layout used in real implementation models.
+
+=== Timer loops
+
+`SupplierReviewTimer` is a `REPEAT` timer wired in a loop:
+`ReviewSuppliers → SupplierReviewTimer → ReviewSuppliers`. This models a
+recurring process: "review suppliers, wait 12 months, review again."
+
+=== Gateway conditions
+
+`MoistureGateway` uses measurement expressions on its outgoing edges. A
+gateway edge may carry both `description` (human-readable) and `condition`
+(machine-readable measurement expression). The edge with
+`description "default"` is the fallback when no condition matches.
+
+=== Dual mapping (`.mmel` and `.map`)
+
+The same Acme → OCS mapping is expressed twice:
+
+* In the model file as `map_profile OCS { mapping { from ... to ... } }`
+* In the standalone `acme-to-ocs.map` JSON file
+
+The two forms are equivalent. The `.mmel` form keeps the mapping with the
+model; the `.map` form allows the mapping to be maintained and versioned
+independently.
+
+=== Reference layering
+
+The model defines both local references (`OCS-doc-4-2` etc.) and
+standard-namespace references (`OCS#Ref4-2` etc.). The local ones are used
+by Acme's own provisions; the `OCS#` ones are used by the imported standard
+provisions. Both point at the same underlying SDC file clauses.
+
+== Reading path
+
+. Start with `ocs-standard.sdc`. Note the clause numbers (`4.1`, `4.2`, `4.3`,
+  `4.4`) — these are what everything else traces back to.
+. Open `acme-coffee-programme.mmel`. Find each `reference OCS-doc-4-N`
+  declaration and match it to an SDC clause.
+. Find each `provision OCS#Provision*` declaration. These are Acme's local
+  copies of standard provisions, used to make Acme's processes validate
+  against the standard.
+. Find each Acme process. Every one carries `validate_provision { ... }`
+  listing the provisions (both local and `OCS#`) it must satisfy.
+. Open `acme-to-ocs.map`. Each Acme process maps to an `OCS#`-prefixed
+  process with a `description` and `justification`. Some entries are left
+  blank — this is normal during mapping authoring.
+. Open `sample-workspace.sws`. Pick any batch (e.g. `b-2026-001`). Its
+  `attributes` map onto the fields of `class RoastBatch#data` — that is the
+  record shape `LogEveryRoastBatch` requires Acme to maintain.
+
+== What is fictional here
+
+Everything. Acme Corporation, the Office Coffee Standard (OCS), Highland Beans
+Co., and the bean origins are invented for teaching purposes. No real
+standards, organisations, or proprietary content appears in any file in this
+package.

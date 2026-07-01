@@ -1,0 +1,103 @@
+[[mapping-coverage]]
+== Mapping coverage
+
+=== General
+
+Mapping coverage analysis determines the extent to which a reference model's
+processes are addressed by an implementation model's mappings. Coverage is a
+key indicator of compliance completeness.
+
+=== Coverage types
+
+MMEL defines four levels of mapping coverage for a reference model process:
+
+[cols="1,3"]
+|===
+|Coverage type |Description
+
+|Full cover |The reference process is fully addressed by one or more mapped
+implementation processes. All provisions, data requirements, and actor
+obligations are satisfied.
+|Minimal cover |At least one implementation process maps to the reference
+process, but coverage may not be complete. Some provisions or data
+requirements may not be fully addressed.
+|Partial cover |Some aspects of the reference process are addressed by mapped
+implementation processes, but significant gaps remain.
+|No cover |No implementation process maps to the reference process. The
+reference requirement is unaddressed.
+|===
+
+=== Coverage determination
+
+Coverage is determined by analysing the mapping data:
+
+. For each reference model process, identify all implementation model processes
+that map to it.
+. If at least one mapping exists, the process has at least *minimal cover*.
+. If the mapping descriptions and justifications indicate all provisions are
+addressed, the process has *full cover*.
+. If some but not all provisions are addressed, the process has *partial cover*.
+. If no mapping exists, the process has *no cover*.
+
+=== Inherited coverage
+
+When a parent process is mapped, its subprocesses are considered *fully covered*
+by inheritance. This reflects the hierarchical nature of MMEL processes: if a
+top-level process is mapped, all of its subprocess activities are implicitly
+covered.
+
+.Inherited coverage rule
+----
+Process A (mapped to Process B)          Process B (reference)
+  |                                         |
+  +-- Subprocess A1                        +-- Subprocess B1
+  |                                         |
+  +-- Subprocess A2                        +-- Subprocess B2
+          |
+          +-- Subprocess A3
+
+Since A => B is mapped:
+  A1, A2, A3 are considered fully covered (inherited from A)
+----
+
+Inherited coverage applies when:
+
+* The parent process has an explicit mapping to a reference process.
+* The subprocesses of the parent are not individually mapped (or their
+individual mappings are subsumed by the parent mapping).
+
+If a subprocess has its own explicit mapping, that mapping takes precedence
+over inherited coverage.
+
+=== Coverage indicators
+
+Coverage is reported as a set of indicators for each reference model process:
+
+[cols="1,2"]
+|===
+|Indicator |Meaning
+
+|`COVERED_FULL` |The process is fully covered by explicit or inherited mappings.
+|`COVERED_MINIMAL` |The process has at least one mapping but may have gaps.
+|`COVERED_PARTIAL` |The process is partially addressed with significant gaps.
+|`NOT_COVERED` |No mapping exists for this process.
+|`COVERED_INHERITED` |The process is covered by inheritance from a parent
+mapping.
+|===
+
+=== Coverage summary
+
+A coverage summary for a model mapping is expressed as:
+
+[source]
+----
+Total reference processes: N
+Full cover:      X (X%)
+Minimal cover:   Y (Y%)
+Partial cover:   Z (Z%)
+No cover:        W (W%)
+----
+
+A mapping is considered *complete* when all reference processes have at least
+minimal cover. A mapping is considered *comprehensive* when all reference
+processes have full cover.

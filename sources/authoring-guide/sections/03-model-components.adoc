@@ -1,0 +1,226 @@
+== Model components
+
+This section describes each type of component that can be defined in an MMEL model.
+
+=== Metadata
+
+Model metadata is configured through the Model Editor under _Model Settings > Metadata_.
+
+The metadata fields identify and describe the model:
+
+[cols="1,3"]
+|===
+| Field | Description
+
+| Title | Full title of the model
+| Schema | MMEL schema version
+| Edition | Model edition number
+| Author | Person or organization responsible
+| Shortname | Abbreviated identifier
+| Namespace | Unique identifier for the model
+|===
+
+=== Sections
+
+Sections represent structural parts of the source document used for document generation. Each section has:
+
+* An internal ID (unique within the model)
+* A title
+* Text contents
+
+Sections correspond to clauses, subclauses, and annexes in the source standard.
+
+[source,mmel]
+----
+section S_1 {
+  id "1"
+  title "Scope"
+  text "This document specifies requirements for..."
+}
+----
+
+=== Terms and definitions
+
+Terms and definitions capture the terminology used in the source document.
+
+NOTE: Future integration with Glossarist is planned for enhanced terminology management.
+
+Each term entry includes:
+
+[cols="1,2"]
+|===
+| Field | Description
+
+| ID | Unique identifier for the term
+| Term | The preferred term
+| Admitted terms | Alternative accepted terms
+| Definition | The definition text
+| Notes | Explanatory notes accompanying the definition
+|===
+
+[source,mmel]
+----
+term T_cable {
+  term "cable"
+  admitted "cable assembly"
+  definition "length of insulated conductor(s)..."
+  note "Cables may include one or more conductors."
+}
+----
+
+=== Roles
+
+Roles represent the actors and approvers involved in the modeled processes. Each role has:
+
+* A unique Role ID
+* A display name
+
+Roles are referenced by processes (as actors) and by approvals (as approvers).
+
+[source,mmel]
+----
+role Organization {
+  display_name "The organization"
+}
+
+role TopManagement {
+  display_name "Top management"
+}
+----
+
+A process references a role via the `actor` keyword:
+
+[source,mmel]
+----
+process ConductAudit {
+  actor Organization
+}
+----
+
+An approval references both an actor and an approver:
+
+[source,mmel]
+----
+approval ApproveAuditResults {
+  actor Organization
+  approver TopManagement
+}
+----
+
+=== References
+
+References link model elements to specific clauses in external standards or documents. Each reference specifies:
+
+[cols="1,2"]
+|===
+| Field | Description
+
+| Document | The source document identifier
+| Clause | The clause number within the document
+| Title | A description of the referenced content
+|===
+
+Batch insertion is supported, allowing multiple references to be created at once from a list of clause numbers.
+
+[source,mmel]
+----
+reference BS202000_9_2_1 {
+  document "BS 202000"
+  clause "9.2.1"
+  title "Internal audit"
+}
+----
+
+=== Data registries
+
+A data registry is a data store identified by an ID and display name. It is backed by a data class that defines its structure.
+
+Each attribute in the registry has:
+
+* **Cardinality** -- whether the attribute is singular or multiple (e.g., `1..1`, `0..*`)
+* **Modality** -- the RFC 2119 modality if the attribute represents a requirement
+* **Type** -- the data type of the attribute (see <<#attribute-types>>)
+
+[source,mmel]
+----
+data_registry RiskPlan {
+  display_name "Risk Plan"
+  data_class RiskPlan#data
+}
+----
+
+=== Attribute types
+
+The following attribute types are available:
+
+[cols="1,2"]
+|===
+| Type | Description
+
+| String | Free-form text value
+| Boolean | True/false value
+| Datetime | Date and/or time value
+| Role | A value selected from the defined roles in the model
+|===
+
+=== Data classes
+
+Data classes define custom data structures. They differ from data registries in a key way:
+
+* A **data registry** is a data store that persists data instances.
+* A **data class** is a structural definition used to define the shape of data.
+
+[source,mmel]
+----
+class RiskPlan#data {
+  attribute name : String [1..1]
+  attribute description : String [0..1]
+  attribute approved : Boolean [1..1]
+}
+----
+
+=== Enumerations
+
+Enumerations define a drop-down list of possible values. They are used to constrain attribute values to a predefined set.
+
+[source,mmel]
+----
+enum CableType {
+  value "Single-core"
+  value "Multi-core"
+  value "Flexible"
+}
+----
+
+=== Measurements and view profiles
+
+Measurements define quantitative variables that can be used in process tests and gateway conditions.
+
+For detailed instructions on creating and using measurements, refer to the _MMEL Modeling Methodology Guide_.
+
+=== Tables
+
+Tables serve dual purposes in MMEL:
+
+* **Visual tabular content** -- displayed as part of the model documentation
+* **Internal database** -- used to store structured data that can be queried by measurements
+
+Tables can be viewed in two ways:
+
+* **Table view** -- displays the data in a traditional tabular grid
+* **Class view** -- displays the data structured according to its backing data class
+
+Tables support CSV export and import for data exchange with external tools.
+
+=== Multimedia
+
+MMEL supports the following multimedia types:
+
+[cols="1,2"]
+|===
+| Type | Description
+
+| Figure | Static images embedded in the model
+| Video | Video content referenced or embedded
+| 3D model | Three-dimensional model content
+|===

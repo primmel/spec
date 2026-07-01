@@ -1,0 +1,247 @@
+[[process-flow-edges]]
+== Process flow edges
+
+=== General
+
+Process flow edges are directed connections between elements in a subprocess
+diagram. They define the sequence and conditions of the process flow.
+
+=== Edge syntax
+
+[source,mmel]
+----
+Edge<EdgeNumber> {
+  from <SourceElementID>                <1>
+  to <TargetElementID>                  <2>
+  description "Branch label"            <3>
+  condition "<condition expression>"    <4>
+}
+----
+
+<1> Source element ID. Required.
+<2> Target element ID. Required.
+<3> Human-readable label for the edge. Optional. Used primarily for gateway
+branching paths.
+<4> Condition expression for gateway branching. Optional. The string `"default"`
+marks the default fallback path.
+
+Edge numbers are unique within a subprocess's `process_flow` section but need
+not be sequential.
+
+=== Serial connections
+
+The most common edge pattern is a serial connection, where one element flows
+directly to the next:
+
+[source,mmel]
+----
+Edge0 {
+  from Start0
+  to DetermineSubject
+}
+
+Edge1 {
+  from DetermineSubject
+  to SelectMethodologies
+}
+
+Edge8 {
+  from SelectMethodologies
+  to QuantifyCarbon
+}
+----
+
+Serial edges have no `description` or `condition` fields. They simply define the
+sequence of execution.
+
+=== Parallel connections
+
+When a source element has multiple outgoing edges without conditions, both
+target elements are activated. There is no guaranteed order between them; both
+are required:
+
+[source,mmel]
+----
+Edge77 {
+  from Start0
+  to IdentifyStandardProcess
+}
+
+Edge13 {
+  from Start0
+  to Documentation
+}
+
+Edge25 {
+  from Start0
+  to DeterminePeriod
+}
+----
+
+In this example, the start event connects to three elements in parallel. All
+three are triggered simultaneously.
+
+=== Self connections (repeated execution)
+
+A self connection occurs when a process connects to a timer event and the timer
+connects back to the same process, creating a repeating cycle:
+
+[source,mmel]
+----
+Edge61 {
+  from MakeCommitment
+  to TimerEvent1
+}
+
+Edge62 {
+  from TimerEvent1
+  to MakeCommitment
+}
+----
+
+This pattern creates a loop where:
+
+. The `MakeCommitment` process triggers the `TimerEvent1` timer
+. When the timer fires (after the specified wait period), the flow returns to
+`MakeCommitment`
+. The cycle repeats
+
+Another self-connection pattern with an intermediate process:
+
+[source,mmel]
+----
+Edge80 {
+  from ImplementPlan
+  to TimerEvent2
+}
+
+Edge65 {
+  from TimerEvent2
+  to PeriodicAssessment
+}
+
+Edge66 {
+  from PeriodicAssessment
+  to ImplementAction
+}
+
+Edge68 {
+  from ImplementAction
+  to ImplementPlan
+}
+----
+
+This creates a loop: ImplementPlan -> TimerEvent2 -> PeriodicAssessment ->
+ImplementAction -> ImplementPlan.
+
+=== Gateway branching with conditions
+
+Gateway branching uses edges with `description` and optionally `condition`
+fields to define the decision paths:
+
+==== Simple Yes/No branching
+
+[source,mmel]
+----
+Edge47 {
+  from NATOGateway
+  to SelectStandardB
+  description "Yes"
+}
+
+Edge48 {
+  from NATOGateway
+  to SelectStandardC
+  description "No"
+}
+----
+
+==== Branching with default path
+
+[source,mmel]
+----
+Edge34 {
+  from SubjectChangeGateway
+  to EndEvent3
+  description "default"
+}
+
+Edge35 {
+  from SubjectChangeGateway
+  to Restart
+  description "Material change to the subject occurs"
+}
+----
+
+The `"default"` description marks the fallback path when no specific condition
+is met.
+
+==== Branching with measurement expression conditions
+
+Edges may carry `condition` expressions that reference measurement values. These
+conditions are evaluated to determine which path is taken:
+
+[source,mmel]
+----
+Edge46 {
+  from SingleSourceDominanceGateway
+  to AlternativeCoverageValidation
+  description "A single source contributes more than 50% of the total emissions"
+  condition "[Largest_Emission_In_Percentage] > 0.5"
+}
+
+Edge47 {
+  from SingleSourceDominanceGateway
+  to ApplyOverallCoverageRule
+  description "default"
+  condition "default"
+}
+----
+
+When the measurement `[Largest_Emission_In_Percentage]` exceeds 0.5, the
+alternative coverage validation path is taken.
+
+==== Boolean measurement conditions
+
+[source,mmel]
+----
+Edge3 {
+  from SterileMedicalDevicesGateway
+  to EndEvent2
+  description "no"
+  condition "default"
+}
+
+Edge4 {
+  from SterileMedicalDevicesGateway
+  to DocumentRequirementsForContamination
+  description "Yes"
+  condition "[sterile] = 'true'"
+}
+----
+
+The `[sterile]` measurement is a TRUE/FALSE type. When its value is `'true'`,
+the contamination control documentation path is taken.
+
+=== Edge condition expressions
+
+Edge conditions may contain:
+
+* *Measurement references* -- `[MeasurementID]` references a measurement value
+* *Aggregation operators* -- `.max`, `.min`, `.sum` for DATALIST measurements
+* *Arithmetic operators* -- `+`, `-`, `*`, `/`
+* *Comparison operators* -- `<`, `<=`, `>`, `>=`, `=`
+* *String literals* -- `'true'`, `'false'` for boolean comparisons
+* *The keyword* `default` -- marks the default fallback path
+
+Examples of edge condition expressions:
+
+[cols="1,3"]
+|===
+|Expression |Meaning
+
+|`[Largest_Emission_In_Percentage] > 0.5` |Largest emission source exceeds 50%
+|`[sterile] = 'true'` |Device is classified as sterile
+|`[outsourcing] = 'true'` |Process involves outsourcing
+|`default` |Default fallback path (no condition)
+|===

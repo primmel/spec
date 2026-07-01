@@ -1,0 +1,84 @@
+[[compliance-overview]]
+== Compliance modelling overview
+
+=== Purpose
+
+This part of the MMEL specification defines the compliance and requirements
+modelling features of the Multi-Modal Modelling Language (MMEL). Compliance
+modelling is the core mechanism by which MMEL connects process behaviours to
+normative obligations, enabling standards developers and compliance engineers
+to trace every requirement from its source document through to implementation
+and verification.
+
+=== Compliance traceability chain
+
+MMEL implements a layered traceability chain that connects external normative
+documents to process-level compliance checks. Each link in this chain is
+explicitly modelled and machine-readable.
+
+.Compliance traceability chain
+----
+Normative Document (external)
+  |
+  +-- Clause content (.sdc file)                    <1>
+  |
+  +-- reference { document, clause, title }         <2>
+       |
+       +-- provision { condition, modality, reference }  <3>
+            |
+            +-- process.validate_provision { ProvisionID } <4>
+                 |
+                 +-- Evaluated during compliance checking  <5>
+----
+
+<1> The Supplementary Document Content (SDC) file extracts clause-level text
+from the source normative document.
+<2> A `reference` construct provides the bibliographic link to the external
+document clause.
+<3> A `provision` defines the compliance requirement with its modality keyword
+and optional subject bindings.
+<4> A process declares which provisions it must satisfy via
+`validate_provision`.
+<5> At runtime, compliance checking evaluates whether the process satisfies all
+its bound provisions.
+
+=== Principles
+
+MMEL compliance modelling follows these fundamental principles:
+
+Compliance awareness::
+Every process element can carry compliance obligations via provisions with
+RFC 2119 modality keywords (SHALL, SHOULD, MAY, CAN, MUST). This makes the
+model directly usable for compliance checking without separate requirement
+documents.
+
+Traceability::
+Every provision links to normative references, providing full traceability
+from implementation back to source standards. Data class fields, approvals,
+and notes can also carry references.
+
+RFC 2119 alignment::
+Modality keywords in MMEL follow the semantics defined in RFC 2119 and
+RFC 8174, ensuring interoperability with standards that use these conventions.
+
+Subject binding::
+Provisions can bind entities (roles, data registries) to numbered subject
+slots, enabling parameterized compliance conditions where entity names are
+substituted into the condition text at evaluation time.
+
+Provision classification::
+Provisions are classified by type -- governing provisions impose obligations
+(Requirements, Instructions), while assertional provisions describe
+capabilities, possibilities, or informational statements.
+
+=== Relationship to other MMEL parts
+
+This part builds on the core MMEL syntax defined in MN 113 and relates to
+other parts as follows:
+
+* MN 113 (Core specification) -- defines the base syntax for provisions,
+references, and notes
+* MN 113-5 (Measurements and Validation) -- defines `validate_measurement`
+for quantitative compliance checking
+* MN 113-3 (Process Model) -- defines processes that carry
+`validate_provision` bindings

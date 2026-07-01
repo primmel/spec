@@ -1,0 +1,104 @@
+[[model-structure]]
+== Complete model structure
+
+=== General
+
+An MMEL model file follows this overall structure. The order of top-level
+declarations is flexible, but conventionally follows this pattern:
+
+[source,mmel]
+----
+root <RootName>
+
+version "v1.0.0-dev1"
+
+metadata { ... }
+
+// Roles
+role <RoleID> { ... }
+
+// Events
+start_event <ID> { }
+end_event <ID> { }
+timer_event <ID> { ... }
+signal_catch_event <ID> { ... }
+
+// Gateways
+exclusive_gateway <ID> { ... }
+
+// Processes
+process <ID> { ... }
+
+// Approvals
+approval <ID> { ... }
+
+// Data Classes
+class <Name>#data { ... }
+class <Name> { ... }
+
+// Enumerations
+enum <Name> { ... }
+
+// Data Registries
+data_registry <Name> { ... }
+
+// Provisions
+provision <ID> { ... }
+
+// Notes
+note <ID> { ... }
+
+// References
+reference <ID> { ... }
+
+// Measurements
+measurement <ID> { ... }
+
+// Links
+link <ID> { ... }
+
+// Tables
+table <ID> { ... }
+
+// Figures
+figure <ID> { ... }
+
+// Map profiles
+map_profile <Namespace> { ... }
+
+// Subprocesses (diagrams)
+subprocess <ID> { ... }
+----
+
+=== Summary of construct types
+
+[cols="1,2,3"]
+|===
+|Construct |Keyword |Purpose
+
+|Root declaration |`root` |Top-level model identity
+|Version |`version` |Semantic version
+|Metadata |`metadata` |Model metadata (title, schema, namespace, etc.)
+|Role |`role` |Organizational actor
+|Start event |`start_event` |Process flow start
+|End event |`end_event` |Process flow end
+|Timer event |`timer_event` |Temporal condition (WAIT or REPEAT)
+|Signal catch event |`signal_catch_event` |Intermediate signal wait
+|Exclusive gateway |`exclusive_gateway` |Decision point
+|Process |`process` |Task/activity with compliance
+|Approval |`approval` |Approval workflow step
+|Data class |`class ...#data` |Data structure (for registries)
+|Helper class |`class ...` |Nested/embedded complex type
+|Enumeration |`enum` |Named value set
+|Data registry |`data_registry` |Persistent data store
+|Provision |`provision` |Compliance requirement
+|Note |`note` |Structured annotation
+|Reference |`reference` |Normative document clause
+|Measurement |`measurement` |Quantitative KPI (NUMERIC, DATALIST, DERIVED, TRUE/FALSE, DURATION)
+|Link |`link` |Cross-model or external reference (REPO or URL)
+|Table |`table` |Structured tabular data
+|Figure |`figure` |Embedded image/diagram
+|Map profile |`map_profile` |Cross-model element mapping
+|Subprocess |`subprocess` |Diagram container with layout
+|===
+

@@ -1,0 +1,37 @@
+== Methodology overview
+
+=== Goal
+
+The goal of MMEL modeling is to capture requirements from standards documents in an unambiguous, machine-readable model. The model represents the structure, processes, data, and compliance requirements defined in the source document.
+
+=== Model is not unique
+
+There is no single correct model for a given standard. Multiple valid models may exist, each representing a legitimate interpretation of the source text. The modeler makes design decisions about how to structure the model, and different modelers may arrive at different but equally valid solutions.
+
+=== Scope of this guide
+
+This guide describes the methodology and principles for creating MMEL models. For instructions on using the MMEL editor tool, refer to the _MMEL Authoring Guide_.
+
+=== Principles
+
+The following principles guide the modeling process:
+
+==== Understand requirements
+
+Before beginning to model, thoroughly read and understand the source document. The modeler should have a clear comprehension of the document's purpose, scope, and requirements.
+
+==== Preserve original words
+
+The model must preserve the exact wording of the source document. Do not paraphrase, reword, or summarize requirement text. The original language must appear verbatim in provisions.
+
+==== No additional contents
+
+Do not add content that does not appear in the source document. The model should faithfully represent what is in the document -- nothing more, nothing less.
+
+==== Cover all words
+
+Every requirement, process, and data element in the source document should have a corresponding representation in the model. The model should achieve 100% coverage of the source text.
+
+==== Focus on main document
+
+Model the main body of the standard. Ancillary materials such as forewords, introductions (unless they contain normative requirements), and informative annexes are generally modeled as sections only, unless they contain requirements that need to be captured as provisions.

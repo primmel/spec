@@ -1,0 +1,126 @@
+== Modeling with branching
+
+This section provides a walkthrough of modeling conditional requirements using gateways and edge conditions, using BS 13485 clause 6.4.2 as an example.
+
+=== Walkthrough: BS 13485 clause 6.4.2
+
+BS 13485 clause 6.4.2 contains requirements for contamination control. Some requirements apply only when the organization manufactures sterile medical devices, creating a conditional branch in the model.
+
+=== Gateway for conditional requirements
+
+A Gateway is used to represent the conditional logic: "if the organization manufactures sterile medical devices, then additional requirements apply."
+
+[source,mmel]
+----
+gateway SterileDeviceCheck {
+  description "Does the organization manufacture sterile medical devices?"
+}
+----
+
+The gateway splits the flow into two paths:
+
+* One path for general requirements (applicable to all organizations)
+* One path for additional requirements (applicable only to organizations manufacturing sterile medical devices)
+
+=== TRUE/FALSE toggle for parameterized view
+
+The condition is modeled as a Boolean parameter that can be toggled:
+
+* When `sterile = true` -- the additional requirements path is active
+* When `sterile = false` -- the additional requirements path is inactive
+
+This creates a parameterized view where the model can represent different configurations depending on the organization's context.
+
+=== Edge conditions
+
+The outgoing edges from the gateway carry conditions that determine which path is taken:
+
+[source,mmel]
+----
+edge SterileDeviceCheck_to_SterileRequirements {
+  condition "[sterile] = 'true'"
+  description "Organization manufactures sterile medical devices"
+}
+
+edge SterileDeviceCheck_to_GeneralRequirements {
+  condition "[sterile] = 'false'"
+  description "Organization does not manufacture sterile medical devices"
+}
+----
+
+When the model is viewed or executed:
+
+* If the `sterile` parameter is set to `true`, the flow follows the sterile requirements path
+* If the `sterile` parameter is set to `false`, the flow follows the general requirements path
+
+=== Modeling the conditional path
+
+The additional requirements for sterile medical devices are modeled as processes connected via the gateway:
+
+[source,mmel]
+----
+process ControlContamination {
+  actor Organization
+  modality SHALL
+  validate_provision P_6_4_2_a
+}
+
+process ControlMicrobiologicalContamination {
+  actor Organization
+  modality SHALL
+  validate_provision P_6_4_2_b
+  condition "[sterile] = 'true'"
+}
+----
+
+=== Diagram structure
+
+The resulting diagram has the following structure:
+
+[source]
+----
+[Start] -> [ControlContamination] -> [Gateway: SterileDeviceCheck]
+                                        |
+                          +--------------+--------------+
+                          |                             |
+                 [sterile = true]              [sterile = false]
+                          |                             |
+        [ControlMicrobiological                       [End]
+         Contamination]
+                          |
+                        [End]
+----
+
+=== Future plans
+
+The following enhancements are planned for branching and conditional modeling:
+
+==== OCL support
+
+Future versions will support OCL (Object Constraint Language) for more expressive conditions:
+
+[source,mmel]
+----
+edge Gateway1_to_ProcessA {
+  condition_ocl "self.sterile = true and self.riskLevel > 3"
+}
+----
+
+==== Validation feedback
+
+The model viewer will provide real-time validation feedback, indicating which paths are active based on the current parameter values and highlighting any conflicting or unreachable paths.
+
+==== GUI for formula setting
+
+A graphical user interface for setting edge conditions and measurement formulas is planned, allowing modelers to build conditions visually rather than typing formulas manually.
+
+==== Data class support
+
+Future versions will support using data class attributes directly in conditions, enabling more complex conditional logic based on structured data:
+
+[source,mmel]
+----
+edge Gateway1_to_ProcessA {
+  condition "[device.isSterile] = true"
+}
+----

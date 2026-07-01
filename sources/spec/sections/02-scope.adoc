@@ -1,0 +1,24 @@
+[[scope]]
+== Scope
+
+This document defines a modelling language called the
+"Multi-Modal Modelling Language" (MMEL)
+for defining data models, process models, compliance requirements, and
+quantitative measurements in a single integrated notation.
+
+It also defines requirements for MMEL-compliant tools and runtimes that can
+interpret, validate, and execute models defined in MMEL.
+
+It is a platform-independent, tool-agnostic modelling language, allowing
+defined models to be processed by various compliance-checking engines, process
+visualization tools, and data management systems.
+
+MMEL model files use the `.mmel` extension. Companion file types include:
+
+* `.map` files (JSON) for model-to-model process mapping and alignment
+* `.sdc` files for Supplementary Document Content -- clause-level content
+extracted from source normative documents
+* `.sws` files (JSON) for workspace state -- runtime data stored in data
+registers
+* `.json` files (JSON) -- alternate extension for MMEL_MAP format mapping files
+

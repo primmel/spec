@@ -1,0 +1,83 @@
+[[figures]]
+== Figures
+
+=== General
+
+Figures define images or diagrams embedded in the model as base64-encoded
+data. They capture visual content from normative documents (e.g. process flow
+diagrams, schematic representations) and store them directly within the model
+file.
+
+=== Syntax
+
+[source,mmel]
+----
+figure <FigureID> {
+  title "Figure title"            <1>
+  data "<base64-encoded-data>"    <2>
+}
+----
+
+<1> Human-readable figure title or caption.
+<2> Base64-encoded image data (typically PNG format).
+
+=== Description
+
+Figures store diagrammatic content from normative documents directly within the
+model file. The `data` field contains the complete base64 encoding of the
+image. In practice, this field can be very long (thousands of characters) as
+it encodes the entire binary image.
+
+Figures are declared as top-level constructs in the `.mmel` file and are
+referenced by processes via the `figure { }` property.
+
+=== Figures as process properties
+
+Processes reference figures through the `figure { }` property block:
+
+[source,mmel]
+----
+process GeneralRequirementsForRiskManagement {
+  name "General requirements for risk management"
+  actor Manufacturer
+  validate_provision {
+    Provision7
+  }
+  note {
+    Note1
+    Note2
+  }
+  figure {
+    Figure1
+  }
+  subprocess Page1
+}
+----
+
+A process may reference multiple figures. The association provides traceability
+from the process to its visual documentation.
+
+=== Example
+
+The following example is from the ISO 14971 risk management model:
+
+[source,mmel]
+----
+figure Figure1 {
+  title "Figure 1 -- A schematic representation of the risk management process"
+  data "iVBORw0KGgoAAAANSUhEUgAAAnIAAAUWCAYAAAAW7F5X..."
+}
+----
+
+NOTE: The `data` field in actual model files contains the complete base64
+encoding of the PNG image, which can span many thousands of characters. The
+example above shows a truncated value for brevity.
+
+=== Image format
+
+The base64-encoded data typically represents a PNG image. MMEL-compliant tools:
+
+. SHALL support PNG image decoding for figure data.
+. SHOULD display figures inline in process documentation views.
+. MAY support other image formats (JPEG, SVG) if identified by the base64
+header bytes.

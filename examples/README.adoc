@@ -1,0 +1,203 @@
+= Primmel learning examples
+
+This directory holds small, self-contained Primmel models that demonstrate
+each primitive of the language. Every file is *entirely fictional* — no real
+standards, organisations, or proprietary content appears anywhere.
+
+The shapes of these examples (identifier conventions, multi-page subprocess
+layout, `OCS#ElementID` aliasing, `subject#N` bindings, `.map` style) mirror
+the patterns used in real-world MMEL/Primmel models for standards like ISO
+14971, ISO 13485, BS 20400, MDSAP, and others — but with invented content
+suitable for public distribution.
+
+== Reading order
+
+[cols="1,4,3", options="header"]
+|===
+|Example |Demonstrates |Spec section
+|`01-minimal-model.mmel` |Smallest valid model with a subprocess: `root`, `version`, `metadata`, two roles, one process, start/end events, a single-page diagram |`sources/spec/sections/08-syntax-reference.adoc` (Model header)
+|`02-data-and-registries.mmel` |`enum`, `class#data`, helper class without `#data`, `reference(Target#data)` fields, untyped fields, `data_registry`, `output` writes, `reference_data_registry` reads |`sources/spec/sections/08-syntax-reference.adoc` (Data modelling)
+|`03-process-flow.mmel` |Multi-page subprocesses, multiple `start_event`s, `timer_event` (WAIT + REPEAT), self-connection loop, `exclusive_gateway` with labelled branches and `"default"` fallback |`sources/spec/sections/08-syntax-reference.adoc` (Subprocesses)
+|`04-compliance-and-measurement.mmel` |`provision` with modality, `subject#N` binding, `note`, `table`, `measurement` (DATALIST/DERIVED/TEXT/TABLE_REFERENCE/NUMERIC), `validate_provision`, `validate_measurement`, gateway edge with `condition` |`sources/spec/sections/08-syntax-reference.adoc` (Provisions, Measurements)
+|`05-approval-workflow.mmel` |`approval` with `approve_by`, `approval_record`, role-typed fields |`sources/spec/sections/08-syntax-reference.adoc` (Approval steps)
+|`06-implementation-package/` |Full integration: `.mmel` + `.sdc` + `.map` + `.sws` working together, with `OCS#ElementID` cross-model aliasing |all sections
+|===
+
+== How to read a `.mmel` file
+
+A `.mmel` file is plain text. Open it in any editor. Every model starts with:
+
+----
+root <RootName>
+
+version "vX.Y.Z"
+
+metadata {
+  title "..."
+  schema "MMEL 0.1"
+  ...
+}
+----
+
+followed by any combination of declarations in any order: `role`, `process`,
+`provision`, `class`, `data_registry`, `measurement`, `reference`, `note`,
+`link`, `table`, `figure`, `approval`, `start_event`, `end_event`,
+`exclusive_gateway`, `subprocess`, `map_profile`. Real-world models commonly
+group declarations by type with comment separators; these examples do the
+same.
+
+== Key patterns to recognise
+
+=== Cross-model aliasing (`Namespace#ElementID`)
+
+An implementation model can declare elements that originate in a standard
+model by prefixing their IDs with the standard's namespace and `#`:
+
+----
+process OCS#SourceBeans {
+  name "Source beans"
+}
+
+process AcmeSourceBeans {
+  name "Source beans (Acme implementation)"
+  validate_provision {
+    OCS#Provision4-2-1
+  }
+}
+----
+
+This is how implementation models link their processes to standard-defined
+requirements. See `06-implementation-package/acme-coffee-programme.mmel` for
+a working example.
+
+=== Subject bindings (`subject#N`)
+
+A provision can be bound to a specific data registry, which makes its
+compliance evaluation data-aware:
+
+----
+provision StandardMeetQuality {
+  subject#1 RoastBatchRegistry
+  condition "{ Roast batches (Data) } selected meet the quality requirements"
+  modality SHALL
+}
+----
+
+The `{ ... (Data) }` placeholder is replaced by the bound registry's records
+at evaluation time. See example 04 and the implementation package.
+
+=== Gateway conditions
+
+Gateway outgoing edges may carry both a human-readable `description` and a
+machine-readable `condition` (a measurement expression):
+
+----
+Edge3 {
+  from MoistureGateway
+  to Pass
+  description "Moisture is within the required threshold"
+  condition "[MaxMoisture] <= [RequiredMaxMoisture]"
+}
+Edge5 {
+  from MoistureGateway
+  to Fail
+  description "default"
+}
+----
+
+The edge marked `description "default"` is taken when no other condition
+matches. See example 04 and the implementation package.
+
+=== Timer loops
+
+A `timer_event` with `type REPEAT` can be wired in a loop to model a
+recurring process:
+
+----
+Edge1 { from Start to ReviewSuppliers }
+Edge2 { from ReviewSuppliers to SupplierReviewTimer }
+Edge3 { from SupplierReviewTimer to ReviewSuppliers }
+----
+
+This reads as "review suppliers, wait the specified period, review again."
+See example 03 and the implementation package.
+
+=== Helper classes (without `#data`)
+
+Classes without the `#data` suffix define reusable complex types that can be
+embedded as fields inside data classes, but cannot be linked to registries
+directly:
+
+----
+class RoastProfile {        // helper class, no registry
+  name { definition "Profile name" }
+  target_level: RoastLevel { definition "Target roast level" }
+}
+
+class RoastBatch#data {     // data class, can be linked to a registry
+  profile: RoastProfile { definition "Roast profile applied" }
+}
+----
+
+See example 02.
+
+== How the implementation package fits together
+
+The `06-implementation-package/` subdirectory is the most realistic example.
+It contains four files that together model a fictional Acme Corporation
+implementing a fictional Office Coffee Standard:
+
+* `ocs-standard.sdc` — the source standard's clauses
+* `acme-coffee-programme.mmel` — Acme's implementation model, with `OCS#`-
+  prefixed aliases of standard elements and `provision { ... }` blocks that
+  cite `OCS-doc-*` references back to the SDC file
+* `acme-to-ocs.map` — JSON mapping from Acme processes to OCS processes
+* `sample-workspace.sws` — actual records produced when Acme runs its
+  processes
+
+See `06-implementation-package/README.adoc` for a guided walkthrough of the
+cross-model aliasing, subject bindings, multi-page subprocesses, and dual
+mapping patterns.
+
+== Conventions used in these examples
+
+* Every model uses `schema "MMEL 0.1"` — the schema identifier currently
+  used by real-world models. Primmel is the public successor to MMEL; the
+  schema string may evolve in future versions.
+* Roles use `PascalCase` (`Roaster`, `QA`) or short lowercase IDs matching
+  real-world models (`Org` for the organization role).
+* Processes use descriptive IDs (`SourceBeans`, `TestBatchMoisture`) or
+  generic `ProcessN` IDs with descriptive `name` fields, matching real-world
+  style.
+* Subprocesses are named `Root` (the top-level flow) plus page-style names
+  (`BeanSourcingFlow`, `QualityCheckFlow`), matching real-world conventions.
+* Multiple `start_event`s are normal — one per subprocess diagram.
+* Diagram coordinates are integers for readability. Real-world models often
+  have fractional coordinates produced by visual editors.
+* Fictional namespaces (`HelloWorld`, `RoasteryLogbook`,
+  `OrderFulfillment`, `BeanFreshnessProgramme`, `NewRoastApproval`,
+  `AcmeCoffeeProgramme`, `OCS`) appear in both `metadata.namespace` and as
+  the `root` identifier.
+* All clauses, references, provisions, standards, organisations, and
+  suppliers in these files are invented for teaching.
+
+== Where to find the spec
+
+The full specification lives in `sources/` and is published via GitHub Pages.
+The most relevant sections for these examples:
+
+* `sources/spec/sections/06-file-types.adoc` — file types (`.mmel`, `.map`,
+  `.sdc`, `.sws`)
+* `sources/spec/sections/08-syntax-reference.adoc` — full DSL syntax
+* `sources/spec/sections/10-formal-grammar.adoc` — EBNF grammar
+* `sources/methodology-guide/` — modelling methodology
+
+== What is deliberately not here
+
+* No real standards (ISO, BSI, OIML, IEC, MDSAP, etc.) are modelled.
+* No proprietary content from any organisation.
+* No tooling — these are reference data files, not a runnable application.
+  Validation tooling that consumes `.mmel` files is developed separately.
+* The `view profile`, `multimedia`, `term_entry`, and `figure` constructs
+  exist in the language but are not exercised here. They are documented in
+  the spec.

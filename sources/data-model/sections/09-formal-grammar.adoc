@@ -1,0 +1,71 @@
+[[formal-grammar]]
+== Formal grammar (EBNF)
+
+=== General
+
+This clause provides a simplified EBNF grammar for the data modelling constructs
+of MMEL. The grammar covers classes, enumerations, data registries, field
+properties, cardinality, and satisfy blocks.
+
+=== Grammar
+
+[source,ebnf]
+----
+(* Data modelling declarations *)
+
+ClassDecl       ::= 'class' IDENTIFIER ('#data')? '{' ClassField* '}'
+
+ClassField      ::= FieldName (':' FieldType)? Cardinality?
+                    '{' FieldProperty* '}'
+
+FieldName       ::= IDENTIFIER
+
+FieldType       ::= PrimitiveType
+                  | ReferenceType
+                  | IDENTIFIER
+
+PrimitiveType   ::= 'string' | 'boolean' | 'datetime' | 'role'
+
+ReferenceType   ::= 'reference' '(' IDENTIFIER ('#data')? ')'
+
+Cardinality     ::= '[' INT '..' ( '*' | INT ) ']'
+
+FieldProperty   ::= 'definition' STRING
+                  | 'modality' MODALITY
+                  | 'reference' '{' IDENTIFIER* '}'
+                  | 'satisfy' '{' IDENTIFIER '}'
+
+EnumDecl        ::= 'enum' IDENTIFIER '{' EnumValue* '}'
+
+EnumValue       ::= IDENTIFIER '{' 'definition' STRING '}'
+
+DataRegistryDecl ::= 'data_registry' IDENTIFIER '{'
+                     'title' STRING
+                     'data_class' IDENTIFIER ('#data')? '}'
+
+(* Shared terminals *)
+
+MODALITY        ::= 'SHALL' | 'SHOULD' | 'MAY' | 'CAN' | 'MUST'
+
+STRING          ::= '"' ... '"'
+
+IDENTIFIER      ::= [a-zA-Z_][a-zA-Z0-9_'-]*
+
+INT             ::= [0-9]+
+----
+
+=== Grammar notes
+
+* `ClassDecl` produces both data classes (with `#data`) and helper classes
+(without `#data`).
+* `FieldType` covers primitive types, reference types, and identifiers (which
+resolve to either enumeration names or helper class names).
+* `Cardinality` is optional. When absent, the field holds exactly one value.
+* `FieldProperty` includes `satisfy`, which contains a single identifier
+naming the constraint category.
+* `IDENTIFIER` allows hyphens (`-`) and apostrophes (`'`) in addition to
+alphanumeric characters and underscores, supporting identifiers like
+`risk/benefit`, `post-productionEvaluation`, and `ISO14971-doc-ref3-4`.
+* The `reference` field property (inside `FieldProperty`) references
+normative document clauses, while the `reference` type (inside `ReferenceType`)
+references other data classes.

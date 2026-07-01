@@ -1,0 +1,92 @@
+[[principles-and-requirements]]
+== Principles and requirements
+
+=== Purpose
+
+MMEL serves as the foundation for integrated domain modelling by combining data
+structures, process behaviour, compliance obligations, and quantitative
+monitoring into a single notation.
+
+Its primary purpose is to enable:
+
+* *Integrated modelling* -- data and process models defined together in one
+notation
+* *Compliance traceability* -- every requirement traceable to its normative
+source
+* *Quantitative monitoring* -- process KPIs expressed as measurement
+validation expressions
+* *Cross-model alignment* -- processes mapped across different standards
+
+A consistent, integrated modelling language enables the following benefits:
+
+* Preserving semantic relationships between data structures and the processes
+that produce them
+* Maintaining compliance obligations alongside operational processes
+* Supporting hierarchical process decomposition through subprocesses
+* Allowing flexible formatting of data through typed classes and references
+* Managing data lifecycle through data registers with input/output bindings
+* Enabling cross-standard alignment through mapping files and links
+
+
+=== Principles
+
+MMEL follows these fundamental design principles:
+
+Single-notation integration::
+Data structures, process flows, compliance requirements, and measurements are
+all expressed in one notation, eliminating the need for separate tools and
+notations that must be kept in sync.
+
+Compliance awareness::
+Every process element can carry compliance obligations via provisions with
+RFC 2119 modality keywords, making the model directly usable for compliance
+checking.
+
+Traceability::
+Model elements (provisions, data fields, approvals) link to normative
+references, providing full traceability from implementation to source
+standards.
+
+Format-independence::
+The model defines data structures and processes in a way that can be
+visualized, validated, and executed by any MMEL-compliant tool.
+
+Hierarchical decomposition::
+Processes can be decomposed into subprocesses with their own flow diagrams,
+supporting arbitrarily deep nesting of process hierarchies.
+
+
+=== Modality keywords
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+"OPTIONAL" in provisions and process modality declarations are to be
+interpreted as described in RFC 2119 and RFC 8174.
+
+[cols="1,4"]
+|===
+|Keyword |Meaning
+
+|`SHALL` |This is a mandatory requirement.
+|`MUST` |This is a mandatory requirement (synonym for SHALL).
+|`SHOULD` |This is a recommendation. There may be valid reasons to ignore it.
+|`MAY` |This is truly optional.
+|`CAN` |This is a statement of possibility or capability.
+|===
+
+
+=== Tool requirements
+
+A MMEL-compliant tool:
+
+. SHALL be able to parse and validate MMEL model files (`.mmel`)
+. SHALL be able to parse and validate mapping files (`.map`)
+. SHOULD be able to visualize subprocess diagrams with elements, edges, and
+data stores
+. SHOULD be able to evaluate provision compliance by checking
+`validate_provision` bindings on processes
+. MAY support evaluation of measurement expressions in `validate_measurement`
+. MAY support loading and displaying SDC clause content (`.sdc`)
+. MAY support workspace state files (`.sws`)
+
+

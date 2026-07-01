@@ -1,0 +1,161 @@
+[[measurement-formal-grammar]]
+== Formal grammar (EBNF)
+
+This clause provides the EBNF grammar for measurement-related constructs in
+MMEL. The grammar extends the base MMEL grammar defined in MN 113.
+
+=== Measurement declaration
+
+[source,ebnf]
+----
+MeasurementDecl  ::= 'measurement' IDENTIFIER '{' MeasurementField* '}'
+
+MeasurementField ::= 'type' MEASUREMENT_TYPE
+                   | 'definition' STRING
+                   | 'description' STRING
+
+MEASUREMENT_TYPE ::= 'NUMERIC'
+                   | 'DATALIST'
+                   | 'DERIVED'
+                   | 'TRUE/FALSE'
+                   | 'DURATION'
+                   | 'TEXT'
+                   | 'TABLE_REFERENCE'
+                   | 'TABLE_OPTIONS'
+                   | 'DATAITEM'
+----
+
+The `definition` field is required for `DERIVED`, `TABLE_REFERENCE`, and
+`TABLE_OPTIONS` types. It is optional (and typically absent) for `NUMERIC`,
+`DATALIST`, `TRUE/FALSE`, `DURATION`, and `TEXT` types.
+
+The `DATAITEM` type is deprecated and superseded by `NUMERIC`.
+
+=== Validation expression
+
+[source,ebnf]
+----
+ValidateMeasurement ::= 'validate_measurement' '{' STRING '}'
+----
+
+The STRING contains a measurement expression following the grammar below.
+
+=== Measurement expression
+
+[source,ebnf]
+----
+MeasurementExpr    ::= ComparisonExpr
+
+ComparisonExpr     ::= ArithExpr CompOp ArithExpr
+                      | ArithExpr '=' STRING_LITERAL
+
+CompOp             ::= '>=' | '<=' | '>' | '<'
+
+ArithExpr          ::= ArithExpr ('+' | '-') MulDivExpr
+                      | MulDivExpr
+
+MulDivExpr         ::= MulDivExpr ('*' | '/') MeasurementRef
+                      | MeasurementRef
+
+MeasurementRef     ::= '[' IDENTIFIER ']' ListOp?
+
+ListOp             ::= '.' ('max' | 'min' | 'sum' | 'count' | 'average')
+
+STRING_LITERAL     ::= "'" ( "true" | "false" | CHAR* ) "'"
+----
+
+The expression grammar supports:
+
+* Measurement references: `[MeasurementID]`
+* List aggregation: `[MeasurementID].max`, `[MeasurementID].sum`, etc.
+* Arithmetic: `+`, `-`, `*`, `/`
+* Comparison: `>=`, `<=`, `>`, `<`, `=` (with numeric or string literal)
+* String comparison for booleans: `[dc] = 'true'`
+
+=== Gateway edge condition
+
+[source,ebnf]
+----
+EdgeDecl          ::= 'Edge' INTEGER '{'
+                      'from' IDENTIFIER 'to' IDENTIFIER
+                      ('description' STRING)?
+                      ('condition' EdgeCondition)? '}'
+
+EdgeCondition     ::= MeasurementExpr
+                    | '"default"'
+----
+
+Gateway edges may carry measurement expressions or the special `"default"`
+condition for the fallback path.
+
+=== Table lookup definition
+
+[source,ebnf]
+----
+TableLookupDef    ::= TableID ',' ColumnIndex
+                      (',' ColumnIndex ',' MeasurementID)*
+
+TableID           ::= IDENTIFIER
+ColumnIndex       ::= INTEGER
+----
+
+The table lookup definition is the value of the `definition` field in
+TABLE_REFERENCE and TABLE_OPTIONS measurements. It specifies the source
+table, target column, and zero or more filter column-measurement pairs.
+
+=== View profile
+
+[source,ebnf]
+----
+ViewProfileDecl   ::= 'view_profile' IDENTIFIER '{' ProfileParameter* '}'
+
+ProfileParameter  ::= 'parameter' IDENTIFIER '{'
+                      'default' STRING
+                      'editable' ('true' | 'false')
+                      'setting' ('RECOMMEND' | 'MUST')
+                      '}'
+----
+
+=== Complete measurement example in grammar
+
+[source,ebnf]
+----
+(* Numeric measurement *)
+measurement NumFailLogin {
+  type NUMERIC
+  description "Number of failed login attempts"
+}
+
+(* DATALIST measurement *)
+measurement NumConnection {
+  type DATALIST
+  description "Number of connections within 10 seconds (for each user)"
+}
+
+(* DERIVED measurement *)
+measurement Total_Emission {
+  type DERIVED
+  definition "[Included_Emission].sum + [Excluded_Emission].sum"
+  description "Total emission"
+}
+
+(* TRUE/FALSE measurement *)
+measurement dc {
+  type TRUE/FALSE
+  description "The cable is for d.c."
+}
+
+(* TABLE_REFERENCE measurement *)
+measurement thicknessReq {
+  type TABLE_REFERENCE
+  definition "data,4,0,type,2,area,3,class"
+  description "Requirement of the radial thickness of insulation"
+}
+
+(* TABLE_OPTIONS measurement *)
+measurement type {
+  type TABLE_OPTIONS
+  definition "data,0,2,area,3,class"
+  description "Type of cable (e.g., 6181Y)"
+}
+----

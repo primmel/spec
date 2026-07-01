@@ -1,0 +1,6 @@
+[[bibliography]]
+== Bibliography
+
+[[RFC2119]]Bradner, S., _Key words for use in RFCs to Indicate Requirement Levels_, BCP 14, RFC 2119, March 1997.
+
+[[RFC8174]]Leiba, B., _Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words_, BCP 14, RFC 8174, May 2017.

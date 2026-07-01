@@ -1,0 +1,212 @@
+[[conformance-testing]]
+== Conformance testing
+
+=== General
+
+Conformance testing in MMEL is the process of evaluating whether a model or
+implementation satisfies the compliance obligations defined by its provisions
+and measurement validations. This clause describes the conformance assessment
+model, self-assessment checklists, progress tracking, and the overall
+compliance checking workflow.
+
+=== Conformance assessment model
+
+The MMEL conformance assessment model defines three levels of conformance:
+
+Model conformance::
+A model is conformant if it is syntactically valid MMEL and correctly uses
+the constructs defined in the MMEL specification (provisions, processes,
+measurements, references, etc.).
+
+Implementation conformance::
+An implementation (captured as an implementation model) is conformant if all
+its processes satisfy their bound provisions and measurement validations. This
+requires evidence that each `validate_provision` and `validate_measurement`
+has been evaluated and passes.
+
+Tool conformance::
+A MMEL-compliant tool is conformant if it can parse, validate, and evaluate
+MMEL models according to the requirements defined in the core specification.
+
+=== Compliance checking workflow
+
+The compliance checking workflow follows a layered approach:
+
+.Compliance assessment workflow
+----
+Reference Model (standard)                <1>
+  |
+  +-- Define provisions with modality
+  +-- Define data structures
+  +-- Define process flows
+  |
+  v
+Implementation Model (organization)       <2>
+  |
+  +-- Map processes to reference model
+  +-- Bind provisions via validate_provision
+  +-- Define measurements via validate_measurement
+  |
+  v
+Evidence Collection                       <3>
+  |
+  +-- Populate data registers (.sws files)
+  +-- Record measurement values
+  +-- Link to supporting documents
+  |
+  v
+Compliance Check                          <4>
+  |
+  +-- Evaluate each validate_provision
+  +-- Evaluate each validate_measurement
+  +-- Generate compliance report
+----
+
+<1> The reference model defines the normative requirements (provisions with
+modality keywords, processes, and data structures).
+<2> The implementation model maps the organization's processes to the
+reference model and binds provisions.
+<3> Evidence is collected by populating data registers and recording
+measurement values.
+<4> Compliance checking evaluates each bound provision and measurement against
+the collected evidence.
+
+=== Self-assessment checklists
+
+MMEL supports self-assessment through the provision binding mechanism. Each
+process with a `validate_provision` declaration creates a checklist item that
+must be verified.
+
+The checklist is generated from:
+
+. All provisions referenced by processes via `validate_provision`.
+. All measurement validations referenced by processes via
+`validate_measurement`.
+. The modality keyword of each provision determines its bindingness:
+`SHALL` and `MUST` items are mandatory, `SHOULD` items are recommended,
+`MAY` items are optional.
+
+For each checklist item, the assessor records:
+
+* Whether the provision is satisfied (pass/fail/not-applicable).
+* Evidence supporting the assessment (document references, data records).
+* Any notes or justifications for the assessment decision.
+
+=== Progress tracking
+
+Progress tracking monitors the overall conformance status of an implementation
+model across all its provisions and measurements.
+
+Progress is tracked as:
+
+. The total number of provisions bound via `validate_provision` across all
+processes.
+. The total number of measurement validations bound via
+`validate_measurement` across all processes.
+. For each provision: whether evidence has been collected and whether it
+passes or fails.
+. The overall compliance percentage: the ratio of passing provisions to total
+mandatory provisions.
+
+Progress categories:
+
+* *Complete* -- all mandatory provisions pass, all measurements pass.
+* *Partial* -- some provisions pass, others are pending or failed.
+* *Not started* -- no evidence has been collected.
+
+=== Overall compliance view
+
+The overall compliance view provides a summary of conformance status:
+
+.Compliance summary structure
+----
++---------------------------------------+
+| Overall Compliance View               |
+|---------------------------------------|
+| Total provisions:     N               |
+| Mandatory (SHALL):    M               |
+| Recommended (SHOULD): R               |
+| Optional (MAY):       O               |
+| Capability (CAN):     C               |
+|                                       |
+| Passed:               P               |
+| Failed:               F               |
+| Pending:              W               |
+| Not applicable:       A               |
+|                                       |
+| Compliance rate:      P/M * 100%      |
++---------------------------------------+
+----
+
+=== validate_provision and validate_measurement
+
+The two mechanisms for conformance checking are:
+
+==== validate_provision
+
+A process declares which provisions it must satisfy:
+
+[source,mmel]
+----
+process UnderstandOrganizationContext {
+  name "Management of issues"
+  modality SHALL
+  validate_provision {
+    UnderstandContext
+  }
+  output {
+    IssueRegistry
+  }
+}
+----
+
+At compliance checking time, each provision in the `validate_provision` block
+is evaluated against the process's implementation evidence.
+
+==== validate_measurement
+
+A process declares which measurement conditions must be met:
+
+[source,mmel]
+----
+process ApplyOverallCoverageRule {
+  name "Apply the overall coverage principle"
+  modality SHALL
+  validate_provision {
+    Provision47
+  }
+  validate_measurement {
+    "[Total_Included_Emissions_In_Percentage] >= 0.95"
+  }
+}
+----
+
+At compliance checking time, the measurement expression is evaluated against
+the recorded measurement values. See MN 113-5 for full documentation of
+measurement expressions.
+
+=== Assessment process
+
+The assessment process follows these steps:
+
+. *Import the reference model* -- load the normative model containing the
+provisions and processes.
+
+. *Create or load the implementation model* -- load the organization's
+implementation model that maps to the reference model.
+
+. *Collect evidence* -- populate data registers with actual data, record
+measurement values, and link supporting documents.
+
+. *Run compliance check* -- for each process with `validate_provision` or
+`validate_measurement`:
+.. Evaluate the provision condition against the collected evidence.
+.. Evaluate the measurement expression against the recorded values.
+.. Record the result (pass/fail/not-applicable).
+
+. *Review results* -- examine failed provisions, assess partial compliance,
+and identify areas requiring corrective action.
+
+. *Generate compliance report* -- produce a report summarizing the overall
+compliance status, including pass rates, failed provisions, and
+recommendations.

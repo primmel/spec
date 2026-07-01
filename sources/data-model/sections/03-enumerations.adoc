@@ -1,0 +1,112 @@
+[[enumerations]]
+== Enumerations
+
+=== General
+
+Enumerations define a set of named values with human-readable definitions. They
+are used as field types within class definitions to constrain a field to a
+predefined set of values.
+
+=== Syntax
+
+[source,mmel]
+----
+enum <EnumName> {
+  <Value1> {
+    definition "Description of value 1"
+  }
+  <Value2> {
+    definition "Description of value 2"
+  }
+}
+----
+
+Each enumeration value is an identifier followed by a block containing a
+`definition` property.
+
+=== Example: HazardType
+
+The following enumeration, from a medical device risk management model, defines
+three categories of hazard:
+
+[source,mmel]
+----
+enum HazardType {
+  Physical {
+    definition "Physical"
+  }
+  Chemical {
+    definition "Chemical"
+  }
+  Biological {
+    definition "Biological"
+  }
+}
+----
+
+=== Using enumerations as field types
+
+An enumeration is used as a field type by naming the enumeration in the field
+declaration:
+
+[source,mmel]
+----
+class Hazards#data {
+  hazard {
+    definition "Known hazards"
+  }
+  hazard2 {
+    definition "Foreseeable hazards"
+  }
+  type: HazardType {              <1>
+    definition "Hazard type"
+  }
+}
+----
+
+<1> The `type` field uses the `HazardType` enumeration as its type.
+
+=== Example: SRating
+
+The following enumeration, from a supply chain management model, defines a
+supplier rating scale:
+
+[source,mmel]
+----
+enum SRating {
+  distinctive {
+    definition "Distinctive"
+  }
+  good {
+    definition "Good"
+  }
+  basic {
+    definition "Basic"
+  }
+}
+----
+
+Used in a data class:
+
+[source,mmel]
+----
+class SupplierRating#data {
+  supplier: reference(SupplierCapacity#data) {
+    definition "Supplier's response"
+  }
+  rating: SRating {               <1>
+    definition "Rating"
+  }
+}
+----
+
+<1> The `rating` field is constrained to one of `distinctive`, `good`, or
+`basic`.
+
+=== Enumeration rules
+
+* Each enumeration value SHALL have a unique name within the enumeration.
+* Each enumeration value SHALL contain a `definition` property.
+* Enumeration names are case-sensitive.
+* An enumeration SHALL be defined before or after the class that uses it; the
+order of top-level declarations is flexible.

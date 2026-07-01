@@ -1,0 +1,8 @@
+[[normative-references]]
+== Normative references
+
+* <<RFC2119>>, _Key words for use in RFCs to Indicate Requirement Levels_,
+March 1997.
+* <<RFC8174>>, _Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words_,
+May 2017.
+

@@ -1,0 +1,262 @@
+[[validation-expressions]]
+== Validation expressions
+
+=== General
+
+Validation expressions are used in `validate_measurement` properties on
+processes to define quantitative conditions that must be met for a process to
+be considered compliant. They reference measurement IDs and apply comparison,
+arithmetic, and list aggregation operators.
+
+=== Syntax
+
+[source,mmel]
+----
+process <ProcessID> {
+  name "Process name"
+  validate_measurement {
+    "<measurement expression>"
+  }
+}
+----
+
+The expression is a string containing measurement references, operators, and
+literal values.
+
+=== Measurement reference format
+
+Measurements are referenced using square bracket notation:
+
+[source]
+----
+[MeasurementID]
+----
+
+This references the current value of the named measurement. For DATALIST
+measurements, aggregation operators may be appended:
+
+[source]
+----
+[MeasurementID].max
+[MeasurementID].min
+[MeasurementID].sum
+[MeasurementID].count
+[MeasurementID].average
+----
+
+=== Comparison operators
+
+[cols="1,2"]
+|===
+|Operator |Description
+
+|`>=` |Greater than or equal to
+|`<=` |Less than or equal to
+|`=` |Equal to
+|`>` |Greater than
+|`<` |Less than
+|===
+
+=== Arithmetic operators
+
+[cols="1,2"]
+|===
+|Operator |Description
+
+|`+` |Addition
+|`-` |Subtraction
+|`*` |Multiplication
+|`/` |Division
+|===
+
+=== List operators
+
+List operators are applied to DATALIST measurements to compute aggregate
+values:
+
+[cols="1,2"]
+|===
+|Operator |Description
+
+|`.max` |Returns the maximum value in the list
+|`.min` |Returns the minimum value in the list
+|`.sum` |Returns the sum of all values in the list
+|`.count` |Returns the number of values in the list
+|`.average` |Returns the arithmetic mean of all values in the list
+|===
+
+=== Order of operations
+
+Expression evaluation follows this order of precedence (highest to lowest):
+
+. *List operators* (`.max`, `.min`, `.sum`, `.count`, `.average`) -- applied
+to DATALIST references first
+. *Arithmetic operators* (`*`, `/`, then `+`, `-`) -- standard mathematical
+precedence
+. *Comparison operators* (`>=`, `<=`, `>`, `<`, `=`) -- applied last
+
+Parentheses may be used to override the default precedence.
+
+=== String comparisons
+
+For TRUE/FALSE measurements, the comparison uses string literals:
+
+[source]
+----
+[dc] = 'true'
+[target] = 'true'
+----
+
+The value `'true'` and `'false'` are string comparisons against the boolean
+measurement value.
+
+=== Examples
+
+==== Simple numeric comparison
+
+From the BS 6004 model -- voltage validation:
+
+[source,mmel]
+----
+process RatedVoltageEarthAC {
+  name "Rated Voltage for conductor-earth (ac)"
+  validate_provision {
+    Provision6
+  }
+  validate_measurement {
+    "[OpV] <= 320"
+  }
+}
+
+process RatedVoltageConductorAC {
+  name "Rated Voltage for conductor-conductor (ac)"
+  validate_provision {
+    Provision7
+  }
+  validate_measurement {
+    "[OpV] <= 550"
+  }
+}
+
+process RatedVoltageEarthDC {
+  name "Rated Voltage for conductor-earth (dc)"
+  validate_provision {
+    Provision8
+  }
+  validate_measurement {
+    "[OpV] <= 410"
+  }
+}
+
+process RatedVoltageConductorDC {
+  name "Rated Voltage for conductor-conductor (dc)"
+  validate_provision {
+    Provision9
+  }
+  validate_measurement {
+    "[OpV] <= 820"
+  }
+}
+----
+
+==== Ratio with division
+
+From the RiboseImplementation model -- failed login ratio:
+
+[source,mmel]
+----
+process FailedLoginMonitor {
+  name "Failed login monitoring"
+  validate_measurement {
+    "[NumFailLogin] / [NumLogin] <= 0.4"
+  }
+}
+----
+
+==== DATALIST aggregation with comparison
+
+From the RiboseImplementation model -- traffic monitoring:
+
+[source,mmel]
+----
+process TrafficMonitor {
+  name "Traffic monitor"
+  validate_measurement {
+    "[NumConnection].max <= 100"
+  }
+}
+----
+
+==== Derived measurement in validation
+
+From the PAS 2060 model -- emission coverage:
+
+[source,mmel]
+----
+process ApplyOverallCoverageRule {
+  name "Apply the overall coverage principle"
+  actor entity
+  modality SHALL
+  validate_provision {
+    Provision47
+  }
+  validate_measurement {
+    "[Total_Included_Emissions_In_Percentage] >= 0.95"
+  }
+}
+----
+
+==== Complex derived expression in validation
+
+From the PAS 2060 model -- excluded emission validation:
+
+[source,mmel]
+----
+process AlternativeCoverageValidation {
+  name "Apply the alternative coverage principle"
+  actor entity
+  modality SHALL
+  validate_provision {
+    Provision46
+  }
+  validate_measurement {
+    "[Excluded_Emssions_Without_Max_In_Percentage] < 0.05"
+  }
+}
+
+process ExcludeEmissionSource {
+  name "Exclude emission source"
+  actor entity
+  modality MAY
+  validate_provision {
+    Provision45
+    Provision48
+    Provision98
+    Provision99
+  }
+  validate_measurement {
+    "[Excluded_Emission].max / [Total_Emission] < 0.01"
+  }
+}
+----
+
+==== Table lookup with arithmetic
+
+From the BS 6004 model -- insulation thickness with tolerance:
+
+[source,mmel]
+----
+process InsulationThickness {
+  name "Thickness"
+  validate_provision {
+    Provision15
+    Provision16
+  }
+  validate_measurement {
+    "[thickness] >= [thicknessReq] * 0.9 - 0.1"
+  }
+}
+----
+
+This expression allows a 10% tolerance minus 0.1 units from the table-looked-up
+requirement value.

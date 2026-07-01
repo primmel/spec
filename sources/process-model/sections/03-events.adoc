@@ -1,0 +1,308 @@
+[[events]]
+== Events
+
+=== General
+
+Events control the lifecycle and timing of process flows within subprocess
+diagrams. MMEL supports four types of events: start events, end events, timer
+events, and signal catch events.
+
+Events are placed in the `elements` section of a subprocess and connected to
+other elements via process flow edges.
+
+=== Start events
+
+Start events mark the beginning of a process flow within a subprocess. Each
+subprocess diagram typically contains one start event.
+
+==== Syntax
+
+[source,mmel]
+----
+start_event <EventID> {
+}
+----
+
+Start events have no properties beyond their identifier.
+
+==== Placement
+
+A start event is placed in the `elements` section of a subprocess and serves as
+the entry point for that diagram's flow. A model may contain multiple start
+events (typically one per subprocess).
+
+==== Example
+
+[source,mmel]
+----
+start_event Start1 {
+}
+
+start_event Start0 {
+}
+----
+
+In a subprocess flow, the start event is the first element connected to
+downstream processes:
+
+[source,mmel]
+----
+subprocess Page0 {
+  elements {
+    Start0 {
+      x -120
+      y -510
+    }
+    DetermineSubject {
+      x -105
+      y -360
+    }
+  }
+  process_flow {
+    Edge0 {
+      from Start0
+      to DetermineSubject
+    }
+  }
+}
+----
+
+=== End events
+
+End events mark the termination of a process flow. They are optional; not all
+subprocess diagrams require an explicit end event.
+
+==== Syntax
+
+[source,mmel]
+----
+end_event <EventID> {
+}
+----
+
+End events have no properties beyond their identifier.
+
+==== Example
+
+[source,mmel]
+----
+end_event EndEvent {
+}
+
+end_event EndEvent1 {
+}
+----
+
+When multiple end events exist in a model, each is typically used in a different
+subprocess diagram to indicate alternative termination points.
+
+=== Timer events
+
+Timer events represent temporal conditions within a process flow. They can
+introduce delays, deadlines, or periodic triggers.
+
+==== Syntax
+
+[source,mmel]
+----
+timer_event <EventID> {
+  type WAIT | REPEAT | DURATION    <1>
+  para "description"                <2>
+}
+----
+
+<1> The timer type. `WAIT` indicates a one-time delay or deadline. `REPEAT`
+indicates a recurring, periodic trigger. `DURATION` indicates a time span.
+<2> Optional. Human-readable parameter describing the duration or frequency.
+
+Timer events without any properties are also valid:
+
+[source,mmel]
+----
+timer_event TimerEvent0 {
+}
+----
+
+==== Timer event types
+
+[cols="1,3"]
+|===
+|Type |Description
+
+|`WAIT` |A one-time temporal wait condition; the process flow pauses until the
+specified duration or deadline elapses. Used for deadlines and one-off delays.
+|`REPEAT` |A recurring temporal trigger; the process activates repeatedly at
+planned intervals. Used for periodic audits, scheduled reviews, and recurring
+assessments.
+|`DURATION` |A temporal duration representing a time span. Used when the timer
+represents a duration measurement rather than a specific wait or repeat pattern.
+|===
+
+==== WAIT timer example
+
+The following timer from the PAS 2060 carbon neutrality model specifies a
+one-time deadline:
+
+[source,mmel]
+----
+timer_event TimerEvent1 {
+  type WAIT
+  para "at most 12 months"
+}
+----
+
+[source,mmel]
+----
+timer_event EventCreditRetirementTimer {
+  type WAIT
+  para "at most 36 months"
+}
+----
+
+[source,mmel]
+----
+timer_event NonEventCreditRetirementTimer {
+  type WAIT
+  para "at most 12 months"
+}
+----
+
+The WAIT timer from the ISO 14971 medical device risk management model:
+
+[source,mmel]
+----
+timer_event RiskManagementReviewInterval {
+  type WAIT
+  para "Planned interval"
+}
+----
+
+==== REPEAT timer example
+
+The following timers from the ISO 27001 information security model specify
+recurring triggers:
+
+[source,mmel]
+----
+timer_event AssessmentTimer {
+  type REPEAT
+  para "Planned intervals or when significant changes occur"
+}
+
+timer_event AuditTimer {
+  type REPEAT
+  para "Planned intervals"
+}
+
+timer_event ManagementReviewTimer {
+  type REPEAT
+  para "Planned intervals"
+}
+----
+
+==== DURATION timer example
+
+The following timers from the BS 202000 standardization management model use the
+DURATION type:
+
+[source,mmel]
+----
+timer_event CompetenceReviewTimer {
+  type DURATION
+}
+
+timer_event AuditTimer {
+  type DURATION
+}
+
+timer_event ManagementReviewTimer {
+  type DURATION
+}
+----
+
+==== Timer events in process flows
+
+Timer events are placed in subprocess diagrams and connected via edges. A
+common pattern is a self-loop where a process connects to a timer event and the
+timer connects back to the same process, creating a recurring cycle:
+
+[source,mmel]
+----
+process_flow {
+  Edge61 {
+    from MakeCommitment
+    to TimerEvent1
+  }
+  Edge62 {
+    from TimerEvent1
+    to MakeCommitment
+  }
+}
+----
+
+This creates a repeating cycle: the `MakeCommitment` process triggers the timer,
+and when the timer fires, the process is activated again.
+
+Another common pattern connects a process to a timer, then to a follow-up
+process:
+
+[source,mmel]
+----
+process_flow {
+  Edge80 {
+    from ImplementPlan
+    to TimerEvent2
+  }
+  Edge65 {
+    from TimerEvent2
+    to PeriodicAssessment
+  }
+}
+----
+
+=== Signal catch events
+
+Signal catch events are intermediate events that pause process execution until a
+named signal is received from another part of the model or an external source.
+
+==== Syntax
+
+[source,mmel]
+----
+signal_catch_event <EventID> {
+  catch "<signal-name>"
+}
+----
+
+The `catch` property specifies the name of the signal to wait for. When the flow
+reaches a signal catch event, execution pauses until the named signal is
+triggered elsewhere in the model.
+
+==== Example
+
+The following example from the BS 16341 standard selection model shows a signal
+catch event that waits for an update to the standards data registry:
+
+[source,mmel]
+----
+signal_catch_event EditionUpdated {
+  catch "StandardDataRegistryUpdated"
+}
+----
+
+In the process flow, this event is triggered when the standards data registry is
+updated (e.g. a new edition of a standard is issued), and the flow continues
+from there:
+
+[source,mmel]
+----
+process_flow {
+  Edge3 {
+    from EditionUpdated
+    to DifficultyGateway
+  }
+}
+----
+
+The signal catch event enables reactive process flows that respond to data
+changes rather than following a purely sequential path.

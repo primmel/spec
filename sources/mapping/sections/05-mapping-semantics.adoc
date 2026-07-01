@@ -1,0 +1,107 @@
+[[mapping-semantics]]
+== Mapping semantics
+
+=== General
+
+This clause defines the formal semantics of MMEL mappings. Understanding these
+semantics is essential for correctly interpreting mapping data, performing
+coverage analysis, and generating compliance reports.
+
+=== Mapping directionality
+
+A mapping `A => B` means that fulfilling process A implies fulfilling ALL
+requirements of process B. The direction is from the *implementation* (source)
+to the *reference* (target):
+
+----
+Implementation Process A  ====>  Reference Process B
+       "fulfils"                   "requires"
+----
+
+This means:
+
+* If an organization performs process A in a compliant manner, it has
+satisfied the requirements of process B.
+* The mapping assertion is a claim made by the implementer, supported by
+description and justification evidence.
+
+=== Non-transitivity at model level
+
+Mappings are NOT transitive at the model level. If model X maps process A to
+process B in model Y, and model Y maps process B to process C in model Z, it
+does NOT automatically follow that model X maps process A to process C.
+
+Rationale: Each mapping is an independent claim with its own justification.
+Transitivity would combine justifications from different contexts without
+explicit validation.
+
+.Non-transitivity example
+----
+Model X (Implementation)        Model Y (Standard)         Model Z (Regulation)
+process A                       process B                  process C
+    |                               |                          ^
+    +-- X.map: A => B --+           |                          |
+                               Y.map: B => C -----------------+
+                               (does NOT imply X: A => C)
+----
+
+To create a valid mapping from A to C, an explicit mapping entry with its own
+justification MUST be created.
+
+=== Transitivity at process level
+
+While model-level mappings are non-transitive, transitivity DOES apply within
+a single model's process hierarchy at the process level:
+
+If process A is mapped to process B, and process B is mapped to process C, and
+all three processes exist within the same model's process tree, then A => C
+holds at the process level.
+
+.Process-level transitivity
+----
+Process A (mapped to B)
+  |
+  +-- subprocess containing B (mapped to C)
+        |
+        +-- implies A => C (within same model hierarchy)
+----
+
+This enables the auto-mapping discovery system (see <<auto-mapping>>) to infer
+additional mappings from explicitly declared ones.
+
+=== Many-to-many mappings
+
+MMEL supports many-to-many mapping relationships:
+
+* A single source process may map to multiple target processes.
+* Multiple source processes may map to the same target process.
+* Both patterns may occur simultaneously.
+
+.Many-to-many mapping
+----
+Source Process X  ==>  Target Process M
+Source Process X  ==>  Target Process N
+Source Process Y  ==>  Target Process M
+----
+
+In this example:
+
+* Process X fulfils requirements of both M and N.
+* Processes X and Y together fulfil the requirements of M.
+
+=== Mapping scope
+
+Mappings apply at the process element level. A mapping from process A to
+process B implies:
+
+* The compliance obligations (provisions) of process B are addressed by
+process A.
+* The data outputs of process A are relevant to the data requirements of
+process B.
+* The actor assignments of process A are compatible with the role
+requirements of process B.
+
+Mappings do NOT imply structural equivalence -- the subprocess diagrams,
+events, and gateways of process A and process B may differ significantly.
+The mapping asserts only that the *outcomes* of process A satisfy the
+*requirements* of process B.

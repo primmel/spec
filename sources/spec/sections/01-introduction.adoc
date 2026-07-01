@@ -1,0 +1,41 @@
+[[introduction]]
+== Introduction
+
+This specification defines the Multi-Modal Modelling Language (MMEL), a
+domain-specific modelling language that combines data modelling, process
+modelling, compliance tracking, and quantitative measurement into a single,
+integrated notation.
+
+NOTE: "MMEL" is pronounced as "em-mel".
+
+MMEL unifies capabilities traditionally split across multiple notations:
+
+* *UML class diagrams* -- data structure definitions with types, references,
+and cardinality
+* *BPMN* (Business Process Model and Notation) -- process flows with events,
+gateways, tasks, subprocesses, and data stores
+* *Compliance and regulatory modelling* -- provisions with RFC 2119 modality
+keywords (SHALL, SHOULD, MAY, etc.), traceable to normative references
+* *Quantitative monitoring* -- measurement definitions with validation
+expressions attached to processes
+* *Cross-model alignment* -- mapping files that link processes across different
+models (e.g. ISO standards)
+
+MMEL addresses these challenges with:
+
+. a single notation that captures data structures, process behaviour,
+compliance obligations, and monitoring KPIs
+. traceability from every requirement, provision, and data field back to its
+normative source via references
+. built-in modality keywords (SHALL, SHOULD, MAY, CAN, MUST) following
+RFC 2119 semantics for compliance-aware modelling
+. quantitative measurement types and validation expressions enabling continuous
+monitoring of process KPIs
+. cross-model links and mapping files allowing alignment between different
+standards and implementations
+
+MMEL enables standards developers, compliance engineers, and system architects
+to define once and apply everywhere, ensuring that models capture both the
+"what" (data structures), the "how" (process flows), and the "why" (compliance
+obligations) in a single, coherent notation.
+

@@ -1,0 +1,114 @@
+[[auto-mapping]]
+== Auto-mapping discovery
+
+=== General
+
+Auto-mapping discovery is a tooling feature that uses transitive and inherited
+mapping logic to infer additional mappings beyond those explicitly declared.
+This reduces the manual effort required to create comprehensive mappings and
+helps identify gaps in coverage.
+
+=== Prerequisites
+
+Auto-mapping discovery operates on a set of loaded models and their associated
+mapping data. The following prerequisites apply:
+
+* All relevant models (`.mmel` files) MUST be loaded and parsed.
+* All relevant mapping files (`.map` files and `map_profile` blocks) MUST be
+loaded.
+* Models MUST share a common namespace for cross-referencing.
+
+=== Discovery process
+
+The auto-mapping discovery process follows these steps:
+
+.Step 1: Load models
+Load all reference models and implementation models into the tool's workspace.
+
+.Step 2: Select bridge model
+Identify the bridge model -- the model whose processes serve as the
+intermediate link between two other models. The bridge model has mappings both
+from a source model and to a destination model.
+
+.Step 3: Select destination models
+Select the destination models for which auto-mappings should be discovered.
+These are models that are not directly mapped from the implementation model
+but can be reached through the bridge model.
+
+.Step 4: Calculate auto-mappings
+Apply the following rules to discover implicit mappings:
+
+* *Transitive discovery*: If the implementation model maps process A to bridge
+model process B, and the bridge model maps process B to destination model
+process C, then infer a mapping from A to C with a note that this is a
+transitive mapping.
+* *Inherited discovery*: If a parent process P is mapped to reference process Q,
+then all subprocesses of P are considered mapped to the subprocesses of Q.
+* *Combine with explicit mappings*: Merge discovered mappings with existing
+explicit mappings, with explicit mappings taking precedence.
+
+=== Transitive discovery
+
+Transitive discovery follows process-level transitivity (see
+<<mapping-semantics>>):
+
+----
+Implementation Model          Bridge Model              Destination Model
+process A                     process B                 process C
+    |                             |                         ^
+    +-- A => B (explicit)         |                         |
+                                  +-- B => C (explicit) ----+
+                                                             |
+                          A => C (discovered, transitive) ---+
+----
+
+The discovered mapping `A => C` is marked as transitive and includes a
+reference to the intermediate mapping through B.
+
+=== Inherited discovery
+
+Inherited discovery propagates mappings from parent processes to their
+subprocesses:
+
+----
+Implementation Model                    Reference Model
+process Parent (mapped to RefParent)
+  |                                       |
+  +-- subprocess ChildA                  +-- subprocess RefChildA
+  |                                       |
+  +-- subprocess ChildB                  +-- subprocess RefChildB
+
+Since Parent => RefParent:
+  ChildA => RefChildA (discovered, inherited)
+  ChildB => RefChildB (discovered, inherited)
+----
+
+=== Discovered mapping metadata
+
+Auto-discovered mappings are annotated with provenance metadata:
+
+[cols="1,3"]
+|===
+|Metadata field |Description
+
+|`discoveryMethod` |`"transitive"` or `"inherited"`, indicating how the mapping
+was discovered.
+|`intermediateMapping` |For transitive mappings, the ID of the intermediate
+mapping used.
+|`parentMapping` |For inherited mappings, the ID of the parent mapping.
+|===
+
+Discovered mappings are considered lower confidence than explicit mappings.
+Tools SHOULD present them differently (e.g. with a distinct visual indicator)
+and SHOULD allow users to validate or reject individual discovered mappings.
+
+=== Limitations
+
+Auto-mapping discovery has the following limitations:
+
+* It does not create new descriptions or justifications -- these must be
+provided manually for discovered mappings that are accepted.
+* Transitive discovery may produce false positives if the intermediate mapping
+does not imply full coverage.
+* Inherited discovery assumes subprocess alignment between models, which may
+not always be structurally accurate.

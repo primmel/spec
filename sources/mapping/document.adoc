@@ -1,0 +1,21 @@
+= MN 113-6: MMEL Cross-model Mapping
+:docnumber: 113.6
+:edition: 1
+:revdate: 2026-05-25
+:copyright-year: 2026
+:language: en
+:title-main-en: MMEL Cross-model Mapping
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-mapping-overview.adoc[]
+include::sections/02-link-construct.adoc[]
+include::sections/03-map-profile.adoc[]
+include::sections/04-map-file-format.adoc[]
+include::sections/05-mapping-semantics.adoc[]
+include::sections/06-mapping-coverage.adoc[]
+include::sections/07-auto-mapping.adoc[]
+include::sections/08-report-templates.adoc[]

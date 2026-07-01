@@ -1,0 +1,75 @@
+[[terminology-overview]]
+== Terminology model overview
+
+=== General
+
+Terminology management is an essential aspect of standards development and
+compliance modelling. Consistent, well-defined terms ensure that all
+stakeholders interpret requirements uniformly and that compliance can be
+assessed accurately.
+
+MMEL provides a terminology model that supports structured term entries with
+multiple term forms, multilingual support, and formal grammar definitions.
+This enables MMEL models to define their own terminology in alignment with
+recognized terminology management standards.
+
+=== Why terminology matters in standards
+
+Standards and regulations rely on precise language. Ambiguity in term usage
+can lead to:
+
+* Inconsistent implementation across organizations.
+* Disputes during compliance audits about the scope or meaning of requirements.
+* Difficulty in translating standards across languages.
+* Confusion between deprecated and current term forms.
+
+MMEL addresses these challenges by providing a structured terminology
+definition mechanism that is integrated with the modelling language itself.
+
+=== Relationship to ISO/IEC Directives Part 2
+
+ISO/IEC Directives, Part 2 (Principles and rules for the structure and drafting
+of ISO and IEC documents), section 6, establishes rules for the definition of
+terms in International Standards. Key principles include:
+
+* Each term shall have a unique entry number within the document.
+* Preferred terms, admitted terms, deprecated terms, and synonyms shall be
+clearly distinguished.
+* Definitions shall state the concept concisely and uniquely.
+* Term entries may include notes, examples, and source references.
+
+MMEL's terminology model is designed to be compatible with these principles,
+enabling direct mapping between MMEL term entries and ISO-compliant terminology
+sections.
+
+=== Alignment with SKOS-XL and ISO 30042
+
+MMEL terminology concepts align with established terminology standards:
+
+* *SKOS-XL (SKOS eXtension for Labels)* -- An RDF vocabulary for expressing
+knowledge organization systems. MMEL term forms correspond to SKOS-XL label
+types (prefLabel, altLabel, hiddenLabel).
+* *ISO 30042 (TermBase eXchange, TBX)* -- An international standard for
+terminology data exchange. MMEL's term entry structure maps to TBX concept
+entries with language sections.
+
+These alignments ensure that MMEL terminology data can be interchanged with
+other terminology management systems.
+
+=== Future integration with Glossarist
+
+Glossarist is an open-source terminology management tool developed by Ribose
+that provides a YAML-based format for defining terminology collections. Future
+editions of MMEL may integrate with Glossarist to:
+
+* Import and export term entries between MMEL models and Glossarist
+collections.
+* Leverage Glossarist's multilingual rendering capabilities.
+* Use Glossarist's concept-based organization to manage large terminology sets
+across multiple MMEL models.
+
+=== Normative references
+
+* <<ISO30042>>, _Terminology work -- Term-base eXchange (TBX)_.
+* <<ISOIECDirectives2>>, _ISO/IEC Directives, Part 2: Principles and rules for
+the structure and drafting of ISO and IEC documents_.

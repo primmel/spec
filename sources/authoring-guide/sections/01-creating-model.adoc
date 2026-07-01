@@ -1,0 +1,98 @@
+== Creating a model
+
+=== Creating a new model from scratch
+
+A new MMEL model is created within a repository. The model is identified by a namespace that serves as a unique identifier across the system.
+
+==== Step 1: Create new model in repository
+
+Navigate to the repository and create a new model. Assign a namespace that acts as the model's unique identifier.
+
+The namespace should follow a convention that reflects the source document. For example, for a model of BS 6004, use:
+
+[source,mmel]
+----
+namespace BS6004
+----
+
+==== Step 2: Fill in model metadata
+
+Enter the model metadata fields to properly identify and describe the model.
+
+The following metadata fields are available:
+
+[cols="1,3"]
+|===
+| Field | Description
+
+| Title | The human-readable title of the model
+| Schema | The MMEL schema version used
+| Edition | The edition number of the model
+| Author | The person or organization responsible for the model
+| Shortname | A short identifier for the model
+| Namespace | The unique identifier for the model (e.g., `BS6004`)
+|===
+
+Example metadata:
+
+[source,mmel]
+----
+model BS6004 <1.0.0> {
+  title "Electric cables — Thermoplastic insulated and sheathed cables
+         for voltages up to and including 300/500 V"
+  shortname "BS 6004"
+  author "BSI"
+  namespace BS6004
+}
+----
+
+==== Step 3: Add model components
+
+After setting up the metadata, add the various model components that make up the model. These include:
+
+* Roles -- actors and approvers in the processes
+* References -- citations to external document clauses
+* Data registries -- data storage backed by data classes
+* Data classes -- custom data structures
+* Enumerations -- predefined lists of values
+* Events and processes -- the flow of activities
+* Provisions -- compliance requirements with RFC 2119 modality
+
+Each component type is described in detail in <<#model-components>>.
+
+=== Converting an existing standard to a model
+
+MMEL supports importing content from existing standards documents to accelerate the modeling process.
+
+==== Load text using Document Import
+
+Use the Document Import feature to load the text of the source standard. The import process parses the document structure and makes its content available for conversion into model components.
+
+==== Open the reference document
+
+Once loaded, open the reference document within the editor. The document content is displayed alongside the model editor, allowing side-by-side comparison and selection of text to convert.
+
+==== Select and convert to components
+
+Select portions of the loaded text and convert them into model components. The editor supports conversion into:
+
+* Sections -- for structural content (Foreword, Introduction, Scope, etc.)
+* Terms and definitions -- for terminology entries
+* Provisions -- for requirements, recommendations, and permissions
+* References -- for citations to other clauses or documents
+
+==== Import provisions with auto-detected modality
+
+When importing provisions, the system automatically detects the RFC 2119 modality keyword (SHALL, SHOULD, MAY, CAN, MUST) used in the original text. The modality is assigned to the provision accordingly.
+
+Additionally, the system auto-creates references from detected clause numbers in the source text, linking each provision back to its origin in the standard.
+
+.Example of auto-detected provision import
+[source,mmel]
+----
+provision P_9_2_1_a {
+  text "The organization SHALL conduct internal audits at planned intervals"
+  modality SHALL
+  reference BS202000_9_2_1
+}
+----

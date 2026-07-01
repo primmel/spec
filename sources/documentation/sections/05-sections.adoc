@@ -1,0 +1,58 @@
+[[sections]]
+== Sections
+
+=== General
+
+The `sections` construct defines document section entries used for document
+generation from MMEL models. Sections provide a structured way to organize
+document content with internal identifiers, titles, and text.
+
+=== Syntax
+
+The planned syntax for section definitions is:
+
+[source,mmel]
+----
+section <SectionID> {
+  title "Section title"           <1>
+  text "Section text content"     <2>
+}
+----
+
+<1> Human-readable section title.
+<2> The text content of the section.
+
+=== Properties
+
+Section entries contain the following properties:
+
+[cols="1,3"]
+|===
+|Property |Description
+
+|Internal ID |The `<SectionID>` identifier, used for cross-referencing within
+the model.
+|Title |The section heading text.
+|Text |The body content of the section.
+|===
+
+=== Current status
+
+As of this edition of the specification, sections are stored in model files
+but do not yet have functional use in the toolchain. They are included in the
+model definition for future document generation capabilities.
+
+Future editions of the specification may define:
+
+* Section hierarchy (nested sections with parent-child relationships).
+* Section ordering within generated documents.
+* Section cross-referencing from processes, provisions, and notes.
+* Section numbering aligned with normative document structure.
+* Template-driven section rendering using Liquid templates (similar to report
+templates in mapping files).
+
+=== Relationship to SDC files
+
+Sections complement SDC (Supplementary Document Content) files. While SDC files
+store clause-level content extracted from external normative documents, sections
+store document content that is authored directly within the MMEL model.

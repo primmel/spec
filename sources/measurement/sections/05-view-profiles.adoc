@@ -1,0 +1,167 @@
+[[view-profiles]]
+== View profiles
+
+=== General
+
+View profiles provide a mechanism for parameterized model views. A view
+profile pre-sets measurement data with default values, editability toggles,
+and importance settings, allowing users to customize the model view based on
+their specific parameters without modifying the underlying model.
+
+=== Syntax
+
+[source,mmel]
+----
+view_profile <ProfileID> {
+  parameter <MeasurementID> {
+    default "<default-value>"           <1>
+    editable true | false               <2>
+    setting RECOMMEND | MUST            <3>
+  }
+  parameter <MeasurementID> {
+    default "<default-value>"
+    editable true | false
+    setting RECOMMEND | MUST
+  }
+  ...
+}
+----
+
+<1> The default value for the parameter. Used when the user has not provided
+a value.
+<2> Whether the user can modify this parameter's value. `true` allows user
+editing; `false` locks the parameter to its default value.
+<3> The importance level of the parameter. `RECOMMEND` indicates the
+parameter is recommended but optional; `MUST` indicates the parameter is
+required for the view to be valid.
+
+=== Profile fields
+
+Each parameter in a view profile corresponds to a measurement in the model.
+The profile field acts as a wrapper that controls how the measurement value
+is presented and edited in the model view.
+
+[cols="1,1,3"]
+|===
+|Field |Required |Description
+
+|`default` |yes |The default value for the measurement parameter. Type depends on
+the underlying measurement type (numeric string for NUMERIC, `'true'` or
+`'false'` for TRUE/FALSE, etc.).
+
+|`editable` |yes |Whether the user can modify this parameter. `true` allows
+editing; `false` locks the parameter.
+
+|`setting` |yes |The importance level. `RECOMMEND` marks the parameter as
+recommended; `MUST` marks it as required.
+|===
+
+=== Use cases
+
+==== Branching by external factors
+
+View profiles are used when a model supports multiple scenarios based on
+external factors. For example, a medical device standard model may branch
+depending on whether the device is sterile or non-sterile:
+
+[source,mmel]
+----
+view_profile DeviceProfile {
+  parameter sterile {
+    default "false"
+    editable true
+    setting MUST
+  }
+  parameter implant {
+    default "false"
+    editable true
+    setting RECOMMEND
+  }
+  parameter outsourcing {
+    default "false"
+    editable false
+    setting RECOMMEND
+  }
+}
+----
+
+In this example:
+
+* `sterile` is a required parameter with default `false`. The user must
+confirm or change it.
+* `implant` is a recommended parameter with default `false`. The user may
+change it.
+* `outsourcing` is locked to `false` and cannot be edited by the user.
+
+When the `sterile` parameter is set to `'true'`, the model view adjusts to
+show only the processes and provisions relevant to sterile devices. When set
+to `'false'`, the non-sterile path is shown. This is achieved through
+gateway edge conditions that reference the measurement value:
+
+[source,mmel]
+----
+Edge1 {
+  from SterileGateway
+  to SterileProcessPath
+  description "Yes"
+  condition "[sterile] = 'true'"
+}
+Edge2 {
+  from SterileGateway
+  to NonSterileProcessPath
+  description "No"
+  condition "default"
+}
+----
+
+==== Pre-configured compliance views
+
+View profiles can pre-configure compliance views for specific regulatory
+contexts:
+
+[source,mmel]
+----
+view_profile EURegulatoryView {
+  parameter jurisdiction {
+    default "EU"
+    editable false
+    setting MUST
+  }
+  parameter riskClass {
+    default "IIa"
+    editable true
+    setting MUST
+  }
+}
+----
+
+=== Relationship to measurements
+
+View profiles reference existing measurement IDs. The measurement must be
+defined in the model before it can be used in a view profile parameter. The
+profile parameter's default value overrides the measurement's initial value
+when the profile is applied.
+
+When a view profile is active:
+
+. Each parameter's `default` value is applied to the corresponding
+measurement.
+. If `editable` is `true`, the user can modify the measurement value through
+the profile interface.
+. If `editable` is `false`, the measurement is locked to the default value.
+. The `setting` field indicates whether the parameter is recommended or
+mandatory.
+
+=== External factor settings
+
+View profiles support external factor settings that allow tooling to
+categorize parameters:
+
+* Parameters with `setting MUST` are highlighted as required inputs.
+The user cannot proceed without confirming or providing a value.
+* Parameters with `setting RECOMMEND` are shown as optional inputs.
+The model can be viewed without providing values for these parameters.
+
+This categorization enables tooling to create guided workflows where users
+first set required parameters, then optionally adjust recommended parameters,
+and finally view the parameterized model.

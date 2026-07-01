@@ -1,0 +1,150 @@
+[[formal-grammar]]
+== Formal grammar (EBNF)
+
+This clause provides a simplified EBNF grammar for the MMEL DSL.
+
+[source,ebnf]
+----
+Model           ::= RootDecl VersionDecl MetadataDecl Declaration*
+
+RootDecl        ::= 'root' IDENTIFIER
+VersionDecl     ::= 'version' STRING
+MetadataDecl    ::= 'metadata' '{' MetadataField* '}'
+MetadataField   ::= IDENTIFIER STRING
+
+Declaration     ::= RoleDecl
+                  | StartEventDecl
+                  | EndEventDecl
+                  | TimerEventDecl
+                  | SignalCatchEventDecl
+                  | GatewayDecl
+                  | ProcessDecl
+                  | ApprovalDecl
+                  | ClassDecl
+                  | EnumDecl
+                  | DataRegistryDecl
+                  | ProvisionDecl
+                  | NoteDecl
+                  | ReferenceDecl
+                  | MeasurementDecl
+                  | LinkDecl
+                  | TableDecl
+                  | FigureDecl
+                  | MapProfileDecl
+                  | SubprocessDecl
+
+RoleDecl        ::= 'role' IDENTIFIER '{' 'name' STRING '}'
+
+StartEventDecl  ::= 'start_event' IDENTIFIER '{' '}'
+EndEventDecl    ::= 'end_event' IDENTIFIER '{' '}'
+TimerEventDecl  ::= 'timer_event' IDENTIFIER '{' TimerField* '}'
+TimerField      ::= 'type' TIMER_TYPE | 'para' STRING
+TIMER_TYPE      ::= 'WAIT' | 'REPEAT' | 'DURATION'
+
+SignalCatchEventDecl ::= 'signal_catch_event' IDENTIFIER '{'
+                         'catch' STRING '}'
+
+GatewayDecl     ::= 'exclusive_gateway' IDENTIFIER '{' 'label' STRING '}'
+
+ProcessDecl     ::= 'process' IDENTIFIER '{' ProcessField* '}'
+ProcessField    ::= 'name' STRING
+                  | 'actor' IDENTIFIER
+                  | 'modality' MODALITY
+                  | 'validate_provision' '{' IDENTIFIER* '}'
+                  | 'validate_measurement' '{' STRING '}'
+                  | 'output' '{' IDENTIFIER* '}'
+                  | 'reference_data_registry' '{' IDENTIFIER* '}'
+                  | 'subprocess' IDENTIFIER
+                  | 'links' '{' IDENTIFIER* '}'
+                  | 'note' '{' IDENTIFIER* '}'
+                  | 'table' '{' IDENTIFIER* '}'
+                  | 'figure' '{' IDENTIFIER* '}'
+
+ApprovalDecl    ::= 'approval' IDENTIFIER '{' ApprovalField* '}'
+ApprovalField   ::= 'name' STRING
+                  | 'actor' IDENTIFIER
+                  | 'modality' MODALITY
+                  | 'approve_by' IDENTIFIER
+                  | 'approval_record' '{' IDENTIFIER* '}'
+                  | 'reference' '{' IDENTIFIER* '}'
+
+ClassDecl       ::= 'class' IDENTIFIER ('#data')? '{' ClassField* '}'
+ClassField      ::= FieldName (':' FieldType)? Cardinality?
+                    '{' FieldProperty* '}'
+FieldName       ::= IDENTIFIER
+FieldType       ::= 'string' | 'boolean' | 'datetime' | 'role'
+                  | 'reference' '(' IDENTIFIER ('#data')? ')'
+                  | IDENTIFIER
+Cardinality     ::= '[' INT '..' ('*' | INT) ']'
+FieldProperty   ::= 'definition' STRING
+                  | 'modality' MODALITY
+                  | 'reference' '{' IDENTIFIER* '}'
+                  | 'satisfy' '{' IDENTIFIER '}'
+
+EnumDecl        ::= 'enum' IDENTIFIER '{' EnumValue* '}'
+EnumValue       ::= IDENTIFIER '{' 'definition' STRING '}'
+
+DataRegistryDecl ::= 'data_registry' IDENTIFIER '{'
+                     'title' STRING
+                     'data_class' IDENTIFIER ('#data')? '}'
+
+ProvisionDecl   ::= 'provision' IDENTIFIER '{' ProvisionField* '}'
+ProvisionField  ::= 'condition' STRING
+                  | 'modality' MODALITY
+                  | 'reference' '{' IDENTIFIER* '}'
+
+NoteDecl        ::= 'note' IDENTIFIER '{' NoteField* '}'
+NoteField       ::= 'type' 'NOTE' | 'message' STRING
+                  | 'reference' '{' IDENTIFIER* '}'
+
+ReferenceDecl   ::= 'reference' (NAMESPACE '#')? IDENTIFIER '{' RefField* '}'
+RefField        ::= 'document' STRING | 'clause' STRING | 'title' STRING
+
+MeasurementDecl ::= 'measurement' IDENTIFIER '{' MeasurementField* '}'
+MeasurementField ::= 'type' MEASUREMENT_TYPE
+                   | 'definition' STRING
+                   | 'description' STRING
+MEASUREMENT_TYPE ::= 'NUMERIC' | 'DATALIST' | 'DERIVED'
+                   | 'TRUE/FALSE' | 'DURATION'
+
+LinkDecl        ::= 'link' IDENTIFIER '{' LinkField* '}'
+LinkField       ::= 'title' STRING | 'description' STRING
+                  | 'link' STRING | 'type' LINK_TYPE
+LINK_TYPE       ::= 'REPO' | 'URL'
+
+TableDecl       ::= 'table' IDENTIFIER '{' TableField* '}'
+TableField      ::= 'title' STRING
+                  | 'columns' STRING
+                  | 'display' STRING
+                  | 'domain' '{' STRING* '}'
+                  | 'data' '{' TableRow* '}'
+TableRow        ::= STRING+
+
+FigureDecl      ::= 'figure' IDENTIFIER '{' FigureField* '}'
+FigureField     ::= 'title' STRING | 'data' STRING
+
+MapProfileDecl  ::= 'map_profile' IDENTIFIER '{' MappingDecl* '}'
+MappingDecl     ::= 'mapping' '{' 'from' IDENTIFIER
+                     'to' IDENTIFIER '}'
+
+SubprocessDecl  ::= 'subprocess' IDENTIFIER '{'
+                     ElementsSection FlowSection DataSection '}'
+ElementsSection ::= 'elements' '{' ElementDecl* '}'
+ElementDecl     ::= IDENTIFIER '{' 'x' NUMBER 'y' NUMBER '}'
+FlowSection     ::= 'process_flow' '{' EdgeDecl* '}'
+EdgeDecl        ::= 'Edge' INTEGER '{'
+                     'from' IDENTIFIER 'to' IDENTIFIER
+                     ('description' STRING)?
+                     ('condition' STRING)? '}'
+DataSection     ::= 'data' '{' DataPosDecl* '}'
+DataPosDecl     ::= IDENTIFIER '{' 'x' NUMBER 'y' NUMBER '}'
+
+MODALITY        ::= 'SHALL' | 'SHOULD' | 'MAY' | 'CAN' | 'MUST'
+NAMESPACE       ::= IDENTIFIER
+
+STRING          ::= '"' ... '"'
+IDENTIFIER      ::= [a-zA-Z_][a-zA-Z0-9_'-]*
+INTEGER         ::= [0-9]+
+NUMBER          ::= ('-')? [0-9]+ ('.' [0-9]+)?
+----
+

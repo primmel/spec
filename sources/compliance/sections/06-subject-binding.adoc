@@ -1,0 +1,180 @@
+[[subject-binding]]
+== Subject binding
+
+=== General
+
+Subject binding is a MMEL feature that allows provisions to parameterize their
+condition text by binding named entities (roles or data registries) to numbered
+subject slots. This enables reuse and precise referencing of entities within
+compliance conditions.
+
+=== Syntax
+
+The `subject#N` fields are declared within a provision definition:
+
+[source,mmel]
+----
+provision <ProvisionID> {
+  subject#1 <EntityID>                           <1>
+  subject#2 <EntityID>                           <2>
+  ...
+  subject#N <EntityID>                           <3>
+  condition "{ placeholder text } that references { subject#N }"  <4>
+  modality SHALL | SHOULD | MAY | CAN | MUST
+  reference {
+    <ReferenceID>
+  }
+}
+----
+
+<1> The first subject binding. EntityID is a role or data registry.
+<2> The second subject binding.
+<3> Additional subject bindings (N may be any positive integer).
+<4> The condition text may contain `{ ... }` blocks that reference the bound
+subjects by their entity names or descriptions.
+
+=== Placeholder semantics
+
+The `{ subject#N }` placeholder notation in condition text works as follows:
+
+. Each `subject#N` field binds an entity ID to the numbered slot N.
+. The bound entity may be a `role` ID or a `data_registry` ID.
+. The condition text contains `{ ... }` blocks that describe the entity or
+reference it by name.
+. At evaluation or rendering time, the `{ ... }` blocks may include the entity
+name or description, substituted from the bound subject.
+
+The placeholder format in condition text varies across models:
+
+* `{ Entity name (Data) }` -- references a data registry
+* `{ Entity name (Role) }` -- references a role
+* `{ Entity name (ID: EntityID) }` -- references an entity by its identifier
+* `{ subject#N }` -- direct numbered reference (less common in practice)
+
+=== Binding semantics
+
+The subject binding follows these rules:
+
+. Subject numbering starts at 1 (`subject#1`, `subject#2`, etc.).
+. There is no upper limit on the number of subjects, though most provisions
+use 1 to 3 subjects.
+. Subject numbers need not be contiguous, but conventionally start from 1.
+. Each subject binds to exactly one entity ID.
+. The bound entity may be any top-level element: a `role`, `data_registry`,
+or other identifiable construct.
+
+=== Examples
+
+==== Single subject binding
+
+A provision binding one data registry:
+
+[source,mmel]
+----
+provision SMObjectivesUpdate {
+  subject#1 SMObjectiveRegistry
+  condition "{ Objectives for the SMS (Data) } are updated, as appropriate"
+  modality SHALL
+}
+----
+
+A provision binding one role:
+
+[source,mmel]
+----
+provision NonConformityDelegate {
+  subject#1 ExternalParty
+  condition "Delegate corrective action requriements to an {External parties (ID: ExternalParty)} provider"
+  modality SHALL
+}
+----
+
+==== Multiple subject bindings
+
+A provision binding two data registries:
+
+[source,mmel]
+----
+provision AssignConform {
+  subject#2 VisionRegistry
+  subject#1 MissionRegistry
+  condition "Assign responsibility and authority for ensuring that the SMS conforms to the { Mission for the organization (Data) } and { Vision for the organization (Data) } of the organization"
+  modality SHALL
+}
+----
+
+A provision binding two different entity types (role and data registry):
+
+[source,mmel]
+----
+provision AgreeStandards {
+  subject#2 StandardRegistry
+  subject#1 Supplier
+  condition "The initial list of {Standards (Data)} is agreed between the purchaser and {Standards supplier (ID: Supplier)}"
+  modality SHALL
+}
+----
+
+A provision binding three subjects:
+
+[source,mmel]
+----
+provision TopManagementEstablish {
+  subject#3 DirectionRegistry
+  subject#2 VisionRegistry
+  subject#1 MissionRegistry
+  condition "Establishe { Mission for the organization (Data) }, { Vision for the organization (Data) }, { Direction for the organization (Data) } for the organization"
+  modality SHALL
+}
+----
+
+==== Mixed role and registry subjects
+
+Provisions may bind both roles and data registries as subjects:
+
+[source,mmel]
+----
+provision LeadershipIdentifyRequirements {
+  subject#2 StatutoryRequirementRegistry
+  subject#1 CustomerRequirementRegistry
+  condition "Ientify {Customer requirements (Data)} and applicable { Statutory and regulatory requirements (Data) }"
+  modality SHALL
+}
+----
+
+[source,mmel]
+----
+provision PriorConsent {
+  subject#1 Purchaser
+  condition "Prior consent from { Purchaser (Role) } shall be obtained"
+  modality SHALL
+  reference {
+    Ref44
+  }
+}
+----
+
+=== Prevalence in production models
+
+Subject binding is heavily used in production MMEL models:
+
+* *BS 202000* (Standardization management system): 221 `subject#N` occurrences
+across approximately 200 provisions. Nearly every provision binds at least one
+entity.
+* *BS 16341* (Selection of standards): 35+ occurrences. Provisions for each
+preference order bind a `StandardDataRegistry` subject.
+
+This feature is one of the most extensively used compliance constructs in MMEL.
+
+=== Relationship to condition text
+
+The subject bindings and the condition text work together:
+
+. The `subject#N` fields declare which entities are relevant to the provision.
+. The condition text describes the requirement, using `{ ... }` notation to
+indicate where entity names or descriptions appear.
+. The correspondence between `subject#N` numbers and the `{ ... }` blocks in
+the condition text is by convention: the order of appearance in the condition
+text typically corresponds to increasing subject numbers.
+. This allows tooling to highlight or link the bound entities when rendering
+the compliance condition.

@@ -1,0 +1,198 @@
+[[report-templates]]
+== Report templates
+
+=== General
+
+The MMEL mapping system includes a report template mechanism that enables
+generation of compliance documents from mapping data. Report templates use the
+Liquid template language and are stored within the `docs` section of `.map`
+files.
+
+=== Template language
+
+Report templates use the Liquid template language (https://shopify.github.io/liquid/).
+Liquid provides a safe, designer-friendly templating syntax with three core
+constructs:
+
+* *Objects* -- `{{ variable }}` outputs the value of a variable.
+* *Tags* -- `{% tag %}` provides logic (loops, conditionals).
+* *Filters* -- `{{ variable | filter }}` transforms output.
+
+=== Environment objects
+
+The report template engine provides the following environment objects to
+templates:
+
+==== map object
+
+The `map` object is an array of `MappingRecord` objects, one for each mapping
+entry in the loaded mapping data. Each `MappingRecord` has the following
+properties:
+
+[cols="1,3"]
+|===
+|Property |Description
+
+|`clause` |The clause identifier of the target process's associated reference.
+|`title` |The title/name of the target process.
+|`description` |The mapping description text.
+|`justification` |An array of justification strings for this mapping.
+|===
+
+The `map` array is ordered by clause number.
+
+==== raw object
+
+The `raw` object provides direct access to the `MapSet` objects from the
+`.map` file. This gives templates access to the full mapping data structure,
+including namespace information and nested mapping entries.
+
+Each `MapSet` entry contains:
+
+[cols="1,3"]
+|===
+|Property |Description
+
+|`id` |The namespace identifier.
+|`mappings` |The nested mapping structure (source process to target process
+with description and justification).
+|===
+
+==== imodel and rmodel objects
+
+The `imodel` object provides access to the implementation model data, and the
+`rmodel` object provides access to the reference model data. These allow
+templates to query model metadata, process definitions, and provisions.
+
+=== Example: Statement of Applicability
+
+The following example shows a Liquid template that generates a Statement of
+Applicability (SoA) in AsciiDoc format. This template is stored in the `docs`
+section of a `.map` file:
+
+[source]
+----
+=== Statement of applicability
+
+.SoA for main document
+[cols="1,1,1,1"]
+|===
+|Clause
+|Title
+|Description
+|Justification
+
+{% for r in map %}
+{% assign first = r.clause | slice: 0 %}
+{% unless first == "A" %}
+{% if r.justification.length == 0 %}
+4+|Clause {{r.clause}} {{r.title}}
+{% else %}
+{% for just in r.justification %}
+|{{r.clause}}
+|{{r.title}}
+|
+|{{just}}
+{% endfor %}
+{% endif %}
+{% endunless %}
+{% endfor %}
+
+|===
+
+.SoA for Annex A
+
+[cols="1,1,1,1"]
+|===
+|Clause
+|Title
+|Description
+|Justification
+
+{% for r in map %}
+{% assign first = r.clause | slice: 0 %}
+{% if first == "A" %}
+{% if r.justification.length == 0 %}
+4+|Clause {{r.clause}} {{r.title}}
+{% else %}
+{% for just in r.justification %}
+|{{r.clause}}
+|{{r.title}}
+|{{r.description}}
+|{{just}}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+|===
+----
+
+This template:
+
+. Iterates over all mapping records using `{% for r in map %}`.
+. Separates main body clauses from Annex A clauses using the first character
+of the clause identifier.
+. Generates an AsciiDoc table with clause, title, description, and
+justification columns.
+. Handles unmapped clauses (those without justifications) by spanning them
+across all columns as section headers.
+
+=== Input object specifications
+
+The template engine provides the following input objects:
+
+[cols="1,2,3"]
+|===
+|Object |Type |Description
+
+|`map` |`MappingRecord[]` |Flat array of all mapping records, sorted by clause.
+|`raw` |`MapSet[]` |Raw mapping data organized by namespace.
+|`imodel` |`Model` |The implementation model definition.
+|`rmodel` |`Model` |The reference model definition.
+|===
+
+.MappingRecord type
+[cols="1,2,3"]
+|===
+|Property |Type |Description
+
+|`clause` |`string` |Clause identifier (e.g. "4.1", "A.9.1.1").
+|`title` |`string` |Process or requirement title.
+|`description` |`string` |Mapping description text.
+|`justification` |`string[]` |Array of justification strings.
+|===
+
+=== Template storage in .map files
+
+Templates are stored in the `docs` field of `.map` files:
+
+[source,json]
+----
+{
+  "docs": {
+    "applicability-main": {
+      "id": "applicability-main",
+      "name": "",
+      "datatype": "role",
+      "title": "ISO/IEC 27001:2013 Statement of Applicability",
+      "content": "<Liquid template content as a string>"
+    }
+  }
+}
+----
+
+The `content` field contains the Liquid template source as a single string
+(with `\n` for newlines). The `title` field provides a human-readable title
+for the generated document.
+
+=== Template rendering
+
+A MMEL-compliant tool that supports report templates:
+
+. SHALL parse the `docs` section of `.map` files.
+. SHALL provide the `map`, `raw`, `imodel`, and `rmodel` objects to the
+template engine.
+. SHALL render the template using a Liquid-compatible engine.
+. SHOULD support output in AsciiDoc format.
+. MAY support additional output formats (HTML, PDF, etc.).

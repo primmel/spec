@@ -1,0 +1,512 @@
+root Root
+
+version "v1.0.0-dev1"
+
+metadata {
+  title "Acme Coffee Programme — implementation of the fictional OCS standard"
+  schema "MMEL 0.1"
+  edition "1"
+  author "Acme Corporation (fictional)"
+  shortname "AcmeCoffeeProgramme"
+  namespace "AcmeCoffeeProgramme"
+}
+
+role Org {
+  name "Organization"
+}
+
+role Roaster {
+  name "Roaster"
+}
+
+role QA {
+  name "Quality assurance"
+}
+
+role OperationsManager {
+  name "Operations manager"
+}
+
+process SourceBeans {
+  name "Source beans from approved supplier"
+  actor Roaster
+  modality SHALL
+  validate_provision {
+    SourceBeansFromApprovedSuppliers
+    OCS#Provision4-2-1
+  }
+  reference_data_registry {
+    SupplierRegistry
+  }
+  output {
+    BeanLotRegistry
+  }
+  subprocess BeanSourcingFlow
+}
+
+process AcmeRoastAndLog {
+  name "Roast a batch and log it in one combined step"
+  actor Roaster
+  modality SHALL
+  validate_provision {
+    LogEveryRoastBatch
+    OCS#Provision4-3-1
+  }
+  reference_data_registry {
+    BeanLotRegistry
+  }
+  output {
+    RoastBatchRegistry
+  }
+}
+
+process TestBatchMoisture {
+  name "Test batch moisture content"
+  actor QA
+  modality SHALL
+  validate_provision {
+    TestEveryBatch
+    OCS#Provision4-4-1
+    StandardMeetQuality
+  }
+  validate_measurement {
+    "[MaxMoisture] <= [RequiredMaxMoisture]"
+  }
+  reference_data_registry {
+    RoastBatchRegistry
+  }
+  subprocess QualityCheckFlow
+}
+
+process ReviewSuppliers {
+  name "Review approved suppliers at planned intervals"
+  actor OperationsManager
+  modality SHALL
+  validate_provision {
+    ReviewSuppliersPeriodically
+  }
+  reference_data_registry {
+    SupplierRegistry
+  }
+  subprocess SupplierReviewFlow
+}
+
+process OCS#SourceBeans {
+  name "Source beans"
+}
+
+process OCS#LogRoast {
+  name "Log every roast batch"
+  validate_provision {
+    OCS#Provision4-3-1
+  }
+}
+
+process OCS#VerifyQuality {
+  name "Verify quality of every batch"
+  validate_provision {
+    OCS#Provision4-4-1
+  }
+}
+
+start_event Start1 {
+}
+
+start_event Start2 {
+}
+
+start_event Start3 {
+}
+
+start_event OCS#Start1 {
+}
+
+timer_event SupplierReviewTimer {
+  type REPEAT
+  para "Every 12 months"
+}
+
+exclusive_gateway MoistureGateway {
+  label "Does the batch meet the required moisture grade?"
+}
+
+provision SourceBeansFromApprovedSuppliers {
+  condition "Beans shall be sourced only from suppliers on the approved supplier list"
+  modality SHALL
+  reference {
+    OCS-doc-4-2
+  }
+}
+
+provision LogEveryRoastBatch {
+  condition "Every roast batch shall be recorded with batch id, date, and roast level"
+  modality SHALL
+  reference {
+    OCS-doc-4-3
+  }
+}
+
+provision TestEveryBatch {
+  condition "Every batch shall be tested for moisture content before release"
+  modality SHALL
+  reference {
+    OCS-doc-4-4
+  }
+}
+
+provision ReviewSuppliersPeriodically {
+  condition "Approved suppliers shall be reviewed at planned intervals"
+  modality SHALL
+  reference {
+    OCS-doc-4-2
+  }
+}
+
+provision StandardMeetQuality {
+  subject#1 RoastBatchRegistry
+  condition "{ Roast batches (Data) } selected meet the quality requirements"
+  modality SHALL
+  reference {
+    OCS-doc-4-4
+  }
+}
+
+provision OCS#Provision4-2-1 {
+  condition "The organization shall source beans only from approved suppliers"
+  reference {
+    OCS#Ref4-2
+  }
+}
+
+provision OCS#Provision4-3-1 {
+  condition "Every roast batch shall be recorded"
+  reference {
+    OCS#Ref4-3
+  }
+}
+
+provision OCS#Provision4-4-1 {
+  condition "Every batch shall be tested for moisture content"
+  reference {
+    OCS#Ref4-4
+  }
+}
+
+enum RoastLevel {
+  Light {
+    definition "Light roast"
+  }
+  Medium {
+    definition "Medium roast"
+  }
+  Dark {
+    definition "Dark roast"
+  }
+}
+
+class BeanLot#data {
+  lot_id: string {
+    definition "Supplier lot identifier"
+    modality SHALL
+  }
+  origin: string {
+    definition "Country or region of origin"
+    modality SHALL
+  }
+  received_on: datetime {
+    definition "Date received"
+    modality SHALL
+  }
+  supplier: reference(SupplierApproval#data) {
+    definition "Supplier who provided the lot"
+    modality SHALL
+  }
+}
+
+class RoastBatch#data {
+  batch_id: string {
+    definition "Unique batch identifier"
+    modality SHALL
+  }
+  lot: reference(BeanLot#data) {
+    definition "Bean lot used"
+    modality SHALL
+  }
+  roast_level: RoastLevel {
+    definition "Roast level"
+    modality SHALL
+  }
+  roast_date: datetime {
+    definition "Roast date"
+    modality SHALL
+  }
+  moisture_pct: string {
+    definition "Measured moisture percentage"
+    modality MAY
+  }
+}
+
+class SupplierApproval#data {
+  supplier_name: string {
+    definition "Supplier legal name"
+    modality SHALL
+  }
+  approved_on: datetime {
+    definition "Approval date"
+    modality SHALL
+  }
+  approved_by: role {
+    definition "Operations manager who approved"
+    modality SHALL
+  }
+}
+
+data_registry BeanLotRegistry {
+  title "Bean lots received"
+  data_class BeanLot#data
+}
+
+data_registry RoastBatchRegistry {
+  title "Roast batch logbook"
+  data_class RoastBatch#data
+}
+
+data_registry SupplierRegistry {
+  title "Approved suppliers"
+  data_class SupplierApproval#data
+}
+
+measurement MoistureReading {
+  type DATALIST
+  description "Per-batch moisture readings in percent by mass"
+}
+
+measurement MaxMoisture {
+  type DERIVED
+  definition "[MoistureReading].max"
+  description "Highest moisture reading across all batches"
+}
+
+measurement RequiredMaxMoisture {
+  type NUMERIC
+  description "Contractual maximum moisture percent"
+}
+
+table FreshnessGradeTable {
+  title "Freshness grade lookup"
+  columns "3"
+  display "[grade]: [threshold_pct] moisture"
+  domain {
+  }
+  data {
+    "grade" "threshold_pct" "description"
+    "A" "10" "Premium freshness"
+    "B" "11" "Standard freshness"
+    "C" "12" "Acceptable freshness"
+  }
+}
+
+reference OCS-doc-4-1 {
+  document "Office Coffee Standard (OCS) (fictional)"
+  clause "4.1"
+  title "General requirements"
+}
+
+reference OCS-doc-4-2 {
+  document "Office Coffee Standard (OCS) (fictional)"
+  clause "4.2"
+  title "Bean sourcing"
+}
+
+reference OCS-doc-4-3 {
+  document "Office Coffee Standard (OCS) (fictional)"
+  clause "4.3"
+  title "Roast logging"
+}
+
+reference OCS-doc-4-4 {
+  document "Office Coffee Standard (OCS) (fictional)"
+  clause "4.4"
+  title "Quality checks"
+}
+
+reference OCS#Ref4-2 {
+  document "Office Coffee Standard (OCS) (fictional)"
+  clause "4.2"
+  title "Bean sourcing"
+}
+
+reference OCS#Ref4-3 {
+  document "Office Coffee Standard (OCS) (fictional)"
+  clause "4.3"
+  title "Roast logging"
+}
+
+reference OCS#Ref4-4 {
+  document "Office Coffee Standard (OCS) (fictional)"
+  clause "4.4"
+  title "Quality checks"
+}
+
+subprocess Root {
+  elements {
+    Start1 {
+      x 0
+      y 0
+    }
+    SourceBeans {
+      x -150
+      y 100
+    }
+    AcmeRoastAndLog {
+      x -150
+      y 220
+    }
+    TestBatchMoisture {
+      x -150
+      y 340
+    }
+  }
+  process_flow {
+    Edge1 {
+      from Start1
+      to SourceBeans
+    }
+    Edge2 {
+      from SourceBeans
+      to AcmeRoastAndLog
+    }
+    Edge3 {
+      from AcmeRoastAndLog
+      to TestBatchMoisture
+    }
+  }
+  data {
+    SupplierRegistry {
+      x 200
+      y 30
+    }
+    BeanLotRegistry {
+      x 200
+      y 140
+    }
+    RoastBatchRegistry {
+      x 200
+      y 260
+    }
+  }
+}
+
+subprocess BeanSourcingFlow {
+  elements {
+    Start2 {
+      x 0
+      y 0
+    }
+    SourceBeans {
+      x 0
+      y 100
+    }
+  }
+  process_flow {
+    Edge1 {
+      from Start2
+      to SourceBeans
+    }
+  }
+  data {
+    SupplierRegistry {
+      x 250
+      y 100
+    }
+    BeanLotRegistry {
+      x 250
+      y 200
+    }
+  }
+}
+
+subprocess QualityCheckFlow {
+  elements {
+    Start3 {
+      x 0
+      y 0
+    }
+    TestBatchMoisture {
+      x 0
+      y 100
+    }
+    MoistureGateway {
+      x 0
+      y 220
+    }
+  }
+  process_flow {
+    Edge1 {
+      from Start3
+      to TestBatchMoisture
+    }
+    Edge2 {
+      from TestBatchMoisture
+      to MoistureGateway
+    }
+  }
+  data {
+    RoastBatchRegistry {
+      x 250
+      y 130
+    }
+  }
+}
+
+subprocess SupplierReviewFlow {
+  elements {
+    OCS#Start1 {
+      x 0
+      y 0
+    }
+    ReviewSuppliers {
+      x 0
+      y 100
+    }
+    SupplierReviewTimer {
+      x 0
+      y 220
+    }
+  }
+  process_flow {
+    Edge1 {
+      from OCS#Start1
+      to ReviewSuppliers
+    }
+    Edge2 {
+      from ReviewSuppliers
+      to SupplierReviewTimer
+    }
+    Edge3 {
+      from SupplierReviewTimer
+      to ReviewSuppliers
+    }
+  }
+  data {
+    SupplierRegistry {
+      x 250
+      y 130
+    }
+  }
+}
+
+map_profile OCS {
+  mapping {
+    from SourceBeans
+    to OCS#SourceBeans
+  }
+  mapping {
+    from AcmeRoastAndLog
+    to OCS#LogRoast
+  }
+  mapping {
+    from TestBatchMoisture
+    to OCS#VerifyQuality
+  }
+}
