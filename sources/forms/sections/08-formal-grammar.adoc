@@ -1,0 +1,136 @@
+[[formal-grammar-forms]]
+== Formal grammar
+
+=== General
+
+This section provides the formal grammar for forms, subforms, and
+related constructs using Extended Backus-Naur Form (EBNF).
+
+=== Lexical conventions
+
+* `<ID>` — an identifier matching `[a-zA-Z_][a-zA-Z0-9_]*`
+* `<STRING>` — a double-quoted string literal
+* `<NUMBER>` — a numeric literal (integer or decimal)
+* `{ ... }` — brace-delimited block
+* `[ ... ]` — optional element
+* `*` — zero or more repetitions
+* `|` — alternation
+
+=== Top-level declarations
+
+[source,ebnf]
+----
+ModelElement = FormDecl | SubformDecl | SymbolDecl
+              | CalculationDecl | StateMachineDecl
+              | /* existing MMEL 0.1 constructs */ ;
+
+FormDecl     = "form" ID "{" FormBody "}" ;
+SubformDecl  = "subform" ID "{" SubformBody "}" ;
+----
+
+=== Form body
+
+[source,ebnf]
+----
+FormBody     = { FormProperty } ;
+
+FormProperty = "name" STRING
+              | "description" STRING
+              | "data_class" ID
+              | "header" ID
+              | "conformance_process" ID
+              | "applicability" "{" { ApplicabilityEntry } "}"
+              | FieldDecl
+              | SubformRef
+              | PassFail ;
+
+ApplicabilityEntry = ID ":" "[" ID { "," ID } "]"
+                    | ID ":" "{" { ID ":" Value } "}" ;
+
+PassFail     = "pass_fail" "{" "criteria" STRING "pass_if" STRING "}" ;
+----
+
+=== Field declaration
+
+[source,ebnf]
+----
+FieldDecl    = "field" ID [ ":" TypeSpec ] "{" { FieldProperty } "}" ;
+
+TypeSpec     = "string" | "text" | "number" | "integer"
+              | "boolean" | "date" | "datetime"
+              | "enum" | "object" | "array" | "array" "<" TypeSpec ">"
+              | ID ; (* class reference *)
+
+FieldProperty = "label" STRING
+               | "definition" STRING
+               | "unit" STRING
+               | "required" ( "true" | "false" )
+               | "measurement_method" MeasurementMethod
+               | "calculation" ID
+               | "calculation_bindings" "{" { BindingEntry } "}"
+               | "evaluation" "{" "rule" STRING "condition" STRING [ "reference" "{" ID { ID } "}" ] "}"
+               | "reference" "{" { ID } "}"
+               | "values" "[" Value { "," Value } "]"
+               | "default" Value
+               | "derivation" STRING
+               | "items" "{" { FieldProperty } "}"
+               | "fields" "{" { FieldDecl } "}" ;
+
+MeasurementMethod = "direct" | "computed" | "derived"
+                   | "declared" | "lookup" | "evaluated" ;
+
+BindingEntry = ID ":" PathExpr ;
+
+PathExpr     = ID { "." ID } ;
+----
+
+=== Subform
+
+[source,ebnf]
+----
+SubformBody  = { SubformProperty } ;
+
+SubformProperty = "parameters" "{" { ParameterDecl } "}"
+                 | "type" ( "object" | "array" )
+                 | "description" STRING
+                 | FieldDecl
+                 | SubformRef ;
+
+ParameterDecl = ID ":" TypeSpec "{" { ParameterProperty } "}" ;
+
+ParameterProperty = "description" STRING
+                   | "default" Value
+                   | "mapping" "{" { ID ":" Value } "}" ;
+----
+
+=== Subform reference
+
+[source,ebnf]
+----
+SubformRef   = "subform_ref" ID "{" { SubformRefProperty } "}" ;
+
+SubformRefProperty = "parameters" "{" { ID ":" Value } "}"
+                   | "applicability" "{" { ApplicabilityEntry } "}" ;
+----
+
+=== Values
+
+[source,ebnf]
+----
+Value        = STRING | NUMBER | "true" | "false" | ID ;
+----
+
+=== Placeholder syntax (within STRING values)
+
+Within any `STRING` value, the token `${{` ID `}}` is a parameter
+placeholder. The substitution pass replaces these before further
+processing.
+
+[source,ebnf]
+----
+Placeholder = "${{" ID "}}" ;
+----
+
+Note: the tokenizer treats `${{ ... }}` as part of the enclosing string
+literal; the placeholder is recognized by the substitution pass, not by
+the tokenizer.

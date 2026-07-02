@@ -1,0 +1,40 @@
+[[formal-grammar-state-machines]]
+== Formal grammar
+
+=== State machine declaration
+
+[source,ebnf]
+----
+StateMachineDecl = "state_machine" ID "{" { StateMachineProperty } "}" ;
+
+StateMachineProperty = "initial" ID
+                      | "states" "{" { ID } "}"
+                      | TransitionDecl ;
+
+TransitionDecl = "transition" ID "->" ID
+                  [ "action" ID ] "{" { TransitionProperty } "}" ;
+
+TransitionProperty = "guard" STRING
+                   | CascadeDecl
+                   | "reference" "{" { ID } "}" ;
+
+CascadeDecl  = "cascade" ID "{" CascadeProperty { CascadeProperty } "}" ;
+
+CascadeProperty = "where" STRING
+                | "set" "{" { SetEntry } "}" ;
+
+SetEntry     = ID ":" STRING ;
+----
+
+=== Lexical conventions
+
+As per the forms grammar (see <<formal-grammar-forms>>).
+
+=== Token syntax within strings
+
+Within any `STRING` value used as a `where` predicate or `set` value,
+`${...}` tokens are recognized. These are preserved by the parser and
+resolved at runtime.
+
+Note: This is distinct from `${{ ... }}` parameter substitution
+(build-time, used in subforms).

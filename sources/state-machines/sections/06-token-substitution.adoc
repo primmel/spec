@@ -1,0 +1,80 @@
+[[token-substitution-state-machines]]
+== Token substitution
+
+=== General
+
+Tokens inside `where` predicates and `set` values are substituted at
+runtime, using the source entity's state and a small set of context
+variables.
+
+=== Token syntax
+
+The token syntax is `${...}` — dollar-brace, expression, close-brace.
+Note: this is DIFFERENT from the parameter substitution syntax (`${{ ... }}`,
+double braces) used in subforms. The single-brace form is for runtime
+values; the double-brace form is for build-time parameters.
+
+=== Built-in tokens
+
+[cols="1,2"]
+|===
+|Token |Description
+
+|`${this}`
+|The source entity (the entity whose state is changing).
+
+|`${this.id}`
+|The source entity's identifier.
+
+|`${this.<field>}`
+|Any field on the source entity.
+
+|`${now}`
+|The current ISO-8601 timestamp at execution time.
+
+|`${user}`
+|The current user's identifier.
+
+|===
+
+=== Expression tokens
+
+Tokens can contain OCL expressions:
+
+[source,mmel]
+----
+set { admissibilityProgress: "${this.admissibilityProgress + 1}" }
+----
+
+The expression is evaluated against the source entity.
+
+=== Token resolution
+
+Tokens are resolved by the state machine runtime, not by the parser.
+The parser validates that the token syntax is correct but does not
+evaluate the expressions.
+
+=== Cross-entity references
+
+Tokens can reference other entities via their class name:
+
+[source,mmel]
+----
+guard "not some(FormInstance where testReportId = ${this.id} and result = 'FAIL')"
+----
+
+The `FormInstance` identifier resolves to the `FormInstance` class in
+the current model.
+
+=== Substitution vs parameters
+
+The two substitution mechanisms serve different purposes:
+
+* **Parameter substitution** (`${{ name }}`): build-time, used in
+  subforms to inline dimension-derived values. The runtime never sees
+  these.
+* **Token substitution** (`${...}`): runtime, used in state machine
+  cascades and guards to reference entity state. The parser preserves
+  these for the runtime.
+
+The double-brace vs single-brace distinction prevents ambiguity.

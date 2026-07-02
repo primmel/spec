@@ -1,0 +1,50 @@
+[[latex-rendering]]
+== LaTeX rendering
+
+=== General
+
+The `latex` property provides rendering hints for documentation
+generators. It does not affect runtime behavior.
+
+=== Syntax
+
+The `latex` value is a string containing valid LaTeX math-mode markup.
+The documentation generator wraps it in `\(...\)` or `\[ ... \]` as
+appropriate.
+
+=== Conventions
+
+* Use plain letters for variables: `f`, `x`, `n`
+* Subscripts: `n_{LC}`, `E_{max}`
+* Superscripts: `x^2`, `10^{-3}`
+* Greek letters: `\alpha`, `\beta`, `\Delta`
+* Operators: `\times`, `\cdot`, `\leq`, `\geq`
+* Text in math: `\text{MPE}`, `\mathrm{C_H}`
+
+=== Default behavior
+
+If `latex` is omitted, the documentation generator uses the symbol's
+identifier verbatim.
+
+=== Example
+
+[source,mmel]
+----
+symbol C_C {
+  name "Creep"
+  type number
+  unit "v"
+  latex "C_C"
+  reference { R60-1-5-5-1 }
+}
+
+symbol C_DR {
+  name "Dead load output return"
+  type number
+  unit "v"
+  latex "C_{DR}"
+  reference { R60-1-5-5-2 }
+}
+----
+
+Renders as `C_C` and `C_{DR}` (with subscript) respectively.

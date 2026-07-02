@@ -1,0 +1,64 @@
+[[forms-overview]]
+== Forms overview
+
+=== General
+
+Forms are declarative schemas for data-capture artifacts — audit
+checklists, test reports, inspection records, quality control sheets.
+Every compliance system has them; Primmel provides a first-class
+construct so they need not be invented in YAML by each adopter.
+
+A *form* describes:
+
+* the *shape* of one filled-in instance (fields, types, units)
+* the *computation* rules that derive some fields from others (via
+  `calculation` references — see <<mn-113-9>>)
+* the *evaluation* rules that decide pass/fail at the field and form
+  level (via OCL expressions)
+* the *applicability* conditions under which the form is required
+  (dimension-based, e.g., "applies when accuracy_class is C or D")
+* the *composition* via `subform` references that allow reuse of common
+  row shapes (see <<subforms>>)
+
+=== Relationship to other Primmel constructs
+
+[cols="1,2"]
+|===
+|Construct |Relationship
+
+|`class#data` (<<mn-113-2>>)
+|A form instance persists as a record of the linked `data_class`. The form
+describes the *shape of capture*; the data class describes the *shape of
+storage*.
+
+|`process` (<<mn-113-3>>)
+|A form is filled in when a `process` executes. The link is via
+`conformance_process` on the form.
+
+|`measurement` (<<mn-113-5>>)
+|Form fields can reference measurements. Symbol-typed fields resolve to
+the symbol registry (<<mn-113-8>>).
+
+|`calculation` (<<mn-113-9>>)
+|Form fields can invoke calculations by name via the `calculation`
+property. The calculation's inputs are bound to form fields or
+sub-paths.
+
+|`provision` (<<mn-113-4>>)
+|A form's `pass_fail` block typically validates one or more provisions.
+
+|===
+
+=== Why forms are a first-class construct
+
+Without a form construct, every compliance system must invent one. The
+alternatives — embedding form schemas in code, or using ad-hoc YAML —
+violate the single-notation integration principle (see
+<<principles-and-requirements>>).
+
+By making forms first-class:
+
+* Form schemas participate in cross-model mapping (`map_profile`)
+* Form instances are exportable and importable across tools
+* Form applicability is checkable at parse time
+* Calculation bindings are type-checked against the calculation registry

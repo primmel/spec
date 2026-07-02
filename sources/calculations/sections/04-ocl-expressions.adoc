@@ -1,0 +1,139 @@
+[[ocl-expressions]]
+== OCL expressions
+
+=== General
+
+Calculation `expression` values are written in a subset of Object
+Constraint Language (OCL). This section documents the supported subset.
+
+=== Literals
+
+[source,mmel]
+----
+expression "ocl{42}"             // numeric literal
+expression "ocl{3.14}"
+expression "ocl{true}"
+expression "ocl{false}"
+expression "ocl{\"hello\"}"      // string literal (escaped quotes)
+----
+
+=== Identifier references
+
+Identifiers inside an OCL expression reference either:
+
+* Calculation inputs (by name)
+* Symbols (via `[SymbolID]` syntax)
+* Other calculations (via `calculationID(...)` syntax — future extension)
+
+[source,mmel]
+----
+expression "ocl{(avgIndication - referenceIndication) / conversionFactor}"
+//   ^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^
+//   inputs
+
+expression "ocl{[E_L] <= [MPE]}"
+//          ^^^^      ^^^^
+//          symbols
+----
+
+=== Arithmetic operators
+
+[source,ebnf]
+----
+Expr = Expr "+" Expr
+      | Expr "-" Expr
+      | Expr "*" Expr
+      | Expr "/" Expr
+      | Expr "mod" Expr
+      | Expr "div" Expr
+      | "-" Expr
+      | Atom ;
+----
+
+=== Comparison operators
+
+[source,ebnl]
+----
+Expr = Expr "<" Expr
+      | Expr "<=" Expr
+      | Expr ">" Expr
+      | Expr ">=" Expr
+      | Expr "=" Expr
+      | Expr "<>" Expr ;
+----
+
+=== Boolean operators
+
+[source,ebnf]
+----
+Expr = Expr "and" Expr
+      | Expr "or" Expr
+      | Expr "xor" Expr
+      | "not" Expr
+      | Expr "implies" Expr ;
+----
+
+=== Path expressions
+
+[source,mmel]
+----
+expression "ocl{runs.indication}"          // array of indications
+expression "ocl{runs->first().indication}" // first run's indication
+expression "ocl{runs->last().time}"        // last run's time
+----
+
+=== Collection operations
+
+[source,ebnf]
+----
+Expr = Expr "->" "size" "(" ")"
+      | Expr "->" "sum" "(" ")"
+      | Expr "->" "mean" "(" ")"
+      | Expr "->" "min" "(" ")"
+      | Expr "->" "max" "(" ")"
+      | Expr "->" "count" "(" ")"
+      | Expr "->" "first" "(" ")"
+      | Expr "->" "last" "(" ")"
+      | Expr "->" "forAll" "(" Var "|" Expr ")"
+      | Expr "->" "exists" "(" Var "|" Expr ")"
+      | Expr "->" "collect" "(" Var "|" Expr ")"
+      | Expr "->" "select" "(" Var "|" Expr ")"
+      | Expr "->" "reject" "(" Var "|" Expr ")" ;
+----
+
+=== Functions
+
+[source,ebnf]
+----
+Expr = "abs" "(" Expr ")"
+      | "sqrt" "(" Expr ")"
+      | "pow" "(" Expr "," Expr ")"
+      | "min" "(" Expr "," Expr ")"
+      | "max" "(" Expr "," Expr ")"
+      | "mean" "(" Expr { "," Expr } ")" ;
+----
+
+=== Conditional
+
+[source,ebnf]
+----
+Expr = "if" Expr "then" Expr "else" Expr "endif" ;
+----
+
+=== Example
+
+[source,mmel]
+----
+expression "ocl{if values->size() > 0 then values->sum() / values->size() else 0 endif}"
+----
+
+=== Out of scope
+
+The following OCL features are NOT required for Primmel 1.0:
+
+* Tuple types
+* Set/Bag/OrderedSet distinctions (we use `list` for all collections)
+* Iterate expressions (use the named aggregates instead)
+* Message expressions
+
+These may be added in future versions if use cases emerge.

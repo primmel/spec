@@ -1,0 +1,34 @@
+[[formal-grammar-calculations]]
+== Formal grammar
+
+=== Calculation declaration
+
+[source,ebnf]
+----
+CalculationDecl = "calculation" ID "{" { CalculationProperty } "}" ;
+
+CalculationProperty = "name" STRING
+                    | "description" STRING
+                    | "inputs" "{" { InputDecl } "}"
+                    | "output" ":" TypeSpec "{" { OutputProperty } "}"
+                    | "expression" STRING
+                    | "reference" "{" { ID } "}" ;
+
+InputDecl    = ID ":" TypeSpec "{" { InputProperty } "}" ;
+
+InputProperty = "unit" STRING
+               | "description" STRING
+               | "default" Value ;
+
+OutputProperty = "unit" STRING
+               | "description" STRING ;
+
+TypeSpec     = BaseType [ "<" TypeSpec ">" ]
+             | "list" "<" TypeSpec ">" ;
+
+BaseType     = "number" | "integer" | "string" | "boolean" | "enum" | ID ;
+----
+
+=== Lexical conventions
+
+As per the forms grammar (see <<formal-grammar-forms>>).

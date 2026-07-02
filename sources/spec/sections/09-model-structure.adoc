@@ -68,6 +68,21 @@ map_profile <Namespace> { ... }
 
 // Subprocesses (diagrams)
 subprocess <ID> { ... }
+
+// Forms (MN 113-7)
+form <ID> { ... }
+
+// Subforms (MN 113-7)
+subform <ID> { ... }
+
+// Symbols (MN 113-8)
+symbol <ID> { ... }
+
+// Calculations (MN 113-9)
+calculation <ID> { ... }
+
+// State machines (MN 113-10)
+state_machine <EntityName> { ... }
 ----
 
 === Summary of construct types
@@ -100,5 +115,10 @@ subprocess <ID> { ... }
 |Figure |`figure` |Embedded image/diagram
 |Map profile |`map_profile` |Cross-model element mapping
 |Subprocess |`subprocess` |Diagram container with layout
+|Form |`form` |Declarative data-capture schema (MN 113-7)
+|Subform |`subform` |Reusable parameterized row shape (MN 113-7)
+|Symbol |`symbol` |Typed, unit-aware formal symbol (MN 113-8)
+|Calculation |`calculation` |Named, type-checked OCL computation (MN 113-9)
+|State machine |`state_machine` |Entity lifecycle with cascades (MN 113-10)
 |===
 

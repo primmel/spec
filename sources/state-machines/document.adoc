@@ -1,0 +1,20 @@
+= MN 113-10: Primmel State Machines
+:docnumber: 113.10
+:edition: 1
+:revdate: 2026-07-03
+:copyright-year: 2026
+:language: en
+:title-main-en: Primmel State Machines
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-state-machines-overview.adoc[]
+include::sections/02-state-machine-syntax.adoc[]
+include::sections/03-transitions.adoc[]
+include::sections/04-cascades.adoc[]
+include::sections/05-guards.adoc[]
+include::sections/06-token-substitution.adoc[]
+include::sections/07-formal-grammar.adoc[]

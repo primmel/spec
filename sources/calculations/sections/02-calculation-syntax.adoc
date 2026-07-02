@@ -1,0 +1,123 @@
+[[calculation-syntax]]
+== Calculation syntax
+
+=== General
+
+A calculation declaration uses the `calculation` keyword followed by an
+identifier and a brace-delimited body.
+
+=== Syntax
+
+[source,mmel]
+----
+calculation <CalculationID> {
+  name "Display name"                               <1>
+  description "..."                                 <2>
+  inputs {                                          <3>
+    <param> : <type> {
+      unit "<unit>"
+      description "..."
+    }
+  }
+  output : <type> {                                 <4>
+    unit "<unit>"
+  }
+  expression "ocl{...}"                             <5>
+  reference { <ReferenceID> }                       <6>
+}
+----
+
+<1> Display name. Required.
+<2> Free-text description. Optional.
+<3> Typed inputs. Zero or more (calculations can be nullary constants).
+<4> Typed output. Required.
+<5> OCL expression. Required.
+<6> Normative references. Optional.
+
+=== Properties
+
+[cols="1,1,3"]
+|===
+|Property |Required |Description
+
+|`name`
+|yes
+|Display name.
+
+|`description`
+|no
+|Free-text description.
+
+|`inputs`
+|no
+|Typed input parameters. Zero or more.
+
+|`output`
+|yes
+|Typed output.
+
+|`expression`
+|yes
+|OCL expression that computes the output from the inputs.
+
+|`reference`
+|no
+|Normative references for traceability.
+
+|===
+
+=== Example: OIML R 60 calculations
+
+[source,mmel]
+----
+calculation loadCellError {
+  name "Load cell error"
+  description "Signed difference between observed and reference indication, divided by conversion factor."
+  inputs {
+    avgIndication : number { unit "counts" }
+    referenceIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(avgIndication - referenceIndication) / conversionFactor}"
+  reference { R60-3-2-1-2-2 }
+}
+
+calculation repeatabilityError {
+  name "Repeatability error"
+  description "Max minus min of a list of values."
+  inputs {
+    values : list<number> { unit "1" }
+  }
+  output : number { unit "1" }
+  expression "ocl{values->max() - values->min()}"
+}
+
+calculation creep {
+  name "Creep error"
+  description "Change in indication from initial D_max loading, divided by conversion factor."
+  inputs {
+    indicationAtTime : number { unit "counts" }
+    initialIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indicationAtTime - initialIndication) / conversionFactor}"
+  reference { R60-3-2-1-5 }
+}
+----
+
+=== Nullary calculations (constants)
+
+A calculation may have zero inputs. This represents a typed constant:
+
+[source,mmel]
+----
+calculation halfVFixed {
+  name "Fixed 0.5 v threshold"
+  description "Dead load output return limit per R 60-1 §5.5.2."
+  output : number { unit "v" }
+  expression "ocl{0.5}"
+  reference { R60-1-5-5-2 }
+}
+----

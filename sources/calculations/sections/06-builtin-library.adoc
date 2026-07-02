@@ -1,0 +1,133 @@
+[[builtin-library]]
+== Built-in library
+
+=== General
+
+Primmel ships with a standard library of calculations available to all
+models without explicit declaration. These correspond to OCL operators
+and provide common aggregates.
+
+=== Aggregates
+
+[cols="1,2,2"]
+|===
+|Calculation |Signature |Description
+
+|`size`
+|`list<T> → integer`
+|Number of items in the list.
+
+|`sum`
+|`list<number> → number`
+|Sum of all items.
+
+|`mean`
+|`list<number> → number`
+|Arithmetic mean (sum / size).
+
+|`min`
+|`list<number> → number`
+|Minimum value.
+
+|`max`
+|`list<number> → number`
+|Maximum value.
+
+|`count`
+|`list<T> → integer`
+|Same as `size` (alias).
+
+|`first`
+|`list<T> → T`
+|First item.
+
+|`last`
+|`list<T> → T`
+|Last item.
+
+|===
+
+These are accessed via the `->` operator on collections:
+
+[source,mmel]
+----
+expression "ocl{runs.indication->mean()}"
+expression "ocl{runs.indication->max() - runs.indication->min()}"
+----
+
+=== Functions
+
+[cols="1,2,2"]
+|===
+|Function |Signature |Description
+
+|`abs`
+|`number → number`
+|Absolute value.
+
+|`sqrt`
+|`number → number`
+|Square root.
+
+|`pow`
+|`(number, number) → number`
+|Exponentiation.
+
+|`min`
+|`(number, number) → number`
+|Minimum of two values.
+
+|`max`
+|`(number, number) → number`
+|Maximum of two values.
+
+|===
+
+These are accessed as function calls:
+
+[source,mmel]
+----
+expression "ocl{abs(error_EL)}"
+expression "ocl{pow(conversionFactor, 2)}"
+----
+
+=== Quantifiers
+
+[cols="1,2,2"]
+|===
+|Quantifier |Signature |Description
+
+|`forAll`
+|`(list<T>, T → boolean) → boolean`
+|True if predicate holds for every item.
+
+|`exists`
+|`(list<T>, T → boolean) → boolean`
+|True if predicate holds for at least one item.
+
+|`collect`
+|`(list<T>, T → U) → list<U>`
+|Map each item through a function.
+
+|`select`
+|`(list<T>, T → boolean) → list<T>`
+|Filter items by predicate.
+
+|`reject`
+|`(list<T>, T → boolean) → list<T>`
+|Inverse of `select`.
+
+|===
+
+[source,mmel]
+----
+expression "ocl{runs->forAll(r | r.indication <= threshold)}"
+expression "ocl{runs->exists(r | r.indication > threshold)}"
+expression "ocl{runs->collect(r | r.indication)->sum()}"
+----
+
+=== Overriding built-ins
+
+A model may declare its own calculation with the same name as a
+built-in. The model's declaration takes precedence within that model.
+A warning is emitted.

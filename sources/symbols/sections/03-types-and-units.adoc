@@ -1,0 +1,75 @@
+[[symbol-types-and-units]]
+== Types and units
+
+=== General
+
+Symbols are typed. The type system is intentionally minimal — five
+primitives that cover virtually all compliance use cases.
+
+=== Allowed types
+
+[cols="1,3"]
+|===
+|Type |Description
+
+|`number`
+|Floating-point or integer numeric value.
+
+|`integer`
+|Whole number. Use for counts (e.g., `n_LC`).
+
+|`string`
+|Free-text value.
+
+|`boolean`
+|True/false value.
+
+|`enum`
+|Named value from a finite set. Use `values` block to declare allowed
+values.
+
+|===
+
+=== Unit conventions
+
+Units are free-form strings, but should follow SI conventions:
+
+* `kg`, `g`, `t` — mass
+* `m`, `mm`, `μm` — length
+* `s`, `min`, `h` — time
+* `K`, `°C` — temperature
+* `V` — voltage
+* `A` — current
+* `Ω` — resistance
+* `%` — percentage
+* `1` — dimensionless (default)
+* Compound: `counts/v`, `kg/m³`, `m/s²`
+
+=== Unit compatibility
+
+When a calculation input has a declared unit and a binding provides a
+different unit, the parser:
+
+* Allows dimensionless coercion (`"1"` ↔ any unit)
+* Allows scale prefixes (`kg` ↔ `g` with explicit conversion)
+* Rejects incompatible units (`kg` ↔ `V`)
+
+=== Default unit
+
+If no unit is declared, the default is `"1"` (dimensionless).
+Dimensionless values can be bound to any unit without explicit
+conversion.
+
+=== Enum values
+
+For `type enum`, declare allowed values via the `values` property:
+
+[source,mmel]
+----
+symbol accuracy_class {
+  name "Accuracy class"
+  type enum
+  values [A, B, C, D]
+  reference { R60-1-3-7-1 }
+}
+----

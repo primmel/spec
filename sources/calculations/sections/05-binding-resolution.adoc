@@ -1,0 +1,131 @@
+[[binding-resolution]]
+== Binding resolution
+
+=== General
+
+When a form field references a calculation via the `calculation`
+property, the `calculation_bindings` block maps the calculation's named
+inputs to form fields or sub-paths.
+
+=== Binding syntax
+
+[source,mmel]
+----
+field error_EL : number {
+  unit "v"
+  measurement_method computed
+  calculation loadCellError
+  calculation_bindings {
+    avgIndication: average_indication
+    referenceIndication: reference_indication
+    conversionFactor: f
+  }
+}
+----
+
+Each binding entry is `<input_name>: <path_expression>`. The
+`<input_name>` must match a declared input on the calculation.
+
+=== Path expressions
+
+A path expression is `ID { "." ID }` — one or more identifiers joined
+by dots.
+
+* `f` — references the field `f` (or symbol `f`) in the current form
+* `runs.indication` — references the `indication` field of each item in
+  the `runs` array
+* `temperature_series->first().test_loads->last().indication` —
+  deeply nested path
+
+=== Type validation
+
+At parse time, the parser validates:
+
+* Every calculation input has a binding (or a default)
+* Every binding points to an existing field or symbol
+* The bound field's type matches the calculation input's type
+* The bound field's unit is compatible with the calculation input's unit
+
+=== Unit compatibility
+
+Units are compatible when:
+
+* They are equal
+* One is `"1"` (dimensionless) and the other is anything
+* They differ only by SI prefix (`kg` ↔ `g`)
+
+Otherwise the binding is rejected.
+
+=== Missing bindings
+
+If a calculation input has no binding and no default, the parser emits
+an error:
+
+```
+calculation loadCellError input "conversionFactor" has no binding
+and no default
+```
+
+=== Default values
+
+If an input has a `default`, the binding is optional. The default is
+used when no binding is provided.
+
+=== Example: complete binding
+
+Given the calculation:
+
+[source,mmel]
+----
+calculation loadCellError {
+  inputs {
+    avgIndication : number { unit "counts" }
+    referenceIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(avgIndication - referenceIndication) / conversionFactor}"
+}
+----
+
+And the form:
+
+[source,mmel]
+----
+field f : number {
+  unit "counts/v"
+  measurement_method declared
+}
+
+field average_indication : number {
+  unit "counts"
+  measurement_method derived
+  derivation "ocl{mean(runs.indication)}"
+}
+
+field reference_indication : number {
+  unit "counts"
+  measurement_method computed
+  calculation referenceIndication
+  calculation_bindings { /* ... */ }
+}
+
+field error_EL : number {
+  unit "v"
+  measurement_method computed
+  calculation loadCellError
+  calculation_bindings {
+    avgIndication: average_indication
+    referenceIndication: reference_indication
+    conversionFactor: f
+  }
+}
+----
+
+The parser:
+
+1. Looks up `loadCellError` — found
+2. Validates bindings: `avgIndication`, `referenceIndication`, `conversionFactor` all declared inputs
+3. Validates types: all `number` (matches)
+4. Validates units: `counts`/`counts`/`counts-v` (matches `counts`/`counts`/`counts-v`)
+5. Field `error_EL` gets type `number`, unit `v` from calculation output

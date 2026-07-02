@@ -1,0 +1,55 @@
+[[symbols-overview]]
+== Symbols overview
+
+=== General
+
+The symbol registry provides typed, unit-aware formal symbol definitions
+with LaTeX rendering hints and normative traceability. Symbols are
+referenced from OCL expressions inside calculations and form evaluation
+rules.
+
+=== Why symbols exist
+
+Without a symbol registry, OCL expressions reference bare identifiers
+with no type checking, no unit validation, and no documentation hint.
+For technical standards with many symbols (OIML R 60 has ~50), this
+leads to:
+
+* Typos that silently evaluate to `null`
+* Unit mismatches that produce wrong results
+* Documentation that drifts from the implementation
+* No traceability from a symbol back to its normative definition
+
+The symbol registry solves all four problems.
+
+=== Relationship to other Primmel constructs
+
+[cols="1,2"]
+|===
+|Construct |Relationship
+
+|`measurement`
+|Measurements are runtime values; symbols are their formal types.
+
+|`calculation`
+|Calculations reference symbols by name in their `expression`.
+
+|`form`
+|Form fields can reference symbols; calculation bindings resolve to
+symbols.
+
+|`reference`
+|Symbols link to normative sources via `reference { }`.
+
+|===
+
+=== Identifier conventions
+
+Symbol identifiers should match the printed standard's notation where
+possible. For Unicode-friendliness:
+
+* Use ASCII letters and digits: `f`, `nLC`, `Emax`, `MPE`, `C_C`, `C_DR`
+* Use underscore for subscripts that don't render well as plain letters: `C_C`, `C_DR`, `C_M`
+* Reserve capitalization for quantities (`Emax`, `MPE`); lowercase for
+  variables (`f`, `n`, `p_LC`)
+* The `latex` property provides the formal rendering for documentation

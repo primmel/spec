@@ -1,0 +1,108 @@
+[[applicability]]
+== Applicability
+
+=== General
+
+A form's `applicability` block declares under what conditions the form
+is required. Conditions are expressed as dimension-value constraints.
+
+=== Syntax
+
+[source,mmel]
+----
+form <FormID> {
+  applicability {
+    <dimension>: [<values>]            <1>
+    <dimension>: [<values>]            <2>
+  }
+}
+----
+
+<1> Single-dimension constraint: form applies when the dimension's value
+is in the listed set.
+<2> Multi-dimension constraint: ALL dimension constraints must hold (AND
+semantics).
+
+=== Semantics
+
+* An empty `applicability` block (or no block at all) means the form
+  always applies.
+* Multiple dimensions are AND-ed: all must hold for the form to apply.
+* Within a dimension, the values are OR-ed: the dimension's actual
+  value must be in the listed set.
+
+=== Example: humidity form applies only for CH class
+
+[source,mmel]
+----
+form HumidityCH {
+  name "Humidity test for CH/unmarked load cells"
+  applicability {
+    humidity_class: [CH]
+  }
+  // ...
+}
+----
+
+This form applies only when the instrument under test has
+`humidity_class = CH`. Instruments with `SH` or `NH` are exempt.
+
+=== Example: load test applies for all accuracy classes
+
+[source,mmel]
+----
+form LoadTest {
+  name "Load test data"
+  applicability {
+    accuracy_class: [A, B, C, D]
+  }
+  // ...
+}
+----
+
+=== Call-site override
+
+When a form references a subform via `subform_ref`, the call site can
+further narrow the subform's applicability:
+
+[source,mmel]
+----
+field load_test_before : array {
+  subform_ref LoadTestRow {
+    parameters { n_runs: 3 }
+    applicability { phase: before }
+  }
+}
+----
+
+The composed field's applicability is the intersection of the parent
+form's applicability and the call-site applicability.
+
+=== Parameterized applicability
+
+A form's `applicability` block can declare parameter mappings that
+resolve at form-materialization time:
+
+[source,mmel]
+----
+form LoadTest {
+  applicability {
+    accuracy_class: [A, B, C, D]
+    n_runs: {
+      A: 5
+      B: 5
+      C: 3
+      D: 3
+    }
+  }
+  // ...
+}
+----
+
+The form materializer resolves `n_runs` from the active `accuracy_class`
+when instantiating the form for a specific instrument.
+
+=== Relationship to conformance tests
+
+A form's `applicability` should match the applicability of its
+`conformance_process`. The parser emits a warning if they diverge.

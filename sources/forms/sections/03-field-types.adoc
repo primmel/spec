@@ -1,0 +1,154 @@
+[[field-types]]
+== Field types
+
+=== General
+
+Form fields share their grammar with `class` fields (see <<classes>>)
+and add form-specific properties for measurement method, calculation
+bindings, and evaluation rules.
+
+=== Syntax
+
+[source,mmel]
+----
+field <FieldName> : <type> {
+  label "..."                                      <1>
+  definition "..."                                 <2>
+  unit "..."                                       <3>
+  required true | false                            <4>
+  measurement_method direct | computed | derived | declared | lookup | evaluated   <5>
+  calculation <CalculationID>                      <6>
+  calculation_bindings {                           <7>
+    <param>: <field-or-path>
+  }
+  evaluation {                                     <8>
+    rule "ocl{...}"
+    condition "..."
+  }
+  reference { <ReferenceID> }                      <9>
+  values [<value>, ...]                            <10>
+  default <value>                                  <11>
+}
+----
+
+<1> Display label for UI rendering.
+<2> Free-text definition.
+<3> Unit annotation (e.g., `"kg"`, `"counts/v"`, `"v"`).
+<4> Whether the field must be filled in.
+<5> How the field's value is obtained. See <<measurement-methods>>.
+<6> Named calculation to invoke. See <<mn-113-9>>.
+<7> Input bindings for the calculation. See <<calculation-bindings>>.
+<8> Field-level pass/fail rule. See <<evaluation-rules>>.
+<9> Normative reference for traceability.
+<10> Allowed values for enum-typed fields.
+<11> Default value if not explicitly set.
+
+=== Field types
+
+The `<type>` placeholder can be any of:
+
+* Primitives: `string`, `text`, `number`, `integer`, `boolean`, `date`, `datetime`
+* Enumerations: `enum` (with `values` block)
+* Objects: `object` (with nested `fields` block)
+* Arrays: `array` or `array<ElementType>` (with `items` block)
+* References: a class name (e.g., `Address`) for embedded helper-class values
+
+=== Measurement methods
+
+[cols="1,3"]
+|===
+|Method |Description
+
+|`direct`
+|The value is observed directly from the instrument under test (e.g., a
+voltage reading).
+
+|`computed`
+|The value is calculated from other fields via a `calculation` reference.
+
+|`derived`
+|The value is computed from other fields via an inline OCL expression in
+`derivation`.
+
+|`declared`
+|The value is declared by the manufacturer or applicant (e.g., Emax,
+accuracy class).
+
+|`lookup`
+|The value is looked up from a `table` based on other field values.
+
+|`evaluated`
+|The value is the result of evaluating a pass/fail rule (e.g.,
+`within_mpe`, `overall_result`).
+
+|===
+
+[[calculation-bindings]]
+=== Calculation bindings
+
+When a field has a `calculation` reference, its `calculation_bindings`
+block maps the calculation's named inputs to form fields or sub-paths:
+
+[source,mmel]
+----
+field error_EL : number {
+  unit "v"
+  measurement_method computed
+  calculation loadCellError
+  calculation_bindings {
+    avgIndication: average_indication
+    referenceIndication: reference_indication
+    conversionFactor: f
+  }
+}
+----
+
+The parser:
+
+1. Looks up the calculation `loadCellError` in the calculation registry.
+2. Validates that the bindings match the calculation's declared inputs
+   by name.
+3. Validates that each bound field's type and unit are compatible with
+   the calculation input's declared type and unit.
+4. The field's effective type and unit become the calculation's output
+   type and unit.
+
+Sub-paths are allowed: `runs.indication` means "the indication field of
+each item in the runs array".
+
+[[evaluation-rules]]
+=== Evaluation rules
+
+A field's `evaluation` block declares a pass/fail rule:
+
+[source,mmel]
+----
+field within_mpe : enum {
+  values [yes, no]
+  measurement_method evaluated
+  evaluation {
+    rule "ocl{abs(error_EL) <= abs(mpe)}"
+    condition "|E_L| <= |MPE|"
+    reference { R60-1-5-3-1 }
+  }
+}
+----
+
+The `rule` is an OCL expression. The `condition` is a human-readable
+summary. The optional `reference` links to the normative source of the
+rule.
+
+=== Default values
+
+A field may declare a default value:
+
+[source,mmel]
+----
+field plc : number {
+  default 0.7
+  measurement_method declared
+}
+----
+
+If the field is not explicitly set when the form is filled in, the
+default applies.
