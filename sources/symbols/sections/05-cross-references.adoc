@@ -1,0 +1,58 @@
+[[symbol-cross-references]]
+== Cross-references
+
+=== General
+
+Symbols link to normative sources via the `reference` property. This
+provides traceability from the formal symbol back to its printed
+definition.
+
+=== Syntax
+
+[source,mmel]
+----
+symbol <SymbolID> {
+  // ...
+  reference { <ReferenceID> { <ReferenceID> } }
+}
+----
+
+Multiple references are allowed. The first listed is the *canonical*
+source; subsequent ones are *additional* sources.
+
+=== Resolving references
+
+A `reference { R60-3-2-1-2-4 }` requires a top-level `reference R60-3-2-1-2-4 { ... }`
+declaration elsewhere in the model. The parser:
+
+1. Collects all `reference` declarations
+2. Validates that every symbol's `reference { ... }` points to a
+   declared reference
+3. Emits an error if a symbol references an undeclared source
+
+=== Example
+
+[source,mmel]
+----
+reference R60-1-5-3-2 {
+  document "OIML R 60-1:2021"
+  clause "5.3.2"
+  title "Maximum permissible errors on type evaluation"
+}
+
+symbol MPE {
+  name "Maximum permissible error"
+  type number
+  unit "v"
+  reference { R60-1-5-3-2 }
+}
+----
+
+=== Why this matters
+
+The chain `symbol → reference → external document` enables:
+
+* Bidirectional search ("find all symbols defined in R 60-1 §5.3.2")
+* Compliance checking ("is every used symbol traceable to a normative
+  source?")
+* Documentation generation (render a symbol index with citations)

@@ -1,0 +1,28 @@
+[[formal-grammar-symbols]]
+== Formal grammar
+
+=== Symbol declaration
+
+[source,ebnf]
+----
+SymbolDecl   = "symbol" ID "{" { SymbolProperty } "}" ;
+
+SymbolProperty = "name" STRING
+               | "definition" STRING
+               | "type" SymbolType
+               | "unit" STRING
+               | "latex" STRING
+               | "values" "[" ID { "," ID } "]"
+               | "reference" "{" { ID } "}" ;
+
+SymbolType   = "number" | "integer" | "string" | "boolean" | "enum" ;
+----
+
+=== Lexical conventions
+
+As per the forms grammar (see <<formal-grammar-forms>>).
+
+=== Top-level placement
+
+`SymbolDecl` may appear at the top level of a model, alongside other
+declarations.

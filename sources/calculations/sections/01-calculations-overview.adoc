@@ -1,0 +1,53 @@
+[[calculations-overview]]
+== Calculations overview
+
+=== General
+
+Calculations are named, type-checked OCL computation primitives. They
+are referenced from form fields via the `calculation` property and the
+`calculation_bindings` block.
+
+=== Why calculations exist
+
+Without a calculation registry, OCL formulas are inlined wherever
+needed. For any standard with non-trivial calculations (OIML R 60 has
+~30), this leads to:
+
+* The same formula copy-pasted across multiple forms
+* Typos in one copy that silently diverge from the others
+* No type checking on inputs
+* No unit checking on inputs and outputs
+* No reference traceability to the source formula
+
+The calculation registry solves all five problems.
+
+=== Relationship to other Primmel constructs
+
+[cols="1,2"]
+|===
+|Construct |Relationship
+
+|`symbol`
+|Calculations reference symbols in their `expression`.
+
+|`form`
+|Form fields invoke calculations via `calculation` and
+`calculation_bindings`.
+
+|`measurement`
+|Calculations are similar to `measurement DERIVED` but with typed inputs
+and named reference. Use `measurement DERIVED` for inline shorthand;
+use `calculation` for reusable typed primitives.
+
+|`validate_measurement`
+|A `validate_measurement` expression is an inline anonymous calculation
+with boolean output. It can be expressed as a named calculation when
+reuse is desired.
+
+|===
+
+=== Identifier conventions
+
+Calculation identifiers should be verbs or verb phrases that describe
+the operation: `loadCellError`, `mean`, `repeatabilityError`,
+`humidityCHmin`. They are PascalCase by convention.

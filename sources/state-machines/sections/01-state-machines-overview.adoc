@@ -1,0 +1,54 @@
+[[state-machines-overview]]
+== State machines overview
+
+=== General
+
+State machines describe the lifecycle of an entity: its possible states,
+the transitions between them, and the side-effects (cascades) that fire
+on transitions.
+
+=== Why state machines exist
+
+MMEL 0.1 has `exclusive_gateway` (decision points in process flow) but
+no first-class state machine construct. Side-effects on state changes
+are implicit in the flow topology, not declarative.
+
+For lifecycle-heavy domains (certification, audit, approval), you need
+to declare: "when this entity's state changes, these dependent entities
+also change." BPMN-style flowcharts aren't enough.
+
+State machines complement `process` (which describes activities) by
+describing entity state evolution.
+
+=== Relationship to other Primmel constructs
+
+[cols="1,2"]
+|===
+|Construct |Relationship
+
+|`class#data`
+|A state machine is bound to a data class. The class's `status` field
+holds the current state.
+
+|`process`
+|Processes describe activities that may trigger state transitions.
+State machines describe the resulting state evolution.
+
+|`exclusive_gateway`
+|Gateways decide which process flow branch to take. State machines
+constrain which transitions are valid from the current state.
+
+|`provision`
+|A transition's guard often validates a provision.
+
+|===
+
+=== Lifecycle vs activity
+
+The distinction:
+
+* **Activity** (process): "the lab submits the test report"
+* **Lifecycle** (state machine): "the test report's status changes from DRAFT to SUBMITTED, and form instances on it become LOCKED"
+
+Both are needed. The activity description tells you WHO does WHAT. The
+lifecycle description tells you what SIDE-EFFECTS follow.

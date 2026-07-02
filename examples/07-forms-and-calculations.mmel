@@ -1,0 +1,393 @@
+root LoadCellCalibrationDemo
+
+version "v1.0.0-dev1"
+
+metadata {
+  title "Load cell calibration demo: forms, symbols, calculations, state machines"
+  schema "MMEL 0.1"
+  edition "1"
+  author "Primmel project"
+  shortname "LoadCellCalibrationDemo"
+  namespace "LoadCellCalibrationDemo"
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// This model demonstrates all five Primmel extensions in one file:
+//   1. symbol registry
+//   2. calculation registry
+//   3. subform (parameterized row shape)
+//   4. form (declarative data-capture schema)
+//   5. state_machine (lifecycle with cascades)
+//
+// The domain is fictional but realistic: a load cell calibration
+// workflow with two accuracy classes (Class A: 5 runs, Class C: 3 runs).
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Roles ────────────────────────────────────────────────────────────
+
+role Lab {
+  name "Calibration laboratory"
+}
+
+role QA {
+  name "Quality assurance"
+}
+
+// ── Data classes ────────────────────────────────────────────────────
+
+class LoadCell#data {
+  id : string { definition "Unique identifier" modality SHALL }
+  manufacturer : string { definition "Manufacturer name" modality SHALL }
+  emax : number { definition "Maximum capacity (kg)" modality SHALL }
+  accuracy_class : enum { definition "A or C" modality SHALL }
+  status : enum { definition "DRAFT | SUBMITTED | ACCEPTED | REJECTED" modality SHALL }
+}
+
+class FormInstance#data {
+  id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  result : enum { definition "PASS | FAIL | NA" modality SHALL }
+  status : enum { definition "OPEN | LOCKED" modality SHALL }
+}
+
+class TestReport#data {
+  id : string { modality SHALL }
+  status : enum { definition "DRAFT | SUBMITTED | UNDER_REVIEW | ACCEPTED | REJECTED" modality SHALL }
+  evaluation_report_id : string { modality MAY }
+  admissibility_progress : integer { definition "Number of accepted reports" modality MAY }
+}
+
+data_registry LoadCellRegistry {
+  title "Load cells under calibration"
+  data_class LoadCell#data
+}
+
+data_registry FormInstanceRegistry {
+  title "Form instances"
+  data_class FormInstance#data
+}
+
+data_registry TestReportRegistry {
+  title "Test reports"
+  data_class TestReport#data
+}
+
+// ── References ──────────────────────────────────────────────────────
+
+reference LCS-3-2 {
+  document "Load Cell Standard (fictional)"
+  clause "3.2"
+  title "Conversion factor definition"
+}
+
+reference LCS-5-3 {
+  document "Load Cell Standard (fictional)"
+  clause "5.3"
+  title "Maximum permissible error"
+}
+
+reference LCS-6-3 {
+  document "Load Cell Standard (fictional)"
+  clause "6.3"
+  title "Load test procedure"
+}
+
+// ── Symbols ─────────────────────────────────────────────────────────
+
+symbol f {
+  name "Conversion factor"
+  definition "Ratio of indication change to load change at 75% of Max."
+  type number
+  unit "counts/v"
+  latex "f"
+  reference { LCS-3-2 }
+}
+
+symbol Emax {
+  name "Maximum capacity"
+  type number
+  unit "kg"
+  latex "E_{max}"
+}
+
+symbol MPE {
+  name "Maximum permissible error"
+  type number
+  unit "v"
+  latex "MPE"
+  reference { LCS-5-3 }
+}
+
+// ── Calculations ────────────────────────────────────────────────────
+
+calculation mean {
+  name "Arithmetic mean"
+  description "Mean of a list of values."
+  inputs {
+    values : list<number> { unit "1" }
+  }
+  output : number { unit "1" }
+  expression "ocl{values->sum() / values->size()}"
+}
+
+calculation maxMinusMin {
+  name "Max minus min"
+  description "Range of a list of values."
+  inputs {
+    values : list<number> { unit "1" }
+  }
+  output : number { unit "1" }
+  expression "ocl{values->max() - values->min()}"
+}
+
+calculation loadCellError {
+  name "Load cell error"
+  description "Signed difference between observed and reference indication, divided by f."
+  inputs {
+    avgIndication : number { unit "counts" }
+    referenceIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(avgIndication - referenceIndication) / conversionFactor}"
+  reference { LCS-5-3 }
+}
+
+// ── Subforms ────────────────────────────────────────────────────────
+//
+// Parameterized row shape: one load-test row with N runs (mean, range).
+// N resolves from accuracy_class via the mapping.
+
+subform LoadTestRow {
+  parameters {
+    n_runs : integer {
+      description "Runs per test_load. Resolved from accuracy_class."
+      mapping {
+        A: 5
+        C: 3
+      }
+    }
+  }
+
+  type object
+  description "One row of a load test: applied load + N runs + aggregates."
+
+  field test_load : number {
+    label "Test load"
+    unit "kg"
+    measurement_method direct
+    required true
+  }
+
+  field runs : array {
+    label "Runs"
+    min_items "${{ n_runs }}"
+    max_items "${{ n_runs }}"
+    items {
+      type object
+      fields {
+        field indication : number {
+          unit "counts"
+          measurement_method direct
+          required true
+        }
+        field time : datetime {
+          measurement_method direct
+        }
+      }
+    }
+  }
+
+  field average_indication : number {
+    label "Average"
+    unit "counts"
+    measurement_method derived
+    derivation "ocl{runs.indication->mean()}"
+  }
+
+  field repeatability_error : number {
+    label "Repeatability error"
+    unit "counts"
+    measurement_method derived
+    derivation "ocl{runs.indication->maxMinusMin()}"
+  }
+
+  field error_EL : number {
+    label "Load cell error (E_L)"
+    unit "v"
+    measurement_method computed
+    calculation loadCellError
+    calculation_bindings {
+      avgIndication: average_indication
+      referenceIndication: test_load   // simplified: would be a derived reference
+      conversionFactor: f
+    }
+    evaluation {
+      rule "ocl{abs(error_EL) <= abs([MPE])}"
+      condition "|E_L| <= |MPE|"
+      reference { LCS-5-3 }
+    }
+  }
+
+  field within_mpe : enum {
+    label "Within MPE"
+    values [yes, no]
+    measurement_method evaluated
+    evaluation {
+      rule "ocl{abs(error_EL) <= abs([MPE])}"
+      condition "|E_L| <= |MPE|"
+    }
+  }
+}
+
+// ── Forms ───────────────────────────────────────────────────────────
+
+form LoadTest {
+  name "Load test"
+  description "Load test data — parameterized by accuracy_class (5 runs for A, 3 runs for C)."
+  data_class FormInstance#data
+  applicability {
+    accuracy_class: [A, C]
+    n_runs: {
+      A: 5
+      C: 3
+    }
+  }
+
+  field instrument_id : string {
+    label "Instrument ID"
+    measurement_method declared
+    required true
+  }
+
+  field f : number {
+    label "Conversion factor (f)"
+    unit "counts/v"
+    measurement_method declared
+    required true
+  }
+
+  field test_loads : array {
+    label "Test load measurements"
+    description "Per-load-point readings, N runs each."
+    subform_ref LoadTestRow { }
+  }
+
+  pass_fail {
+    criteria "All |E_L| <= |MPE| at every test load"
+    pass_if "ocl{test_loads->forAll(t | t.within_mpe = 'yes')}"
+  }
+}
+
+form HumidityTest {
+  name "Humidity test"
+  description "Humidity test data — load test before and after exposure, parameterized."
+  data_class FormInstance#data
+  applicability {
+    humidity_class: [CH]
+  }
+
+  field load_test_before : array {
+    label "Load test before humidity"
+    description "Load test data captured before humidity exposure."
+    subform_ref LoadTestRow {
+      applicability { phase: before }
+    }
+  }
+
+  field load_test_after : array {
+    label "Load test after humidity"
+    description "Load test data captured after humidity exposure."
+    subform_ref LoadTestRow {
+      applicability { phase: after }
+    }
+  }
+
+  pass_fail {
+    criteria "C_Hmin and C_Hmax within limits"
+    pass_if "ocl{true}"  // simplified
+  }
+}
+
+// ── Provisions ──────────────────────────────────────────────────────
+
+provision MeetsMPE {
+  condition "All load cell errors shall be within the maximum permissible error."
+  modality SHALL
+  reference { LCS-5-3 }
+}
+
+// ── Processes ───────────────────────────────────────────────────────
+
+process PerformLoadTest {
+  name "Perform load test"
+  actor Lab
+  modality SHALL
+  validate_provision {
+    MeetsMPE
+  }
+  validate_measurement {
+    "[error_EL] <= [MPE]"
+  }
+  output { FormInstanceRegistry }
+  reference_data_registry { LoadCellRegistry }
+  reference { LCS-6-3 }
+}
+
+// ── State machines ──────────────────────────────────────────────────
+
+state_machine TestReport {
+  initial DRAFT
+
+  states {
+    DRAFT
+    SUBMITTED
+    UNDER_REVIEW
+    ACCEPTED
+    REJECTED
+  }
+
+  transition DRAFT -> SUBMITTED action lab_submits {
+    cascade FormInstance {
+      where "test_report_id = ${this.id}"
+      set { status: "LOCKED" }
+    }
+  }
+
+  transition SUBMITTED -> UNDER_REVIEW action qa_starts_review {
+  }
+
+  transition UNDER_REVIEW -> ACCEPTED action qa_accepts {
+    guard "not some(FormInstance where test_report_id = ${this.id} and result = 'FAIL')"
+    cascade TestReport {
+      where "id = ${this.id}"
+      set { admissibility_progress: "${this.admissibility_progress + 1}" }
+    }
+  }
+
+  transition UNDER_REVIEW -> REJECTED action qa_rejects {
+    guard "some(FormInstance where test_report_id = ${this.id} and result = 'FAIL')"
+  }
+}
+
+// ── Workflow ────────────────────────────────────────────────────────
+
+start_event Start1 {
+}
+
+end_event End1 {
+}
+
+subprocess CalibrationFlow {
+  elements {
+    Start1 { x 0 y 0 }
+    PerformLoadTest { x 0 y 100 }
+    End1 { x 0 y 200 }
+  }
+  process_flow {
+    Edge1 { from Start1 to PerformLoadTest }
+    Edge2 { from PerformLoadTest to End1 }
+  }
+  data {
+  }
+}

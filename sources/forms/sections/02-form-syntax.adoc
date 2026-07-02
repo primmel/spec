@@ -1,0 +1,151 @@
+[[form-syntax]]
+== Form syntax
+
+=== General
+
+A form declaration uses the `form` keyword followed by an identifier
+and a brace-delimited body.
+
+=== Syntax
+
+[source,mmel]
+----
+form <FormID> {
+  name "Display name"                              <1>
+  description "..."                                <2>
+  data_class <DataClassID>                         <3>
+  header <HeaderFormID>                            <4>
+  conformance_process <ProcessID>                  <5>
+  applicability {                                  <6>
+    <dimension>: [<values>]
+  }
+
+  field <FieldName> : <type> { ... }               <7>
+
+  subform_ref <SubformID> {                        <8>
+    parameters { ... }
+    applicability { ... }
+  }
+
+  pass_fail {                                      <9>
+    criteria "..."
+    pass_if "ocl{...}"
+  }
+}
+----
+
+<1> Display name. Required.
+<2> Free-text description. Optional.
+<3> Links this form to a `class#data`; instances persist as records of that class. Optional.
+<4> Shared header form (e.g., metadata block common to many forms). Optional.
+<5> The `process` this form fills in when executed. Optional.
+<6> Dimension-based applicability. Optional.
+<7> Inline field declaration (see <<field-types>>). Zero or more.
+<8> Reference to a `subform` with parameter bindings (see <<subforms>>). Zero or more.
+<9> Form-level pass/fail rule. Optional.
+
+=== Properties
+
+[cols="1,1,3"]
+|===
+|Property |Required |Description
+
+|`name`
+|yes
+|Display name of the form.
+
+|`description`
+|no
+|Free-text description.
+
+|`data_class`
+|no
+|Links the form to a `class#data`. When set, instances of the form are
+persisted as records of the named data class.
+
+|`header`
+|no
+|A shared header form. The header's fields are prepended to this form's
+fields when rendered.
+
+|`conformance_process`
+|no
+|The `process` that fills in this form when executed.
+
+|`applicability`
+|no
+|Dimension-based applicability constraints. See <<applicability>>.
+
+|`field`
+|no
+|Inline field declaration. Zero or more. See <<field-types>>.
+
+|`subform_ref`
+|no
+|Composition reference to a `subform`. Zero or more. See <<subforms>>.
+
+|`pass_fail`
+|no
+|Form-level pass/fail rule. See below.
+
+|===
+
+=== The `pass_fail` block
+
+The `pass_fail` block declares the form-level pass/fail rule. It is
+optional; if absent, the form has no aggregate evaluation and only
+field-level `evaluation` rules apply.
+
+[source,mmel]
+----
+pass_fail {
+  criteria "Human-readable description of what constitutes a pass"
+  pass_if "ocl{<expression>}"
+}
+----
+
+The `criteria` is a human-readable string used in documentation and UI
+rendering. The `pass_if` is an OCL expression that must evaluate to
+`true` for the form to pass.
+
+=== Example: a minimal form
+
+[source,mmel]
+----
+form LoadCellInfo {
+  name "Load cell information"
+  description "Identification and parameters of the load cell under test."
+  data_class LoadCellInfo#data
+  header FormHeaderA
+
+  field manufacturer {
+    label "Manufacturer"
+    type string
+    required true
+    measurement_method declared
+  }
+
+  field type_designation {
+    label "Type designation"
+    type string
+    required true
+    measurement_method declared
+  }
+
+  field emax {
+    label "Maximum capacity (Emax)"
+    type number
+    unit "kg"
+    required true
+    measurement_method declared
+  }
+
+  field accuracy_class {
+    label "Accuracy class"
+    type enum
+    values [A, B, C, D]
+    required true
+    measurement_method declared
+  }
+}
+----

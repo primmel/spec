@@ -9,6 +9,7 @@ dist_dir = File.join(repo_dir, 'dist')
 parts = %w[
   spec data-model process-model compliance measurement mapping
   documentation terminology workspace authoring-guide methodology-guide
+  forms symbols calculations state-machines
 ]
 
 total_bytes = 0

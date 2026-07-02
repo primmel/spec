@@ -1,0 +1,149 @@
+[[parameter-substitution]]
+== Parameter substitution
+
+=== General
+
+Parameter substitution replaces `${{ name }}` placeholders inside
+subform field properties with values resolved from the call site. The
+result is a fully-expanded form tree with no placeholders visible to
+consumers.
+
+Substitution happens at PARSE TIME (build time). The runtime sees
+fully-resolved values. This keeps the runtime simple and produces
+audit-friendly output.
+
+=== Placeholder syntax
+
+A placeholder is the token `${{` followed by whitespace, a parameter
+name, whitespace, and `}}`:
+
+[source,mmel]
+----
+min_items "${{ n_runs }}"
+----
+
+Within a quoted string, the placeholder is preserved by the tokenizer.
+The substitution pass walks the parsed tree, finds placeholders, and
+replaces them.
+
+=== Whole-string vs inline substitution
+
+The substituter distinguishes two cases:
+
+==== Whole-string substitution
+
+If the entire string value (after trimming quotes) is a single
+placeholder, the substituted value retains its native type:
+
+[source,mmel]
+----
+min_items "${{ n_runs }}"     // ${n_runs = 3} → min_items 3 (integer, not "3")
+----
+
+==== Inline substitution
+
+If the placeholder appears within a longer string, the result is a
+string with the placeholder replaced by `String(value)`:
+
+[source,mmel]
+----
+label "Run ${{ n_runs }} of ${{ total }}"   // → label "Run 3 of 5"
+----
+
+=== Missing parameters
+
+If a placeholder references a parameter that is not in scope, the build
+FAILS with an error:
+
+```
+subform-resolver: missing parameter "n_runs" while substituting
+(known: phase, humidity_class)
+```
+
+No silent `${{ }}` tokens are left in the output. This prevents
+runtime surprises.
+
+=== Parameter resolution order
+
+Parameters are resolved in this precedence (highest first):
+
+1. *Call-site literal*: explicit value in `subform_ref.parameters`
+2. *Mapping-derived*: value looked up from `mapping` table based on a
+   call-site dimension value
+3. *Subform default*: value from the parameter's `default` declaration
+4. *Error*: parameter required, no resolution found
+
+==== Example: all three modes
+
+[source,mmel]
+----
+subform Example {
+  parameters {
+    a : integer { default 10 }
+    b : integer { mapping { X: 1, Y: 2 } }
+    c : integer { }    // no default, no mapping — required
+  }
+  field value_a : integer { default "${{ a }}" }
+  field value_b : integer { default "${{ b }}" }
+  field value_c : integer { default "${{ c }}" }
+}
+
+form Caller {
+  field x : array {
+    subform_ref Example {
+      parameters {
+        c: 99                // explicit literal
+        // b resolves from mapping if parent's dimension value is X or Y
+        // a falls back to default 10
+      }
+    }
+  }
+}
+----
+
+=== Recursive substitution
+
+Substitution happens BEFORE recursive composition. If a subform
+references another subform, the outer parameters propagate inward:
+
+[source,mmel]
+----
+subform Outer {
+  parameters { n : integer }
+  field inner : array {
+    subform_ref Inner {
+      parameters { count: "${{ n }}" }   // outer parameter passed to inner
+    }
+  }
+}
+
+subform Inner {
+  parameters { count : integer }
+  field items : array {
+    min_items "${{ count }}"
+  }
+}
+----
+
+=== Substitution scope
+
+Substitution applies to:
+
+* Field property values (strings, numbers, booleans)
+* Nested object and array property values
+* Calculation binding values (if they reference parameters)
+
+Substitution does NOT apply to:
+
+* Comments
+* Identifiers (field names, form IDs)
+* Keyword arguments outside of values
+
+=== Build-time guarantee
+
+After the substitution pass, the parsed model contains NO `${{ }}`
+tokens. The `dump` serializer emits the fully-resolved form. The
+runtime consumes only resolved values.
+
+This makes the runtime trivial: it never needs to know about
+parameters or substitution.

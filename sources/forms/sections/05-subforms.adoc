@@ -1,0 +1,177 @@
+[[subforms]]
+== Subforms
+
+=== General
+
+Subforms are reusable, parameterizable row shapes that can be composed
+into multiple parent forms. They eliminate duplication when the same
+row structure appears in multiple forms with minor variations.
+
+=== Why subforms exist
+
+Without subforms, every variant of a repeated structure requires a
+separate `form` declaration. For example, a load test with 3 runs
+(classes C/D) and 5 runs (classes A/B) would be two separate forms,
+each ~95 lines, with 90% duplicated content.
+
+Subforms collapse this duplication: one parameterized subform is
+composed into multiple parent forms with different parameter values.
+
+=== Syntax
+
+[source,mmel]
+----
+subform <SubformID> {
+  parameters {                                     <1>
+    <name> : <type> {
+      description "..."
+      default <value>
+      mapping { <key>: <value> }
+    }
+  }
+
+  type object | array                              <2>
+  description "..."                                <3>
+
+  field <FieldName> : <type> { ... }               <4>
+}
+----
+
+<1> Declared parameters. Each can have a description, default value,
+and dimension-to-value mapping. Zero or more parameters.
+<2> Shape: `object` for a single record, `array` for a list of records.
+<3> Free-text description.
+<4> Field declarations using the same grammar as form fields. Zero or
+more.
+
+=== Parameter declaration
+
+A parameter has a name, a type, and optionally:
+
+* `description` — what the parameter represents
+* `default` — value used if not provided at the call site
+* `mapping` — dimension-keyed resolution table
+
+[source,mmel]
+----
+parameters {
+  n_runs : integer {
+    description "Number of runs per test_load. Resolved from accuracy_class."
+    mapping {
+      A: 5
+      B: 5
+      C: 3
+      D: 3
+    }
+  }
+}
+----
+
+=== `${{ param }}` placeholders
+
+Field properties inside a subform may contain `${{ name }}` placeholders.
+These are substituted at composition time using the parameter resolution
+rules (see <<parameter-substitution>>).
+
+[source,mmel]
+----
+field runs : array<Run> {
+  min_items "${{ n_runs }}"
+  max_items "${{ n_runs }}"
+}
+----
+
+If `n_runs = 3` resolves at the call site, the inlined field becomes:
+
+[source,mmel]
+----
+field runs : array<Run> {
+  min_items 3
+  max_items 3
+}
+----
+
+=== Composition via `subform_ref`
+
+A form (or another subform) references a subform via the `subform_ref`
+block:
+
+[source,mmel]
+----
+form HumidityTest {
+  field load_test_before : array {
+    subform_ref LoadTestRow {
+      parameters { n_runs: 3 }
+      applicability { phase: before }
+    }
+  }
+  field load_test_after : array {
+    subform_ref LoadTestRow {
+      parameters { n_runs: 3 }
+      applicability { phase: after }
+    }
+  }
+}
+----
+
+The `subform_ref` block:
+
+* `parameters { ... }` — literal parameter values (highest precedence)
+* `applicability { ... }` — call-site dimension constraints, intersected
+  with the parent's applicability
+
+The subform's content (with parameters substituted) becomes the items
+shape of the parent's `array` field.
+
+=== Recursive composition
+
+A subform can reference another subform via `subform_ref`. The parser
+recursively composes, depth-first. Cycles are detected and rejected.
+
+=== Idempotency
+
+Composing the same subform twice produces two independent inlined
+copies. They do not share state.
+
+=== Example: shared row shape across forms
+
+[source,mmel]
+----
+subform LoadTestRow {
+  parameters {
+    n_runs : integer {
+      mapping { A: 5, B: 5, C: 3, D: 3 }
+    }
+  }
+  type object
+  field test_load : number { unit "kg" }
+  field runs : array<Run> {
+    min_items "${{ n_runs }}"
+    max_items "${{ n_runs }}"
+  }
+  field average_indication : number {
+    measurement_method derived
+    derivation "ocl{mean(runs.indication)}"
+  }
+}
+
+form LoadTest {
+  applicability { accuracy_class: [A, B, C, D] }
+  field test_loads : array {
+    subform_ref LoadTestRow { }
+  }
+}
+
+form HumidityTest {
+  applicability { humidity_class: [CH] }
+  field load_test_before : array {
+    subform_ref LoadTestRow { applicability { phase: before } }
+  }
+  field load_test_after : array {
+    subform_ref LoadTestRow { applicability { phase: after } }
+  }
+}
+----
+
+The `LoadTestRow` subform is composed into both `LoadTest` and
+`HumidityTest`, parameterized differently by each parent.

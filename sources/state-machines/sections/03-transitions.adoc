@@ -1,0 +1,79 @@
+[[transitions]]
+== Transitions
+
+=== General
+
+A transition moves an entity from one state to another. It can fire
+cascades (side-effects on related entities) and may be guarded by an
+OCL predicate.
+
+=== Syntax
+
+[source,mmel]
+----
+transition <From> -> <To> [action <ActionName>] {
+  // body
+}
+----
+
+* `<From>` and `<To>` are state names (matching the `states` list)
+* `action <ActionName>` is optional but recommended for traceability
+* The body can be empty (simple state change) or contain `guard`,
+  `cascade`, `reference` blocks
+
+=== Atomicity
+
+A transition + its cascades execute ATOMICALLY:
+
+1. The guard (if any) is evaluated
+2. If the guard passes, the source entity's state is updated
+3. All cascades execute in declaration order
+4. If any cascade fails, the entire transition is rolled back
+
+=== Idempotency
+
+Firing the same transition on the same entity twice (without an
+intervening change) is an ERROR. The state machine rejects it.
+
+=== Transition uniqueness
+
+Within a single state machine, no two transitions can have the same
+`(from, to, action)` tuple. The parser rejects duplicates.
+
+=== Multiple transitions from the same state
+
+Multiple transitions can originate from the same state (branching). At
+runtime, the caller specifies which transition to fire (typically via
+the `action` name). If multiple transitions from the same state would
+satisfy their guards simultaneously, the caller disambiguates.
+
+=== Terminal states
+
+A state with no outgoing transitions is a *terminal state*. Entities
+in a terminal state cannot transition further. The state machine does
+not enforce that entities reach a terminal state; that's a domain
+concern.
+
+=== Example: simple transition
+
+[source,mmel]
+----
+transition SUBMITTED -> UNDER_REVIEW action ia_starts_review {
+}
+----
+
+No guard, no cascades. The state simply changes.
+
+=== Example: guarded transition with cascades
+
+[source,mmel]
+----
+transition UNDER_REVIEW -> ACCEPTED action ia_accepts {
+  guard "not some(FormInstance where testReportId = ${this.id} and result = 'FAIL')"
+  cascade EvaluationReport {
+    where "testReportIds->includes(${this.id})"
+    set { admissibility_progress: "incremented" }
+  }
+  reference { PD05-4-5 }
+}
+----

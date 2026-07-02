@@ -1,0 +1,89 @@
+[[guards]]
+== Guards
+
+=== General
+
+A guard is an OCL predicate that must evaluate to `true` for a
+transition to fire. Guards are evaluated BEFORE the transition's state
+change.
+
+=== Syntax
+
+[source,mmel]
+----
+transition <From> -> <To> [action <ActionName>] {
+  guard "<OCL predicate>"
+  // ...
+}
+----
+
+The OCL predicate has access to:
+
+* `${this}` — the source entity (the entity whose state is changing)
+* All other entities in the model (via their class name)
+* All symbols and calculations
+
+=== Evaluation semantics
+
+* The guard is evaluated when the transition is invoked
+* If the guard returns `true`, the transition proceeds
+* If the guard returns `false`, the transition does NOT fire and the
+  caller receives a guard violation
+* If the guard raises an error during evaluation, the transition does
+  NOT fire and the caller receives the error
+
+=== Example: guard requiring all FormInstances pass
+
+[source,mmel]
+----
+transition UNDER_REVIEW -> ACCEPTED action ia_accepts {
+  guard "not some(FormInstance where testReportId = ${this.id} and result = 'FAIL')"
+}
+----
+
+The guard queries all FormInstances on this TestReport and ensures none
+have result `FAIL`.
+
+=== Example: guard with time constraint
+
+[source,mmel]
+----
+transition SUBMITTED -> WITHDRAWN action ia_withdraws {
+  guard "${this.submittedDate} > ${now} - 30 days"
+  cascade FormInstance {
+    where "testReportId = ${this.id}"
+    set { status: "RELEASED" }
+  }
+}
+----
+
+The transition is only allowed within 30 days of submission.
+
+=== Guards vs applicability
+
+Guards and `applicability` are different:
+
+* `applicability` is a static, model-time constraint (e.g., "this form
+  applies when accuracy_class = C")
+* `guard` is a dynamic, runtime constraint (e.g., "this transition can
+  fire only if no FormInstance has FAIL")
+
+Guards evaluate at runtime; applicability evaluates at form
+materialization time.
+
+=== Combining guards and cascades
+
+A transition can have both:
+
+[source,mmel]
+----
+transition UNDER_REVIEW -> ACCEPTED action ia_accepts {
+  guard "not some(FormInstance where testReportId = ${this.id} and result = 'FAIL')"
+  cascade EvaluationReport {
+    where "id = ${this.evaluationReportId}"
+    set { acceptedReportCount: "${this.acceptedReportCount + 1}" }
+  }
+}
+----
+
+The guard is evaluated first. Only if it passes do the cascades fire.

@@ -1,0 +1,21 @@
+= MN 113-7: Primmel Forms and Subforms
+:docnumber: 113.7
+:edition: 1
+:revdate: 2026-07-03
+:copyright-year: 2026
+:language: en
+:title-main-en: Primmel Forms and Subforms
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-forms-overview.adoc[]
+include::sections/02-form-syntax.adoc[]
+include::sections/03-field-types.adoc[]
+include::sections/04-applicability.adoc[]
+include::sections/05-subforms.adoc[]
+include::sections/06-parameter-substitution.adoc[]
+include::sections/07-composition-rules.adoc[]
+include::sections/08-formal-grammar.adoc[]

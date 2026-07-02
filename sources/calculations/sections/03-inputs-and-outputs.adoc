@@ -1,0 +1,91 @@
+[[inputs-and-outputs]]
+== Inputs and outputs
+
+=== General
+
+Calculation inputs and outputs are typed parameters with optional unit
+annotations and descriptions.
+
+=== Input syntax
+
+[source,mmel]
+----
+inputs {
+  <param> : <type> {
+    unit "<unit>"
+    description "..."
+    default <value>
+  }
+}
+----
+
+* `<param>` — parameter name, used in the OCL expression
+* `<type>` — `number`, `integer`, `string`, `boolean`, `list<<type>>`
+* `unit` — unit annotation; defaults to `"1"` (dimensionless)
+* `description` — free-text description
+* `default` — optional default value
+
+=== Output syntax
+
+[source,mmel]
+----
+output : <type> {
+  unit "<unit>"
+}
+----
+
+Output is singular (one per calculation).
+
+=== Type checking
+
+At parse time, the parser validates:
+
+* Every input referenced in the `expression` is declared
+* Every declared input is used in the `expression` (warning, not error)
+* The output type is consistent with what the `expression` produces
+
+=== Unit checking
+
+At parse time, the parser validates:
+
+* Unit compatibility between inputs and output (where derivable from
+  the expression)
+* Unit compatibility between form field bindings and calculation input
+  units
+
+=== List types
+
+Inputs and outputs can be list-typed:
+
+[source,mmel]
+----
+inputs {
+  values : list<number> { unit "counts" }
+  threshold : number { unit "v" }
+}
+----
+
+Use list types for aggregations (mean, max, min, sum, count).
+
+=== Optional inputs
+
+If an input has a `default` value, the binding is optional at the call
+site. Otherwise, all inputs must be bound.
+
+[source,mmel]
+----
+inputs {
+  required_param : number { unit "v" }
+  optional_param : number { unit "1" default 1.0 }
+}
+----
+
+At the call site:
+
+[source,mmel]
+----
+calculation_bindings {
+  required_param: some_field        // required
+  // optional_param omitted → uses default 1.0
+}
+----

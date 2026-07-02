@@ -1,0 +1,116 @@
+[[cascades]]
+== Cascades
+
+=== General
+
+A cascade is a declarative side-effect that fires when a transition
+completes. Cascades update related entities based on a predicate and
+a set of field updates.
+
+=== Syntax
+
+[source,mmel]
+----
+cascade <TargetEntity> {
+  where "<OCL predicate>"
+  set {
+    <field>: <value>
+    <field>: <value>
+  }
+}
+----
+
+* `<TargetEntity>` — the entity type to update (a `class#data`)
+* `where` — an OCL predicate selecting which instances to update
+* `set` — field-by-field updates
+
+=== Multiple cascades per transition
+
+A transition can declare multiple cascades. They execute in declaration
+order:
+
+[source,mmel]
+----
+transition DRAFT -> SUBMITTED action lab_submits {
+  cascade FormInstance {
+    where "testReportId = ${this.id}"
+    set { status: "LOCKED" }
+  }
+  cascade AuditEvent {
+    where "id = NULL"    // always create new
+    set {
+      entityType: "TestReport"
+      entityId: "${this.id}"
+      action: "lab_submits"
+      timestamp: "${now}"
+    }
+  }
+}
+----
+
+=== Token substitution in cascades
+
+`${this.<field>}` resolves to the source entity's field value:
+
+[source,mmel]
+----
+where "testReportId = ${this.id}"
+set { entityId: "${this.id}" }
+----
+
+`${<TransitionName>.<field>}` resolves to a value produced by a named
+prior cascade (future extension — for now, cascades don't produce
+output values).
+
+`${now}` resolves to the current ISO-8601 timestamp at execution time.
+`${user}` resolves to the current user's identifier.
+
+=== Cascade ordering
+
+Cascades execute in declaration order. If cascade B depends on a value
+set by cascade A, A must be declared first.
+
+=== Failure semantics
+
+If a cascade fails (e.g., a `where` predicate matches no instances,
+or a `set` value violates a type constraint), the entire transition
+is rolled back. The state does not change.
+
+Failure modes:
+
+* `where` matches zero instances: cascade silently succeeds (no-op)
+* `where` matches one instance: that instance is updated
+* `where` matches multiple instances: all matching instances are
+  updated (use with care)
+* `set` violates a constraint: transition fails, roll back
+
+=== Self-cascade
+
+A cascade can target the same entity as the state machine itself:
+
+[source,mmel]
+----
+transition DRAFT -> SUBMITTED action lab_submits {
+  cascade TestReport {
+    where "id = ${this.id}"
+    set { submittedDate: "${now}" }
+  }
+}
+----
+
+This updates the source entity's `submittedDate` field as part of the
+transition.
+
+=== Example: cascade with computed value
+
+[source,mmel]
+----
+cascade EvaluationReport {
+  where "id = ${this.evaluationReportId}"
+  set {
+    admissibilityProgress: "${this.admissibilityProgress + 1}"
+  }
+}
+----
+
+The set value is an OCL expression evaluated against the source entity.

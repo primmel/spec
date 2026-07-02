@@ -1,0 +1,19 @@
+= MN 113-8: Primmel Symbol Registry
+:docnumber: 113.8
+:edition: 1
+:revdate: 2026-07-03
+:copyright-year: 2026
+:language: en
+:title-main-en: Primmel Symbol Registry
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/01-symbols-overview.adoc[]
+include::sections/02-symbol-syntax.adoc[]
+include::sections/03-types-and-units.adoc[]
+include::sections/04-latex-rendering.adoc[]
+include::sections/05-cross-references.adoc[]
+include::sections/06-formal-grammar.adoc[]

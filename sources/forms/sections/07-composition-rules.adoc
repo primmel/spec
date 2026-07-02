@@ -1,0 +1,123 @@
+[[composition-rules]]
+== Composition rules
+
+=== General
+
+When a form references a subform via `subform_ref`, the subform is
+*inlined* into the parent. This section defines the rules that govern
+composition.
+
+=== Order of operations
+
+When parsing a model with `subform_ref` directives, the parser performs
+these steps in order:
+
+1. *Tokenize* — split the source into tokens.
+2. *Parse* — build a structured representation with `subform_ref`
+   directives preserved.
+3. *Resolve parameter values* — for each `subform_ref`, build the
+   parameter map (literal > mapping-derived > default > error).
+4. *Substitute placeholders* — replace `${{ name }}` tokens in the
+   subform's content using the parameter map.
+5. *Inline* — replace the `subform_ref` block with the substituted
+   subform content.
+6. *Recurse* — if the inlined content contains further `subform_ref`
+   directives, repeat from step 3.
+7. *Resolve cross-references* — resolve named references to other
+   model elements (Process, Calculation, etc.).
+
+=== Override precedence
+
+When the parent form and the subform both declare the same property,
+the call-site (parent) value wins. This allows the parent to customize
+the inlined content.
+
+Properties that follow override precedence:
+
+* `applicability` — intersection of parent and call-site values
+* `name`, `label`, `description` — call-site value if provided, else subform value
+
+=== Cycle detection
+
+If a subform references itself (directly or transitively), the parser
+rejects the model with an error:
+
+```
+subform-resolver: cycle detected: A → B → C → A
+```
+
+=== Idempotency
+
+Composing the same subform into multiple parents produces independent
+inlined copies. They do not share state.
+
+=== Type invariance
+
+The inlined content's shape (object vs array) is determined by the
+subform's `type` declaration, not by the call site. A subform declared
+as `type object` composes as an object; declared as `type array`,
+composes as an array.
+
+=== Field-name uniqueness
+
+After composition, field names within a single form must be unique.
+The parser rejects duplicate field names with an error.
+
+If two subform_refs would produce the same field name (e.g., both
+inlining a `test_load` field), the call site must rename one via the
+`as` keyword (a future extension) or the parent must wrap each
+subform_ref in a distinct object field.
+
+=== Reference resolution after composition
+
+Once composition completes, named references (to Process, Calculation,
+Symbol, etc.) are resolved as if the inlined content had been written
+directly in the parent. References in the subform that point to model
+elements continue to resolve correctly.
+
+=== Example: full composition
+
+Given:
+
+[source,mmel]
+----
+subform LoadTestRow {
+  parameters { n_runs : integer { mapping { A: 5, B: 5, C: 3, D: 3 } } }
+  type object
+  field test_load : number { unit "kg" }
+  field runs : array {
+    min_items "${{ n_runs }}"
+    max_items "${{ n_runs }}"
+  }
+}
+
+form LoadTest {
+  applicability { accuracy_class: [C, D] }
+  field test_loads : array {
+    subform_ref LoadTestRow { }
+  }
+}
+----
+
+After composition (assuming `accuracy_class = C` resolves `n_runs = 3`):
+
+[source,mmel]
+----
+form LoadTest {
+  applicability { accuracy_class: [C, D] }
+  field test_loads : array {
+    items {
+      type object
+      field test_load : number { unit "kg" }
+      field runs : array {
+        min_items 3
+        max_items 3
+      }
+    }
+  }
+}
+----
+
+The composed form is semantically equivalent to writing the inlined
+form directly. The source `.mmel` retains the `subform_ref` for
+authoring convenience and DRY; the runtime sees only the composed form.

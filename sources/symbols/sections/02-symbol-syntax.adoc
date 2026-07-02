@@ -1,0 +1,101 @@
+[[symbol-syntax]]
+== Symbol syntax
+
+=== General
+
+A symbol declaration uses the `symbol` keyword followed by an identifier
+and a brace-delimited body.
+
+=== Syntax
+
+[source,mmel]
+----
+symbol <SymbolID> {
+  name "Human-readable name"                        <1>
+  definition "Formal definition"                    <2>
+  type <SymbolType>                                 <3>
+  unit "<unit>"                                     <4>
+  latex "<LaTeX rendering>"                         <5>
+  reference { <ReferenceID> }                       <6>
+}
+----
+
+<1> Display name. Required.
+<2> Formal definition. Optional but recommended.
+<3> Type: `number`, `integer`, `string`, `boolean`, or `enum`.
+<4> Unit annotation. Optional (dimensionless = `"1"`).
+<5> LaTeX rendering hint for documentation. Optional.
+<6> Normative references. Optional.
+
+=== Properties
+
+[cols="1,1,3"]
+|===
+|Property |Required |Description
+
+|`name`
+|yes
+|Human-readable name.
+
+|`definition`
+|no
+|Formal definition.
+
+|`type`
+|yes
+|One of `number`, `integer`, `string`, `boolean`, `enum`.
+
+|`unit`
+|no
+|Unit annotation. Defaults to `"1"` (dimensionless).
+
+|`latex`
+|no
+|LaTeX rendering hint. Defaults to the identifier.
+
+|`reference`
+|no
+|Normative references for traceability.
+
+|===
+
+=== Example: OIML R 60 symbols
+
+[source,mmel]
+----
+symbol f {
+  name "Conversion factor"
+  definition "Ratio of indication change to load change at 75% of Max. Converts counts to verification units (v)."
+  type number
+  unit "counts/v"
+  latex "f"
+  reference { R60-3-2-1-2-4 }
+}
+
+symbol nLC {
+  name "Maximum number of load cell verification intervals"
+  definition "Declared by the manufacturer. Determines the MPE tier and run count."
+  type integer
+  unit "1"
+  latex "n_{LC}"
+  reference { R60-1-3-5-8 }
+}
+
+symbol Emax {
+  name "Maximum capacity"
+  definition "Upper bound of the measuring range."
+  type number
+  unit "kg"
+  latex "E_{max}"
+  reference { R60-1-3-3 }
+}
+
+symbol MPE {
+  name "Maximum permissible error"
+  definition "Tiered MPE values derived from p_LC and verification intervals."
+  type number
+  unit "v"
+  latex "MPE"
+  reference { R60-1-5-3-2 }
+}
+----
