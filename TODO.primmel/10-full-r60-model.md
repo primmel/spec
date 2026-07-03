@@ -1,7 +1,7 @@
 # TODO.primmel 10 — Full R 60 model in Primmel syntax
 
-**Status:** ACTIVE
-**Date:** 2026-07-03
+**Status:** ✅ PHASES 1-7 COMPLETE (2357 lines)
+**Date:** 2026-07-04
 **Goal:** Author a single comprehensive `.mmel` file that fully models
 OIML R 60 parts 1, 2, 3, and A in Primmel syntax.
 
@@ -14,9 +14,28 @@ file per standard. This document tracks the work to author that file.
 Per the user's directive: "We need to improve Primmel and fully model
 R 60 (1,2,3,a)."
 
-## Target
+## Current state
 
-`models/r60/r60.mmel` — one file containing:
+`models/r60/r60.mmel` (2357 lines) now contains:
+
+| Construct | Count |
+|---|---|
+| Roles | 6 |
+| Helper classes | 5 |
+| Data classes | 16 |
+| Data registries | 15 |
+| References | ~60 |
+| Symbols | 19 |
+| Calculations | 9 |
+| Provisions (R 60-1) | 39 |
+| Processes (R 60-2) | 23 |
+| Forms (R 60-3) | 5 |
+| Subforms | 1 |
+| State machines | 7 |
+| Approvals | 1 |
+| Workflow subprocess | 1 |
+| Notes | 2 |
+
 
 | Source | Construct | Approximate count |
 |---|---|---|
