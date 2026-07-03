@@ -1,0 +1,1438 @@
+// ─────────────────────────────────────────────────────────────────────
+// OIML R 60 (Load Cells) — full Primmel model
+//
+// This file is the canonical Primmel representation of OIML R 60:2021.
+// It models parts 1 (metrological & technical requirements), 2 (test
+// procedures), 3 (test report forms), and the Annexes.
+//
+// Source data: ~/src/oimlsmart/smart/data/oiml-r60/
+// Companion: data/oiml-r60/examples/r60-metrological.mmel (partial demo)
+//
+// Per TODO.primmel 10.
+// ─────────────────────────────────────────────────────────────────────
+
+root OIMLR60
+
+version "2021-E1"
+
+metadata {
+  title "OIML R 60:2021 — Metrological regulation of load cells"
+  schema "MMEL 0.1"
+  edition "1"
+  author "OIML SMART project"
+  shortname "R60"
+  namespace "OIML.R60"
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Roles (R 60-CS participants)
+// ─────────────────────────────────────────────────────────────────────
+
+role IssuingAuthority {
+  name "Issuing Authority (IA)"
+}
+
+role TestLaboratory {
+  name "Test Laboratory"
+}
+
+role ManufacturerTestLab {
+  name "Manufacturer Test Laboratory (MTL, Scheme A)"
+}
+
+role Manufacturer {
+  name "Manufacturer / Applicant"
+}
+
+role AuthorisedRepresentative {
+  name "Authorised representative"
+}
+
+role BIML {
+  name "BIML (certificate registration)"
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Helper classes (value objects)
+// ─────────────────────────────────────────────────────────────────────
+
+class Address {
+  street { definition "Street" modality SHALL }
+  city { definition "City" modality SHALL }
+  country { definition "Country" modality SHALL }
+  postal_code { definition "Postal code" modality SHALL }
+}
+
+class Contact {
+  person { definition "Contact person" modality SHALL }
+  email { definition "Email" modality SHALL }
+  phone { definition "Phone" modality SHALL }
+}
+
+class Accreditation {
+  body { definition "Accreditation body" modality SHALL }
+  number { definition "Accreditation number" modality SHALL }
+  expiry_date : date { definition "Accreditation expiry date" modality SHALL }
+  scopes { definition "Accreditation scopes" cardinality "[0..*]" modality MAY }
+}
+
+class DocumentRef {
+  ref : string { definition "Document reference (URN or URL)" modality SHALL }
+  description { definition "Document description" modality MAY }
+}
+
+class CustodyEvent {
+  timestamp : datetime { definition "When the custody event occurred" modality SHALL }
+  from_party { definition "From party ID" modality SHALL }
+  to_party { definition "To party ID" modality SHALL }
+  condition { definition "Sample condition at handover" modality MAY }
+  notes { definition "Notes about the handover" modality MAY }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Data classes — entity shapes (single source of truth)
+// ─────────────────────────────────────────────────────────────────────
+
+class Manufacturer#data {
+  id : string { definition "Unique identifier" modality SHALL }
+  standard_id : string { definition "Standard ID (oiml-r60)" modality SHALL }
+  company : string { definition "Company name" modality SHALL }
+  address : Address { definition "Postal address" modality SHALL }
+  contact : Contact { definition "Contact details" modality SHALL }
+  country : string { definition "Country of origin" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class IssuingAuthority#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  name : string { definition "IA name (e.g., PTB, NMi)" modality SHALL }
+  member_state : string { modality SHALL }
+  accreditation : Accreditation { modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestLaboratory#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  name : string { modality SHALL }
+  lab_kind : enum { definition "independent | manufacturer_test_lab" modality SHALL }
+  capabilities { definition "Declared test capabilities (capability-based matching)" cardinality "[0..*]" modality MAY }
+  accreditation : Accreditation { modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class InstrumentModelFamily#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  manufacturer_id : string { definition "FK to Manufacturer" modality SHALL }
+  family_name : string { definition "Human-readable family name" modality SHALL }
+  family_code : string { definition "Short code for URIs and certificate numbers" modality SHALL }
+  technology : enum { definition "Signal processing technology" modality SHALL }
+  description : text { modality MAY }
+  // Family-level electrical parameters (R 60-3 page-2)
+  rated_output : string { definition "e.g. '2.0 mV/V ± 0.04'" modality MAY }
+  input_impedance : string { modality MAY }
+  output_impedance : string { modality MAY }
+  recommended_excitation : string { modality MAY }
+  excitation_maximum : number { modality MAY }
+  // Family-level mechanical/environmental parameters
+  safe_overload : number { definition "Maximum overload capacity (% of Emax)" modality MAY }
+  transducer_material : string { modality MAY }
+  atmospheric_protection : string { modality MAY }
+  minimum_dead_load : number { definition "Emin (kg)" modality MAY }
+  temperature_range_min : number { modality MAY }
+  temperature_range_max : number { modality MAY }
+  p_LC : number { definition "Default apportioning factor (default 0.7)" cardinality "[0..1]" modality MAY }
+  humidity_class : enum { definition "CH | SH | NH default" cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class InstrumentModelGroup#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  family_id : string { definition "FK to InstrumentModelFamily" modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  group_label : string { definition "e.g., 'C6', 'B10', 'C3'" modality SHALL }
+  accuracy_class : enum { definition "A | B | C | D" modality SHALL }
+  n_LC : integer { definition "Maximum number of verification intervals" modality SHALL }
+  Y : integer { definition "v_min = Emax/Y" modality SHALL }
+  Z : integer { definition "DR ratio" modality SHALL }
+  construction : enum { definition "bending-beam | shear-beam | column | etc." cardinality "[0..1]" modality MAY }
+  load_type : enum { definition "compression | tension | beam | universal" cardinality "[0..1]" modality MAY }
+  humidity_class : enum { cardinality "[0..1]" modality MAY }
+  DR : number { definition "Stored DR value (%RO)" cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class MeasuringInstrument#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  model_family_id : string { definition "FK (denormalized from group)" cardinality "[0..1]" modality MAY }
+  model_group_id : string { cardinality "[0..1]" modality MAY }
+  model_designation : string { definition "e.g., 'ACME-LC-500-C-5kg'" modality SHALL }
+  model : string { modality SHALL }
+  emax : number { definition "Maximum capacity (kg)" modality SHALL }
+  emin : number { definition "Minimum dead load (kg)" cardinality "[0..1]" modality MAY }
+  accuracy_class : enum { modality SHALL }
+  technology : enum { modality MAY }
+  p_LC : number { cardinality "[0..1]" modality MAY }
+  load_type : enum { cardinality "[0..1]" modality MAY }
+  humidity_class : enum { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class InstrumentSample#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  sample_number : string { definition "IA-assigned (e.g., 'S-2024-001')" modality SHALL }
+  serial_number : string { definition "Manufacturer's serial" modality SHALL }
+  application_id : string { definition "FK to Application" modality SHALL }
+  model_id : string { definition "FK to MeasuringInstrument" modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  received_date : date { modality SHALL }
+  condition : enum { definition "NEW | USED | REFURBISHED | DAMAGED" modality SHALL }
+  status : enum { definition "REQUESTED | IN_TRANSIT_TO_IA | RECEIVED_BY_IA | IN_TRANSIT_TO_LAB | AT_LAB | IN_TESTING | RETURNED_TO_IA | RETURNED_TO_MANUFACTURER | DISPOSED" modality SHALL }
+  custody_events : CustodyEvent { cardinality "[0..*]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class Application#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  application_number : string { modality SHALL }
+  date_of_application : date { modality SHALL }
+  status : enum { definition "DRAFT | SUBMITTED | SAMPLES_REQUESTED | SAMPLES_RECEIVED | UNDER_REVIEW | ACCEPTED | REJECTED | WITHDRAWN" modality SHALL }
+  model_family_id : string { cardinality "[0..1]" modality MAY }
+  model_ids : string { cardinality "[0..*]" modality MAY }
+  sample_ids : string { cardinality "[0..*]" modality MAY }
+  applicant_id : string { modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  instrument_id : string { modality SHALL }
+  scheme : enum { definition "A | B" modality MAY }
+  issuing_authority_id : string { cardinality "[0..1]" modality MAY }
+  laboratory_id : string { cardinality "[0..1]" modality MAY }
+  test_report_id : string { cardinality "[0..1]" modality MAY }
+  evaluation_report_id : string { cardinality "[0..1]" modality MAY }
+  certificate_id : string { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestRequest#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  request_number : string { modality SHALL }
+  application_id : string { modality SHALL }
+  requesting_authority_id : string { modality SHALL }
+  assigned_laboratory_id : string { modality SHALL }
+  sample_ids : string { cardinality "[0..*]" modality MAY }
+  model_ids : string { cardinality "[0..*]" modality MAY }
+  test_conditions : object { modality SHALL }
+  scheme : enum { definition "A | B" modality SHALL }
+  status : enum { definition "DRAFT | ISSUED | ACCEPTED_BY_LAB | IN_PROGRESS | COMPLETED | WITHDRAWN | REJECTED_BY_LAB" modality SHALL }
+  test_report_id : string { cardinality "[0..1]" modality MAY }
+  issued_date : datetime { cardinality "[0..1]" modality MAY }
+  accepted_date : datetime { cardinality "[0..1]" modality MAY }
+  completed_date : datetime { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestAssignment#data {
+  id : string { modality SHALL }
+  test_request_id : string { modality SHALL }
+  application_id : string { modality SHALL }
+  form_id : string { modality SHALL }
+  sample_id : string { modality SHALL }
+  model_id : string { modality SHALL }
+  laboratory_id : string { modality SHALL }
+  status : enum { definition "PENDING | ACCEPTED | IN_PROGRESS | COMPLETED | OMITTED | FAILED" modality SHALL }
+  form_instance_id : string { cardinality "[0..1]" modality MAY }
+  assigned_date : datetime { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestReport#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  application_id : string { cardinality "[0..1]" modality MAY }
+  test_request_id : string { cardinality "[0..1]" modality MAY }
+  model_family_id : string { cardinality "[0..1]" modality MAY }
+  model_group_id : string { cardinality "[0..1]" modality MAY }
+  instrument_id : string { modality SHALL }
+  laboratory_id : string { modality SHALL }
+  sample_ids : string { cardinality "[1..*]" modality SHALL }
+  dimensions : object { modality SHALL }
+  required_forms : string { cardinality "[1..*]" modality SHALL }
+  form_instances : string { cardinality "[0..*]" modality SHALL }
+  status : enum { definition "DRAFT | SUBMITTED | UNDER_REVIEW | ACCEPTED | REJECTED" modality SHALL }
+  evaluator : string { modality SHALL }
+  signature_date : date { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class FormInstance#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  form_id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  test_request_id : string { cardinality "[0..1]" modality MAY }
+  application_id : string { cardinality "[0..1]" modality MAY }
+  sample_id : string { modality SHALL }
+  model_id : string { cardinality "[0..1]" modality MAY }
+  laboratory_id : string { modality SHALL }
+  values : object { modality SHALL }
+  computed_values : object { modality SHALL }
+  result : enum { definition "PASS | FAIL | NA | PENDING" modality SHALL }
+  status : enum { definition "OPEN | LOCKED | ACCEPTED | REJECTED" modality SHALL }
+  evaluator : string { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class FormOmission#data {
+  id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  form_id : string { modality SHALL }
+  group_id : string { modality SHALL }
+  reason : string { modality SHALL }
+  decided_by : enum { definition "ia | test_lab" modality SHALL }
+  decided_date : date { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestReportDetermination#data {
+  id : string { modality SHALL }
+  evaluation_report_id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  decision : enum { definition "ACCEPTED | REJECTED | CONDITIONALLY_ACCEPTED" modality SHALL }
+  reviewer_name : string { modality SHALL }
+  supervisor_name : string { cardinality "[0..1]" modality MAY }
+  review_date : date { modality SHALL }
+  notes : text { cardinality "[0..1]" modality MAY }
+  conditions : string { cardinality "[0..*]" modality MAY }
+}
+
+class ModelEvaluation#data {
+  id : string { modality SHALL }
+  evaluation_report_id : string { modality SHALL }
+  model_id : string { modality SHALL }
+  group_id : string { cardinality "[0..1]" modality MAY }
+  required_form_ids : string { cardinality "[1..*]" modality SHALL }
+  covered_form_ids : string { cardinality "[0..*]" modality SHALL }
+  missing_form_ids : string { cardinality "[0..*]" modality SHALL }
+  contributor_test_report_ids : string { cardinality "[0..*]" modality SHALL }
+  contributor_lab_ids : string { cardinality "[0..*]" modality SHALL }
+  decision : enum { definition "PASS | FAIL | CONDITIONAL | INCOMPLETE" modality SHALL }
+  reviewer_name : string { modality SHALL }
+  review_date : date { modality SHALL }
+}
+
+class EvaluationReport#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  test_report_ids : string { cardinality "[1..*]" modality SHALL }
+  instrument_id : string { modality SHALL }
+  authority_id : string { modality SHALL }
+  test_report_determinations : TestReportDetermination { cardinality "[0..*]" modality MAY }
+  model_evaluations : ModelEvaluation { cardinality "[0..*]" modality MAY }
+  overall_decision : enum { definition "APPROVED | REJECTED | CONDITIONALLY_APPROVED" modality SHALL }
+  conditions : string { cardinality "[0..*]" modality MAY }
+  review_notes : text { modality SHALL }
+  reviewer_name : string { modality SHALL }
+  review_date : date { modality SHALL }
+  finalized_at : datetime { cardinality "[0..1]" modality MAY }
+  certificate_id : string { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class Certificate#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  certificate_number : string { modality SHALL }
+  issuing_authority_id : string { modality SHALL }
+  evaluation_report_id : string { modality SHALL }
+  test_report_ids : string { cardinality "[1..*]" modality SHALL }
+  instrument_model_family_id : string { modality SHALL }
+  issued_date : date { modality SHALL }
+  status : enum { definition "DRAFT | PENDING_REGISTRATION | ACTIVE | EXPIRED | WITHDRAWN | SUSPENDED | UNDER_INVESTIGATION" modality SHALL }
+  scope_groups : object { cardinality "[0..*]" modality MAY }
+  characteristics : object { modality MAY }
+  revisions : object { cardinality "[0..*]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class CertificateAnnex#data {
+  id : string { modality SHALL }
+  certificate_id : string { modality SHALL }
+  certificate_number : string { modality SHALL }
+  member_state : string { modality SHALL }
+  correction : string { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Data registries
+// ─────────────────────────────────────────────────────────────────────
+
+data_registry ManufacturerRegistry {
+  title "Manufacturers"
+  data_class Manufacturer#data
+}
+
+data_registry IssuingAuthorityRegistry {
+  title "Issuing Authorities"
+  data_class IssuingAuthority#data
+}
+
+data_registry TestLaboratoryRegistry {
+  title "Test Laboratories"
+  data_class TestLaboratory#data
+}
+
+data_registry InstrumentModelFamilyRegistry {
+  title "Instrument model families"
+  data_class InstrumentModelFamily#data
+}
+
+data_registry InstrumentModelGroupRegistry {
+  title "Instrument model groups"
+  data_class InstrumentModelGroup#data
+}
+
+data_registry MeasuringInstrumentRegistry {
+  title "Measuring instruments"
+  data_class MeasuringInstrument#data
+}
+
+data_registry InstrumentSampleRegistry {
+  title "Instrument samples"
+  data_class InstrumentSample#data
+}
+
+data_registry ApplicationRegistry {
+  title "Applications"
+  data_class Application#data
+}
+
+data_registry TestRequestRegistry {
+  title "IA-issued test requests"
+  data_class TestRequest#data
+}
+
+data_registry TestAssignmentRegistry {
+  title "Test assignments (atomic form × sample × model tuples)"
+  data_class TestAssignment#data
+}
+
+data_registry TestReportRegistry {
+  title "Lab-issued test reports"
+  data_class TestReport#data
+}
+
+data_registry FormInstanceRegistry {
+  title "Form instances (filled-in TRFs)"
+  data_class FormInstance#data
+}
+
+data_registry FormOmissionRegistry {
+  title "Form omissions (forms omitted per group with justification)"
+  data_class FormOmission#data
+}
+
+data_registry EvaluationReportRegistry {
+  title "IA evaluation reports"
+  data_class EvaluationReport#data
+}
+
+data_registry CertificateRegistry {
+  title "Certificates of Conformity"
+  data_class Certificate#data
+}
+
+data_registry CertificateAnnexRegistry {
+  title "Certificate annexes"
+  data_class CertificateAnnex#data
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// References (R 60-1, R 60-2, R 60-3, Annexes)
+// ─────────────────────────────────────────────────────────────────────
+
+// R 60-1 references
+reference R60-1-3-3 { document "OIML R 60-1:2021" clause "3.3" title "Maximum capacity (Emax)" }
+reference R60-1-3-5-8 { document "OIML R 60-1:2021" clause "3.5.8" title "Maximum number of verification intervals (nLC)" }
+reference R60-1-3-7-2 { document "OIML R 60-1:2021" clause "3.7.2" title "Apportioning factor (p_LC)" }
+reference R60-1-4-2 { document "OIML R 60-1:2021" clause "4.2" title "Construction of load cell families" }
+reference R60-1-5-1-1 { document "OIML R 60-1:2021" clause "5.1.1" title "Accuracy classes and their symbols" }
+reference R60-1-5-1-2 { document "OIML R 60-1:2021" clause "5.1.2" title "Maximum number of load cell verification intervals" }
+reference R60-1-5-1-3 { document "OIML R 60-1:2021" clause "5.1.3" title "Minimum load cell verification interval" }
+reference R60-1-5-1-4 { document "OIML R 60-1:2021" clause "5.1.4" title "Supplementary classifications for loading type" }
+reference R60-1-5-1-5 { document "OIML R 60-1:2021" clause "5.1.5" title "Complete load cell classification" }
+reference R60-1-5-1-6 { document "OIML R 60-1:2021" clause "5.1.6" title "Standard classification" }
+reference R60-1-5-1-7 { document "OIML R 60-1:2021" clause "5.1.7" title "Multiple classifications" }
+reference R60-1-5-2 { document "OIML R 60-1:2021" clause "5.2" title "Measuring range" }
+reference R60-1-5-3-1 { document "OIML R 60-1:2021" clause "5.3.1" title "Maximum permissible errors per accuracy class" }
+reference R60-1-5-3-2 { document "OIML R 60-1:2021" clause "5.3.2" title "MPE on type evaluation" }
+reference R60-1-5-4 { document "OIML R 60-1:2021" clause "5.4" title "Repeatability error" }
+reference R60-1-5-5-1 { document "OIML R 60-1:2021" clause "5.5.1" title "Creep" }
+reference R60-1-5-5-2 { document "OIML R 60-1:2021" clause "5.5.2" title "Minimum dead load output return (DR)" }
+reference R60-1-5-6-1-1 { document "OIML R 60-1:2021" clause "5.6.1.1" title "Temperature limits" }
+reference R60-1-5-6-1-2 { document "OIML R 60-1:2021" clause "5.6.1.2" title "Special limits of working temperature" }
+reference R60-1-5-6-1-3 { document "OIML R 60-1:2021" clause "5.6.1.3" title "Temperature effect on MDLO" }
+reference R60-1-5-6-2 { document "OIML R 60-1:2021" clause "5.6.2" title "Barometric pressure" }
+reference R60-1-5-6-3-1 { document "OIML R 60-1:2021" clause "5.6.3.1" title "Humidity effects for CH or unmarked" }
+reference R60-1-5-6-3-2 { document "OIML R 60-1:2021" clause "5.6.3.2" title "Humidity effects for SH" }
+reference R60-1-5-7-1 { document "OIML R 60-1:2021" clause "5.7.1" title "Disturbances — general" }
+reference R60-1-5-7-2-1 { document "OIML R 60-1:2021" clause "5.7.2.1" title "Warm-up time" }
+reference R60-1-5-7-2-2 { document "OIML R 60-1:2021" clause "5.7.2.2" title "Power voltage variation" }
+reference R60-1-5-7-2-3 { document "OIML R 60-1:2021" clause "5.7.2.3" title "Short-time power reductions" }
+reference R60-1-5-7-2-4 { document "OIML R 60-1:2021" clause "5.7.2.4" title "Bursts (electrical fast transients)" }
+reference R60-1-5-7-2-5 { document "OIML R 60-1:2021" clause "5.7.2.5" title "Surge" }
+reference R60-1-5-7-2-6 { document "OIML R 60-1:2021" clause "5.7.2.6" title "ESD" }
+reference R60-1-5-7-2-7 { document "OIML R 60-1:2021" clause "5.7.2.7" title "Radiated RF EM fields" }
+reference R60-1-5-7-2-8 { document "OIML R 60-1:2021" clause "5.7.2.8" title "Conducted RF EM fields" }
+reference R60-1-5-7-3 { document "OIML R 60-1:2021" clause "5.7.3" title "Span stability" }
+reference R60-1-6-1 { document "OIML R 60-1:2021" clause "6.1" title "Software" }
+reference R60-1-6-2-1 { document "OIML R 60-1:2021" clause "6.2.1" title "Mandatory markings on the load cell" }
+reference R60-1-6-2-2 { document "OIML R 60-1:2021" clause "6.2.2" title "Mandatory additional information" }
+reference R60-1-6-2-3 { document "OIML R 60-1:2021" clause "6.2.3" title "Non-mandatory additional information" }
+reference R60-1-6-2-4-1 { document "OIML R 60-1:2021" clause "6.2.4.1" title "Accuracy class designation" }
+reference R60-1-6-2-4-2 { document "OIML R 60-1:2021" clause "6.2.4.2" title "Load type designation" }
+reference R60-1-6-2-4-3 { document "OIML R 60-1:2021" clause "6.2.4.3" title "Working temperature designation" }
+reference R60-1-6-2-4-4 { document "OIML R 60-1:2021" clause "6.2.4.4" title "Humidity symbols" }
+reference R60-1-6-2-4-5 { document "OIML R 60-1:2021" clause "6.2.4.5" title "nLC designation" }
+
+// R 60-2 references
+reference R60-2-2-3 { document "OIML R 60-2:2021" clause "2.3" title "Suitability for testing" }
+reference R60-2-2-4 { document "OIML R 60-2:2021" clause "2.4" title "Selection of specimens for evaluation" }
+reference R60-2-2-5 { document "OIML R 60-2:2021" clause "2.5" title "Documentation for type approval" }
+reference R60-2-2-6 { document "OIML R 60-2:2021" clause "2.6" title "Performance tests — conditions" }
+reference R60-2-2-7 { document "OIML R 60-2:2021" clause "2.7" title "Rules concerning the determination of errors" }
+reference R60-2-2-10-1 { document "OIML R 60-2:2021" clause "2.10.1" title "Determination of measurement error, repeatability error, and temperature effect on MDLO" }
+reference R60-2-2-10-2 { document "OIML R 60-2:2021" clause "2.10.2" title "Determination of creep error" }
+reference R60-2-2-10-3 { document "OIML R 60-2:2021" clause "2.10.3" title "Determination of DR" }
+reference R60-2-2-10-4 { document "OIML R 60-2:2021" clause "2.10.4" title "Determination of barometric pressure effects" }
+reference R60-2-2-10-5 { document "OIML R 60-2:2021" clause "2.10.5" title "Determination of humidity effects (CH/unmarked)" }
+reference R60-2-2-10-6 { document "OIML R 60-2:2021" clause "2.10.6" title "Determination of humidity effects (SH)" }
+reference R60-2-2-10-7-1 { document "OIML R 60-2:2021" clause "2.10.7.1" title "Warm-up time test" }
+reference R60-2-2-10-7-2 { document "OIML R 60-2:2021" clause "2.10.7.2" title "Power voltage variation test" }
+reference R60-2-2-10-7-3 { document "OIML R 60-2:2021" clause "2.10.7.3" title "Short-time power reductions test" }
+reference R60-2-2-10-7-4 { document "OIML R 60-2:2021" clause "2.10.7.4" title "Bursts test" }
+reference R60-2-2-10-7-5 { document "OIML R 60-2:2021" clause "2.10.7.5" title "Surge test" }
+reference R60-2-2-10-7-6 { document "OIML R 60-2:2021" clause "2.10.7.6" title "ESD test" }
+reference R60-2-2-10-7-7 { document "OIML R 60-2:2021" clause "2.10.7.7" title "EMC susceptibility test" }
+reference R60-2-2-10-7-8 { document "OIML R 60-2:2021" clause "2.10.7.8" title "Conducted EMC test" }
+reference R60-2-2-10-8 { document "OIML R 60-2:2021" clause "2.10.8" title "Span stability test" }
+
+// R 60-3 references (forms and tables)
+reference R60-3-2-1-2-2 { document "OIML R 60-3:2021" clause "2.1.2.2" title "Load cell error (E_L) calculation" }
+reference R60-3-2-1-2-4 { document "OIML R 60-3:2021" clause "2.1.2.4" title "Conversion factor (f)" }
+reference R60-3-2-1-2-6 { document "OIML R 60-3:2021" clause "2.1.2.6" title "Reference indication" }
+reference R60-3-2-1-3 { document "OIML R 60-3:2021" clause "2.1.3" title "Repeatability error calculation" }
+reference R60-3-2-1-4 { document "OIML R 60-3:2021" clause "2.1.4" title "Temperature effect on MDLO (C_M)" }
+reference R60-3-2-1-5 { document "OIML R 60-3:2021" clause "2.1.5" title "Creep (C_C) and DR (C_DR)" }
+reference R60-3-2-1-7 { document "OIML R 60-3:2021" clause "2.1.7" title "Humidity effects (C_Hmin, C_Hmax)" }
+reference R60-3-4 { document "OIML R 60-3:2021" clause "4" title "Evaluation report metadata" }
+reference R60-3-5 { document "OIML R 60-3:2021" clause "5" title "Examination" }
+reference R60-3-6 { document "OIML R 60-3:2021" clause "6" title "Performance tests" }
+
+// Annex references
+reference R60-A-A { document "OIML R 60 Annex A-A" clause "A-A" title "Definitions from other publications" }
+reference R60-A-B { document "OIML R 60 Annex A-B" clause "A-B" title "Certificate content (page 1)" }
+reference R60-A-C { document "OIML R 60 Annex A-C" clause "A-C" title "Certificate content (page 2 — per-load-cell)" }
+reference R60-A-D { document "OIML R 60 Annex A-D" clause "A-D" title "Selection of load cells for testing — practical example" }
+reference R60-A-E { document "OIML R 60 Annex A-E" clause "A-E" title "Load transmission" }
+
+// External standard references (Annex A-A)
+reference OIML-D-11 { document "OIML D 11:2004" clause "general" title "General requirements for electronic measuring instruments" }
+reference OIML-D-31 { document "OIML D 31" clause "general" title "General requirements for computer-controlled measuring instruments" }
+reference OIML-R-76 { document "OIML R 76:2006" clause "T.2.2.7" title "Non-automatic weighing instruments — weighing module" }
+
+// ─────────────────────────────────────────────────────────────────────
+// Symbols — formal symbol registry (R 60-3 + Annex)
+// ─────────────────────────────────────────────────────────────────────
+
+// Metrological symbols
+symbol f {
+  name "Conversion factor"
+  type number
+  unit "counts/v"
+  latex "f"
+  reference { R60-3-2-1-2-4 }
+}
+
+symbol nLC {
+  name "Maximum number of load cell verification intervals"
+  type integer
+  unit "1"
+  latex "n_{LC}"
+  reference { R60-1-3-5-8 }
+}
+
+symbol Emax {
+  name "Maximum capacity"
+  type number
+  unit "kg"
+  latex "E_{max}"
+  reference { R60-1-3-3 }
+}
+
+symbol Emin {
+  name "Minimum dead load"
+  type number
+  unit "kg"
+  latex "E_{min}"
+}
+
+symbol pLC {
+  name "Apportioning factor"
+  type number
+  unit "1"
+  latex "p_{LC}"
+  reference { R60-1-3-7-2 }
+}
+
+symbol vmin {
+  name "Minimum verification interval"
+  type number
+  unit "kg"
+  latex "v_{min}"
+}
+
+symbol Y {
+  name "Ratio of min verification interval (Emax / vmin)"
+  type integer
+  unit "1"
+  latex "Y"
+}
+
+symbol Z {
+  name "Ratio of min DR"
+  type integer
+  unit "1"
+  latex "Z"
+}
+
+symbol DR {
+  name "Dead load output return"
+  type number
+  unit "% RO"
+  latex "DR"
+}
+
+symbol MPE {
+  name "Maximum permissible error"
+  type number
+  unit "v"
+  latex "MPE"
+  reference { R60-1-5-3-2 }
+}
+
+symbol EL {
+  name "Load cell error"
+  type number
+  unit "v"
+  latex "E_L"
+  reference { R60-3-2-1-2-2 }
+}
+
+symbol ER {
+  name "Repeatability error"
+  type number
+  unit "v"
+  latex "E_R"
+  reference { R60-3-2-1-3 }
+}
+
+symbol CC {
+  name "Creep"
+  type number
+  unit "v"
+  latex "C_C"
+  reference { R60-1-5-5-1 }
+}
+
+symbol CDR {
+  name "Dead load output return value"
+  type number
+  unit "v"
+  latex "C_{DR}"
+  reference { R60-1-5-5-2 }
+}
+
+symbol CM {
+  name "Temperature effect on minimum dead load output"
+  type number
+  unit "v"
+  latex "C_M"
+  reference { R60-3-2-1-4 }
+}
+
+symbol CHmin {
+  name "Humidity effect on minimum test load indication"
+  type number
+  unit "v"
+  latex "C_{Hmin}"
+  reference { R60-1-5-6-3-1 }
+}
+
+symbol CHmax {
+  name "Humidity effect on span"
+  type number
+  unit "v"
+  latex "C_{Hmax}"
+  reference { R60-1-5-6-3 }
+}
+
+symbol Dmax {
+  name "Maximum test load"
+  type number
+  unit "kg"
+  latex "D_{max}"
+}
+
+symbol Dmin {
+  name "Minimum test load"
+  type number
+  unit "kg"
+  latex "D_{min}"
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Calculations — OCL primitives
+// ─────────────────────────────────────────────────────────────────────
+
+calculation loadCellError {
+  name "Load cell error"
+  inputs {
+    avgIndication : number { unit "counts" }
+    referenceIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(avgIndication - referenceIndication) / conversionFactor}"
+  reference { R60-3-2-1-2-2 }
+}
+
+calculation referenceIndication {
+  name "Reference indication (R_i)"
+  inputs {
+    testLoad : number { unit "kg" }
+    dMin : number { unit "kg" }
+    dMax : number { unit "kg" }
+    n : integer { unit "1" }
+    f : number { unit "counts/v" }
+  }
+  output : number { unit "counts" }
+  expression "ocl{(testLoad - dMin) / (dMax - dMin) * n * f}"
+  reference { R60-3-2-1-2-6 }
+}
+
+calculation conversionFactor {
+  name "Conversion factor (f)"
+  inputs {
+    avgIndicationAt75pct : number { unit "counts" }
+    indicationAtDmin : number { unit "counts" }
+    n_LC : integer { unit "1" }
+  }
+  output : number { unit "counts/v" }
+  expression "ocl{(avgIndicationAt75pct - indicationAtDmin) / (0.75 * n_LC)}"
+  reference { R60-3-2-1-2-4 }
+}
+
+calculation repeatabilityError {
+  name "Repeatability error"
+  inputs {
+    values : list<number> { unit "counts" }
+  }
+  output : number { unit "counts" }
+  expression "ocl{values->max() - values->min()}"
+  reference { R60-3-2-1-3 }
+}
+
+calculation mean {
+  name "Arithmetic mean"
+  inputs {
+    values : list<number> { unit "1" }
+  }
+  output : number { unit "1" }
+  expression "ocl{values->sum() / values->size()}"
+}
+
+calculation creep {
+  name "Creep error"
+  inputs {
+    indicationAtTime : number { unit "counts" }
+    initialIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indicationAtTime - initialIndication) / conversionFactor}"
+  reference { R60-1-5-5-1 }
+}
+
+calculation deadLoadOutputReturn {
+  name "Dead load output return (DR)"
+  inputs {
+    minLoadIndication2 : number { unit "counts" }
+    minLoadIndication1 : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(minLoadIndication2 - minLoadIndication1) / conversionFactor}"
+  reference { R60-1-5-5-2 }
+}
+
+calculation humidityCHmin {
+  name "C_Hmin (humidity effect on MDLO)"
+  inputs {
+    indDminAfter : number { unit "counts" }
+    indDminBefore : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indDminAfter - indDminBefore) / conversionFactor}"
+  reference { R60-3-2-1-7 }
+}
+
+calculation humidityCHmax {
+  name "C_Hmax (humidity effect on span)"
+  inputs {
+    avgDmaxAfter : number { unit "counts" }
+    avgDminAfter : number { unit "counts" }
+    avgDmaxBefore : number { unit "counts" }
+    avgDminBefore : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{((avgDmaxAfter - avgDminAfter) - (avgDmaxBefore - avgDminBefore)) / conversionFactor}"
+  reference { R60-3-2-1-7 }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Provisions — R 60-1 requirements
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Classification (R 60-1 §5.1) ─────────────────────────────────────
+
+provision AccuracyClasses {
+  condition "Load cells shall be ranked into one of the four accuracy classes: A, B, C, D."
+  modality SHALL
+  reference { R60-1-5-1-1 }
+}
+
+provision MaxVerificationIntervals {
+  condition "The maximum number of load cell verification intervals (nLC) shall be within the limits presented in R 60-1 Table 1."
+  modality SHALL
+  reference { R60-1-5-1-2 }
+}
+
+provision MinVerificationInterval {
+  condition "The minimum load cell verification interval (v_min) shall be specified by the manufacturer."
+  modality SHALL
+  reference { R60-1-5-1-3 }
+}
+
+provision SupplementaryLoading {
+  condition "Load cells shall be classified by the intended manner of load application where there would be a risk of confusing loading type."
+  modality SHALL
+  reference { R60-1-5-1-4 }
+}
+
+provision CompleteClassification {
+  condition "The load cell shall be classified per the six parameters: accuracy class, nLC, load application, working temperature, humidity symbol, and additional characterisation."
+  modality SHALL
+  reference { R60-1-5-1-5 }
+}
+
+provision StandardClassification {
+  condition "Standard classifications shall be used."
+  modality SHALL
+  reference { R60-1-5-1-6 }
+}
+
+provision MultipleClassifications {
+  condition "A load cell may bear multiple classifications according to the intended manner of load application."
+  modality MAY
+  reference { R60-1-5-1-7 }
+}
+
+// ── Measuring range (R 60-1 §5.2) ───────────────────────────────────
+
+provision MeasuringRangeMin {
+  condition "The smallest load applied during test shall not be less than E_min."
+  modality SHALL
+  reference { R60-1-5-2 }
+}
+
+provision MeasuringRangeMax {
+  condition "The largest load applied during test shall not be greater than E_max."
+  modality SHALL
+  reference { R60-1-5-2 }
+}
+
+// ── MPE (R 60-1 §5.3) ───────────────────────────────────────────────
+
+provision MPEPerClass {
+  condition "The MPE values for each accuracy class shall be as tabulated in R 60-1 Table 4."
+  modality SHALL
+  reference { R60-1-5-3-1 }
+}
+
+provision MPETypeEvaluation {
+  condition "The MPE on type evaluation shall be derived as p_LC × 0.5 v (first tier), p_LC × 1.0 v (second tier), p_LC × 1.5 v (third tier)."
+  modality SHALL
+  reference { R60-1-5-3-2 }
+}
+
+// ── Repeatability (R 60-1 §5.4) ─────────────────────────────────────
+
+provision RepeatabilityError {
+  condition "The repeatability error at any test load shall not exceed the absolute value of MPE at that load."
+  modality SHALL
+  reference { R60-1-5-4 }
+}
+
+// ── Creep + DR (R 60-1 §5.5) ────────────────────────────────────────
+
+provision Creep30Min {
+  condition "The creep change over 30 minutes shall not exceed 0.7 × |MPE| at D_max."
+  modality SHALL
+  reference { R60-1-5-5-1 }
+}
+
+provision Creep20To30Min {
+  condition "The creep change between 20 and 30 minutes shall not exceed 0.15 × |MPE| at D_max."
+  modality SHALL
+  reference { R60-1-5-5-1 }
+}
+
+provision DRHalfV {
+  condition "The dead load output return shall not exceed 0.5 v."
+  modality SHALL
+  reference { R60-1-5-5-2 }
+}
+
+// ── Influence quantities (R 60-1 §5.6) ──────────────────────────────
+
+provision TemperatureLimits {
+  condition "The load cell shall meet the requirements within the temperature limits specified by the manufacturer (-10°C to +40°C if not specified)."
+  modality SHALL
+  reference { R60-1-5-6-1-1 }
+}
+
+provision SpecialTemperatureLimits {
+  condition "Special limits of working temperature may be specified; if so, they shall be marked on the load cell."
+  modality MAY
+  reference { R60-1-5-6-1-2 }
+}
+
+provision TemperatureEffectMDLO {
+  condition "The temperature effect on minimum dead load output shall not exceed p_LC × v_min per 5°C."
+  modality SHALL
+  reference { R60-1-5-6-1-3 }
+}
+
+provision BarometricPressure {
+  condition "The change in indication due to a change in barometric pressure shall not exceed the prescribed limits."
+  modality SHALL
+  reference { R60-1-5-6-2 }
+}
+
+provision HumidityCH {
+  condition "For CH or unmarked load cells, the humidity effect on MDLO (C_Hmin) shall not exceed 4% × n_LC and the humidity effect on span (C_Hmax) shall not exceed |MPE|."
+  modality SHALL
+  reference { R60-1-5-6-3-1 }
+}
+
+provision HumiditySH {
+  condition "For SH load cells, the humidity effect on span shall not exceed the prescribed limits after damp heat steady-state test."
+  modality SHALL
+  reference { R60-1-5-6-3-2 }
+}
+
+// ── Electronic (R 60-1 §5.7) ────────────────────────────────────────
+
+provision WarmUpTime {
+  condition "After warm-up, the load cell indication shall be within ±0.5 v of the steady-state indication."
+  modality SHALL
+  reference { R60-1-5-7-2-1 }
+}
+
+provision PowerVoltageVariation {
+  condition "Variations in power voltage shall not cause a change in indication exceeding ±0.5 v (or significant fault threshold)."
+  modality SHALL
+  reference { R60-1-5-7-2-2 }
+}
+
+provision ShortTimePowerReductions {
+  condition "Short-time power reductions shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-3 }
+}
+
+provision Bursts {
+  condition "Bursts (electrical fast transients) shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-4 }
+}
+
+provision Surge {
+  condition "Surge shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-5 }
+}
+
+provision ESD {
+  condition "Electrostatic discharge shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-6 }
+}
+
+provision EMCSusceptibility {
+  condition "Exposure to radiated RF EM fields shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-7 }
+}
+
+provision ConductedEMC {
+  condition "Exposure to conducted RF EM fields shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-8 }
+}
+
+provision SpanStability {
+  condition "The span shall not drift more than the prescribed limit over the duration of the span stability test."
+  modality SHALL
+  reference { R60-1-5-7-3 }
+}
+
+// ── Technical (R 60-1 §6) ───────────────────────────────────────────
+
+provision Software {
+  condition "Embedded software that influences the raw count output of the load cell shall be evaluated under the terms of this Recommendation and OIML D 31."
+  modality SHALL
+  reference { R60-1-6-1 }
+}
+
+provision MandatoryMarkings {
+  condition "The following mandatory markings shall be clearly and indelibly marked on the load cell: manufacturer identification, type designation, serial number, accuracy class, nLC, and marking of humidity class."
+  modality SHALL
+  reference { R60-1-6-2-1 }
+}
+
+provision MandatoryAdditionalInfo {
+  condition "Mandatory additional information shall be marked either on the load cell or in an accompanying document."
+  modality SHALL
+  reference { R60-1-6-2-2 }
+}
+
+provision NonMandatoryInfo {
+  condition "Non-mandatory additional information may be provided at the manufacturer's discretion."
+  modality MAY
+  reference { R60-1-6-2-3 }
+}
+
+provision ClassDesignation {
+  condition "The accuracy class shall be marked per R 60-1 §6.2.4.1."
+  modality SHALL
+  reference { R60-1-6-2-4-1 }
+}
+
+provision LoadTypeDesignation {
+  condition "The load type (compression, tension, beam, universal) shall be marked per R 60-1 §6.2.4.2."
+  modality SHALL
+  reference { R60-1-6-2-4-2 }
+}
+
+provision TemperatureDesignation {
+  condition "Working temperature shall be marked per R 60-1 §6.2.4.3."
+  modality SHALL
+  reference { R60-1-6-2-4-3 }
+}
+
+provision HumidityDesignation {
+  condition "Humidity symbols (CH, SH, NH) shall be marked per R 60-1 §6.2.4.4."
+  modality SHALL
+  reference { R60-1-6-2-4-4 }
+}
+
+provision NLCDdesignation {
+  condition "The n_LC shall be marked per R 60-1 §6.2.4.5."
+  modality SHALL
+  reference { R60-1-6-2-4-5 }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Notes — Annex A-A external definitions
+// ─────────────────────────────────────────────────────────────────────
+
+note ExternalDefinitions {
+  type NOTE
+  message "This model imports terminology from OIML D 11 (electronic measuring instruments) and OIML R 76 (non-automatic weighing instruments) per R 60 Annex A-A. External definitions include: electronic measuring instrument, module, device, checking facility (P, I, N types), durability protection facility, test (performance, type), mains power, power converter, batteries, and weighing module."
+  reference { R60-A-A OIML-D-11 OIML-R-76 }
+}
+
+note CertificateLayout {
+  type NOTE
+  message "The certificate layout (page 1 + page 2) is defined per R 60 Annex B and C. Page 1 contains the certificate header (issuer, certificate number, classification symbol). Page 2 contains per-load-cell characteristics (Emax, nLC, Y, Z, p_LC, DR, rated output, input/output impedance, excitation, material, sealing)."
+  reference { R60-A-B R60-A-C }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Processes — R 60-2 conformance tests
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Examinations (R 60-2 §2.5–2.9) ──────────────────────────────────
+
+process ExamineDocumentation {
+  name "Documentation review"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Software }
+  validate_measurement { "[documentation_completeness] = true" }
+  output { FormInstanceRegistry }
+  reference { R60-2-2-5 }
+}
+
+process ExamineMarkings {
+  name "Marking examination"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision {
+    MandatoryMarkings
+    MandatoryAdditionalInfo
+    ClassDesignation
+    LoadTypeDesignation
+    TemperatureDesignation
+    HumidityDesignation
+    NLCDdesignation
+  }
+  output { FormInstanceRegistry }
+  reference { R60-2-2-5 }
+}
+
+process ExamineSuitability {
+  name "Suitability for testing examination"
+  actor TestLaboratory
+  modality SHALL
+  output { FormInstanceRegistry }
+  reference { R60-2-2-3 }
+}
+
+process ExamineSoftware {
+  name "Software examination"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Software }
+  output { FormInstanceRegistry }
+  reference { R60-2-2-5 }
+}
+
+// ── Performance tests — metrological (R 60-2 §2.10.1–2.10.6) ────────
+
+process DetermineMeasurementError {
+  name "Determination of measurement error, repeatability error, and temperature effect on MDLO"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision {
+    MeasuringRangeMin
+    MeasuringRangeMax
+    MPETypeEvaluation
+    RepeatabilityError
+    TemperatureEffectMDLO
+  }
+  validate_measurement {
+    "[EL] <= [MPE]"
+    "[ER] <= [MPE]"
+  }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference_data_registry { TestRequestRegistry }
+  reference { R60-2-2-10-1 R60-3-2-1-2-2 }
+}
+
+process DetermineCreep {
+  name "Determination of creep error"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Creep30Min Creep20To30Min }
+  validate_measurement {
+    "[CC] <= 0.7 * [MPE]"
+    "abs([CC_30min] - [CC_20min]) <= 0.15 * [MPE]"
+  }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-2 }
+}
+
+process DetermineDR {
+  name "Determination of minimum dead load output return (DR)"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { DRHalfV }
+  validate_measurement { "[CDR] <= 0.5" }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-3 }
+}
+
+process DetermineBarometricPressure {
+  name "Determination of barometric pressure effects"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { BarometricPressure }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-4 }
+}
+
+process DetermineHumidityCH {
+  name "Determination of humidity effects for CH/unmarked load cells"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { HumidityCH }
+  validate_measurement {
+    "[CHmin] <= 0.04 * [nLC]"
+    "[CHmax] <= [MPE]"
+  }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-5 R60-3-2-1-7 }
+}
+
+process DetermineHumiditySH {
+  name "Determination of humidity effects for SH marked load cells"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { HumiditySH }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-6 }
+}
+
+// ── Performance tests — electronic (R 60-2 §2.10.7–2.10.8) ──────────
+
+process TestWarmUpTime {
+  name "Warm-up time test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { WarmUpTime }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-1 }
+}
+
+process TestPowerVoltage {
+  name "Power voltage variation test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { PowerVoltageVariation }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-2 }
+}
+
+process TestShortTimePowerReductions {
+  name "Short-time power reductions test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { ShortTimePowerReductions }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-3 }
+}
+
+process TestBursts {
+  name "Bursts (electrical fast transients) test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Bursts }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-4 }
+}
+
+process TestSurge {
+  name "Surge test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Surge }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-5 }
+}
+
+process TestESD {
+  name "Electrostatic discharge test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { ESD }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-6 }
+}
+
+process TestEMCSusceptibility {
+  name "Radiated RF electromagnetic field susceptibility test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { EMCSusceptibility }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-7 }
+}
+
+process TestConductedEMC {
+  name "Conducted (common mode) RF electromagnetic field test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { ConductedEMC }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-8 }
+}
+
+process TestSpanStability {
+  name "Span stability test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { SpanStability }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-8 }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// IA evaluation processes
+// ─────────────────────────────────────────────────────────────────────
+
+process ReviewTestReportAdmissibility {
+  name "Review TestReport admissibility (Level 1)"
+  actor IssuingAuthority
+  modality SHALL
+  output { EvaluationReportRegistry }
+  reference_data_registry { TestReportRegistry }
+}
+
+process SynthesizePerModel {
+  name "Per-model technical synthesis across labs (Level 2)"
+  actor IssuingAuthority
+  modality SHALL
+  output { EvaluationReportRegistry }
+}
+
+process IssueCertificate {
+  name "Issue Certificate of Conformity if approved"
+  actor IssuingAuthority
+  modality SHALL
+  output { CertificateRegistry }
+  reference_data_registry { EvaluationReportRegistry }
+}
+
+approval BIMLRegistration {
+  name "BIML registration of the certificate"
+  actor IssuingAuthority
+  modality SHALL
+  approve_by BIML
+  approval_record { CertificateRegistry }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Sample selection (Annex A-D)
+// ─────────────────────────────────────────────────────────────────────
+
+process SelectSamplesPerR60AnnexD {
+  name "Sample selection per R 60 Annex D practical example"
+  actor IssuingAuthority
+  modality SHALL
+  reference_data_registry { MeasuringInstrumentRegistry InstrumentModelGroupRegistry InstrumentSampleRegistry }
+  reference { R60-A-D }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Workflow — 5-phase certification subprocess
+// ─────────────────────────────────────────────────────────────────────
+
+start_event ApplicationAccepted { }
+
+end_event CertificateIssued { }
+
+end_event ApplicationRejected { }
+
+exclusive_gateway AdmissibilityPass {
+  label "Are all submitted TestReports admissible?"
+}
+
+exclusive_gateway AllModelsPass {
+  label "Do all models pass technical synthesis?"
+}
+
+subprocess R60CertificationFlow {
+  elements {
+    ApplicationAccepted { x 0 y 0 }
+    ExamineDocumentation { x 0 y 100 }
+    ExamineMarkings { x 200 y 100 }
+    ExamineSuitability { x 400 y 100 }
+    ExamineSoftware { x 600 y 100 }
+    DetermineMeasurementError { x 0 y 250 }
+    DetermineCreep { x 200 y 250 }
+    DetermineDR { x 400 y 250 }
+    DetermineBarometricPressure { x 600 y 250 }
+    DetermineHumidityCH { x 800 y 250 }
+    DetermineHumiditySH { x 1000 y 250 }
+    TestWarmUpTime { x 0 y 400 }
+    TestPowerVoltage { x 200 y 400 }
+    TestShortTimePowerReductions { x 400 y 400 }
+    TestBursts { x 600 y 400 }
+    TestSurge { x 800 y 400 }
+    TestESD { x 1000 y 400 }
+    TestEMCSusceptibility { x 0 y 550 }
+    TestConductedEMC { x 200 y 550 }
+    TestSpanStability { x 400 y 550 }
+    ReviewTestReportAdmissibility { x 600 y 700 }
+    AdmissibilityPass { x 600 y 800 }
+    SynthesizePerModel { x 600 y 900 }
+    AllModelsPass { x 600 y 1000 }
+    IssueCertificate { x 600 y 1100 }
+    BIMLRegistration { x 600 y 1200 }
+    CertificateIssued { x 600 y 1300 }
+    ApplicationRejected { x 800 y 1300 }
+  }
+  process_flow {
+    Edge1 { from ApplicationAccepted to ExamineDocumentation }
+    Edge2 { from ApplicationAccepted to ExamineMarkings }
+    Edge3 { from ApplicationAccepted to ExamineSuitability }
+    Edge4 { from ApplicationAccepted to ExamineSoftware }
+    Edge5 { from ExamineDocumentation to DetermineMeasurementError }
+    Edge6 { from ExamineMarkings to DetermineCreep }
+    Edge7 { from ExamineSuitability to DetermineDR }
+    Edge8 { from ExamineSoftware to DetermineBarometricPressure }
+    Edge9 { from DetermineMeasurementError to DetermineHumidityCH }
+    Edge10 { from DetermineCreep to DetermineHumiditySH }
+    Edge11 { from DetermineDR to TestWarmUpTime }
+    Edge12 { from DetermineBarometricPressure to TestPowerVoltage }
+    Edge13 { from DetermineHumidityCH to TestShortTimePowerReductions }
+    Edge14 { from DetermineHumiditySH to TestBursts }
+    Edge15 { from TestWarmUpTime to TestSurge }
+    Edge16 { from TestPowerVoltage to TestESD }
+    Edge17 { from TestShortTimePowerReductions to TestEMCSusceptibility }
+    Edge18 { from TestBursts to TestConductedEMC }
+    Edge19 { from TestSurge to TestSpanStability }
+    Edge20 { from TestESD to ReviewTestReportAdmissibility }
+    Edge21 { from TestEMCSusceptibility to ReviewTestReportAdmissibility }
+    Edge22 { from TestConductedEMC to ReviewTestReportAdmissibility }
+    Edge23 { from TestSpanStability to ReviewTestReportAdmissibility }
+    Edge24 { from ReviewTestReportAdmissibility to AdmissibilityPass }
+    Edge25 { from AdmissibilityPass to SynthesizePerModel label "yes" }
+    Edge26 { from AdmissibilityPass to ApplicationRejected label "no" }
+    Edge27 { from SynthesizePerModel to AllModelsPass }
+    Edge28 { from AllModelsPass to IssueCertificate label "yes" }
+    Edge29 { from AllModelsPass to ApplicationRejected label "no" }
+    Edge30 { from IssueCertificate to BIMLRegistration }
+    Edge31 { from BIMLRegistration to CertificateIssued }
+  }
+  data { }
+}
