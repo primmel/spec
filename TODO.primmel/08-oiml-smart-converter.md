@@ -1,6 +1,6 @@
 # TODO.primmel 08 — OIML SMART bidirectional converter
 
-**Status:** ACTIVE — work in `~/src/oimlsmart/smart/browser/build/`
+**Status:** 🔓 UNBLOCKED — TODO.primmel 06, 07 complete; ready to start — work in `~/src/oimlsmart/smart/browser/build/`
 **Priority:** MEDIUM (after TODO 06+07 complete)
 **Depends on:** 07-primmel-ts-extensions
 

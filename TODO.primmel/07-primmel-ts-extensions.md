@@ -1,6 +1,6 @@
 # TODO.primmel 07 — mmel-ts parser extensions for Primmel
 
-**Status:** ACTIVE — work in `~/src/mn/mmel-ts/`
+**Status:** ✅ DONE — PR https://github.com/metanorma/mmel-ts/pull/2 (commit b3cdbd4) — work in `~/src/mn/mmel-ts/`
 **Priority:** HIGH (after TODO 06 completes)
 **Depends on:** 06-mmel-ts-spec-parity
 
