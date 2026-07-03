@@ -1,6 +1,6 @@
 # TODO.primmel 06 — Bring mmel-ts to spec parity
 
-**Status:** ACTIVE — work in `~/src/mn/mmel-ts/`
+**Status:** ✅ DONE — PR https://github.com/metanorma/mmel-ts/pull/2 — work in `~/src/mn/mmel-ts/`
 **Priority:** HIGH (must happen BEFORE parser extensions, TODO 07)
 **Independent of:** spec extensions (TODO 01-05)
 
