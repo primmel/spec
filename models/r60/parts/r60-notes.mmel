@@ -1,0 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────
+// Notes — Annex A-A external definitions
+// ─────────────────────────────────────────────────────────────────────
+
+note ExternalDefinitions {
+  type NOTE
+  message "This model imports terminology from OIML D 11 (electronic measuring instruments) and OIML R 76 (non-automatic weighing instruments) per R 60 Annex A-A. External definitions include: electronic measuring instrument, module, device, checking facility (P, I, N types), durability protection facility, test (performance, type), mains power, power converter, batteries, and weighing module."
+  reference { R60-A-A OIML-D-11 OIML-R-76 }
+}
+
+note CertificateLayout {
+  type NOTE
+  message "The certificate layout (page 1 + page 2) is defined per R 60 Annex B and C. Page 1 contains the certificate header (issuer, certificate number, classification symbol). Page 2 contains per-load-cell characteristics (Emax, nLC, Y, Z, p_LC, DR, rated output, input/output impedance, excitation, material, sealing)."
+  reference { R60-A-B R60-A-C }
+}
+

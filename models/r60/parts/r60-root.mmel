@@ -1,0 +1,3837 @@
+root OIMLR60
+
+version "2021-E1"
+
+metadata {
+  title "OIML R 60:2021 — Metrological regulation of load cells"
+  schema "MMEL 0.1"
+  edition "1"
+  author "OIML SMART project"
+  shortname "R60"
+  namespace "OIML.R60"
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Roles (R 60-CS participants)
+// ─────────────────────────────────────────────────────────────────────
+
+role IssuingAuthority {
+  name "Issuing Authority (IA)"
+}
+
+role TestLaboratory {
+  name "Test Laboratory"
+}
+
+role ManufacturerTestLab {
+  name "Manufacturer Test Laboratory (MTL, Scheme A)"
+}
+
+role Manufacturer {
+  name "Manufacturer / Applicant"
+}
+
+role AuthorisedRepresentative {
+  name "Authorised representative"
+}
+
+role BIML {
+  name "BIML (certificate registration)"
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Helper classes (value objects)
+// ─────────────────────────────────────────────────────────────────────
+
+class Address {
+  street { definition "Street" modality SHALL }
+  city { definition "City" modality SHALL }
+  country { definition "Country" modality SHALL }
+  postal_code { definition "Postal code" modality SHALL }
+}
+
+class Contact {
+  person { definition "Contact person" modality SHALL }
+  email { definition "Email" modality SHALL }
+  phone { definition "Phone" modality SHALL }
+}
+
+class Accreditation {
+  body { definition "Accreditation body" modality SHALL }
+  number { definition "Accreditation number" modality SHALL }
+  expiry_date : date { definition "Accreditation expiry date" modality SHALL }
+  scopes { definition "Accreditation scopes" cardinality "[0..*]" modality MAY }
+}
+
+class DocumentRef {
+  ref : string { definition "Document reference (URN or URL)" modality SHALL }
+  description { definition "Document description" modality MAY }
+}
+
+class CustodyEvent {
+  timestamp : datetime { definition "When the custody event occurred" modality SHALL }
+  from_party { definition "From party ID" modality SHALL }
+  to_party { definition "To party ID" modality SHALL }
+  condition { definition "Sample condition at handover" modality MAY }
+  notes { definition "Notes about the handover" modality MAY }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Data classes — entity shapes (single source of truth)
+// ─────────────────────────────────────────────────────────────────────
+
+class Manufacturer#data {
+  id : string { definition "Unique identifier" modality SHALL }
+  standard_id : string { definition "Standard ID (oiml-r60)" modality SHALL }
+  company : string { definition "Company name" modality SHALL }
+  address : Address { definition "Postal address" modality SHALL }
+  contact : Contact { definition "Contact details" modality SHALL }
+  country : string { definition "Country of origin" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class IssuingAuthority#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  name : string { definition "IA name (e.g., PTB, NMi)" modality SHALL }
+  member_state : string { modality SHALL }
+  accreditation : Accreditation { modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestLaboratory#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  name : string { modality SHALL }
+  lab_kind : enum { definition "independent | manufacturer_test_lab" modality SHALL }
+  capabilities { definition "Declared test capabilities (capability-based matching)" cardinality "[0..*]" modality MAY }
+  accreditation : Accreditation { modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class InstrumentModelFamily#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  manufacturer_id : string { definition "FK to Manufacturer" modality SHALL }
+  family_name : string { definition "Human-readable family name" modality SHALL }
+  family_code : string { definition "Short code for URIs and certificate numbers" modality SHALL }
+  technology : enum { definition "Signal processing technology" modality SHALL }
+  description : text { modality MAY }
+  // Family-level electrical parameters (R 60-3 page-2)
+  rated_output : string { definition "e.g. '2.0 mV/V ± 0.04'" modality MAY }
+  input_impedance : string { modality MAY }
+  output_impedance : string { modality MAY }
+  recommended_excitation : string { modality MAY }
+  excitation_maximum : number { modality MAY }
+  // Family-level mechanical/environmental parameters
+  safe_overload : number { definition "Maximum overload capacity (% of Emax)" modality MAY }
+  transducer_material : string { modality MAY }
+  atmospheric_protection : string { modality MAY }
+  minimum_dead_load : number { definition "Emin (kg)" modality MAY }
+  temperature_range_min : number { modality MAY }
+  temperature_range_max : number { modality MAY }
+  p_LC : number { definition "Default apportioning factor (default 0.7)" cardinality "[0..1]" modality MAY }
+  humidity_class : enum { definition "CH | SH | NH default" cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class InstrumentModelGroup#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  family_id : string { definition "FK to InstrumentModelFamily" modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  group_label : string { definition "e.g., 'C6', 'B10', 'C3'" modality SHALL }
+  accuracy_class : enum { definition "A | B | C | D" modality SHALL }
+  n_LC : integer { definition "Maximum number of verification intervals" modality SHALL }
+  Y : integer { definition "v_min = Emax/Y" modality SHALL }
+  Z : integer { definition "DR ratio" modality SHALL }
+  construction : enum { definition "bending-beam | shear-beam | column | etc." cardinality "[0..1]" modality MAY }
+  load_type : enum { definition "compression | tension | beam | universal" cardinality "[0..1]" modality MAY }
+  humidity_class : enum { cardinality "[0..1]" modality MAY }
+  DR : number { definition "Stored DR value (%RO)" cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class MeasuringInstrument#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  model_family_id : string { definition "FK (denormalized from group)" cardinality "[0..1]" modality MAY }
+  model_group_id : string { cardinality "[0..1]" modality MAY }
+  model_designation : string { definition "e.g., 'ACME-LC-500-C-5kg'" modality SHALL }
+  model : string { modality SHALL }
+  emax : number { definition "Maximum capacity (kg)" modality SHALL }
+  emin : number { definition "Minimum dead load (kg)" cardinality "[0..1]" modality MAY }
+  accuracy_class : enum { modality SHALL }
+  technology : enum { modality MAY }
+  p_LC : number { cardinality "[0..1]" modality MAY }
+  load_type : enum { cardinality "[0..1]" modality MAY }
+  humidity_class : enum { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class InstrumentSample#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  sample_number : string { definition "IA-assigned (e.g., 'S-2024-001')" modality SHALL }
+  serial_number : string { definition "Manufacturer's serial" modality SHALL }
+  application_id : string { definition "FK to Application" modality SHALL }
+  model_id : string { definition "FK to MeasuringInstrument" modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  received_date : date { modality SHALL }
+  condition : enum { definition "NEW | USED | REFURBISHED | DAMAGED" modality SHALL }
+  status : enum { definition "REQUESTED | IN_TRANSIT_TO_IA | RECEIVED_BY_IA | IN_TRANSIT_TO_LAB | AT_LAB | IN_TESTING | RETURNED_TO_IA | RETURNED_TO_MANUFACTURER | DISPOSED" modality SHALL }
+  custody_events : CustodyEvent { cardinality "[0..*]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class Application#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  application_number : string { modality SHALL }
+  date_of_application : date { modality SHALL }
+  status : enum { definition "DRAFT | SUBMITTED | SAMPLES_REQUESTED | SAMPLES_RECEIVED | UNDER_REVIEW | ACCEPTED | REJECTED | WITHDRAWN" modality SHALL }
+  model_family_id : string { cardinality "[0..1]" modality MAY }
+  model_ids : string { cardinality "[0..*]" modality MAY }
+  sample_ids : string { cardinality "[0..*]" modality MAY }
+  applicant_id : string { modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  instrument_id : string { modality SHALL }
+  scheme : enum { definition "A | B" modality MAY }
+  issuing_authority_id : string { cardinality "[0..1]" modality MAY }
+  laboratory_id : string { cardinality "[0..1]" modality MAY }
+  test_report_id : string { cardinality "[0..1]" modality MAY }
+  evaluation_report_id : string { cardinality "[0..1]" modality MAY }
+  certificate_id : string { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestRequest#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  request_number : string { modality SHALL }
+  application_id : string { modality SHALL }
+  requesting_authority_id : string { modality SHALL }
+  assigned_laboratory_id : string { modality SHALL }
+  sample_ids : string { cardinality "[0..*]" modality MAY }
+  model_ids : string { cardinality "[0..*]" modality MAY }
+  test_conditions : object { modality SHALL }
+  scheme : enum { definition "A | B" modality SHALL }
+  status : enum { definition "DRAFT | ISSUED | ACCEPTED_BY_LAB | IN_PROGRESS | COMPLETED | WITHDRAWN | REJECTED_BY_LAB" modality SHALL }
+  test_report_id : string { cardinality "[0..1]" modality MAY }
+  issued_date : datetime { cardinality "[0..1]" modality MAY }
+  accepted_date : datetime { cardinality "[0..1]" modality MAY }
+  completed_date : datetime { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestAssignment#data {
+  id : string { modality SHALL }
+  test_request_id : string { modality SHALL }
+  application_id : string { modality SHALL }
+  form_id : string { modality SHALL }
+  sample_id : string { modality SHALL }
+  model_id : string { modality SHALL }
+  laboratory_id : string { modality SHALL }
+  status : enum { definition "PENDING | ACCEPTED | IN_PROGRESS | COMPLETED | OMITTED | FAILED" modality SHALL }
+  form_instance_id : string { cardinality "[0..1]" modality MAY }
+  assigned_date : datetime { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestReport#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  application_id : string { cardinality "[0..1]" modality MAY }
+  test_request_id : string { cardinality "[0..1]" modality MAY }
+  model_family_id : string { cardinality "[0..1]" modality MAY }
+  model_group_id : string { cardinality "[0..1]" modality MAY }
+  instrument_id : string { modality SHALL }
+  laboratory_id : string { modality SHALL }
+  sample_ids : string { cardinality "[1..*]" modality SHALL }
+  dimensions : object { modality SHALL }
+  required_forms : string { cardinality "[1..*]" modality SHALL }
+  form_instances : string { cardinality "[0..*]" modality SHALL }
+  status : enum { definition "DRAFT | SUBMITTED | UNDER_REVIEW | ACCEPTED | REJECTED" modality SHALL }
+  evaluator : string { modality SHALL }
+  signature_date : date { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class FormInstance#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  form_id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  test_request_id : string { cardinality "[0..1]" modality MAY }
+  application_id : string { cardinality "[0..1]" modality MAY }
+  sample_id : string { modality SHALL }
+  model_id : string { cardinality "[0..1]" modality MAY }
+  laboratory_id : string { modality SHALL }
+  values : object { modality SHALL }
+  computed_values : object { modality SHALL }
+  result : enum { definition "PASS | FAIL | NA | PENDING" modality SHALL }
+  status : enum { definition "OPEN | LOCKED | ACCEPTED | REJECTED" modality SHALL }
+  evaluator : string { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class FormOmission#data {
+  id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  form_id : string { modality SHALL }
+  group_id : string { modality SHALL }
+  reason : string { modality SHALL }
+  decided_by : enum { definition "ia | test_lab" modality SHALL }
+  decided_date : date { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestReportDetermination#data {
+  id : string { modality SHALL }
+  evaluation_report_id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  decision : enum { definition "ACCEPTED | REJECTED | CONDITIONALLY_ACCEPTED" modality SHALL }
+  reviewer_name : string { modality SHALL }
+  supervisor_name : string { cardinality "[0..1]" modality MAY }
+  review_date : date { modality SHALL }
+  notes : text { cardinality "[0..1]" modality MAY }
+  conditions : string { cardinality "[0..*]" modality MAY }
+}
+
+class ModelEvaluation#data {
+  id : string { modality SHALL }
+  evaluation_report_id : string { modality SHALL }
+  model_id : string { modality SHALL }
+  group_id : string { cardinality "[0..1]" modality MAY }
+  required_form_ids : string { cardinality "[1..*]" modality SHALL }
+  covered_form_ids : string { cardinality "[0..*]" modality SHALL }
+  missing_form_ids : string { cardinality "[0..*]" modality SHALL }
+  contributor_test_report_ids : string { cardinality "[0..*]" modality SHALL }
+  contributor_lab_ids : string { cardinality "[0..*]" modality SHALL }
+  decision : enum { definition "PASS | FAIL | CONDITIONAL | INCOMPLETE" modality SHALL }
+  reviewer_name : string { modality SHALL }
+  review_date : date { modality SHALL }
+}
+
+class EvaluationReport#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  test_report_ids : string { cardinality "[1..*]" modality SHALL }
+  instrument_id : string { modality SHALL }
+  authority_id : string { modality SHALL }
+  test_report_determinations : TestReportDetermination { cardinality "[0..*]" modality MAY }
+  model_evaluations : ModelEvaluation { cardinality "[0..*]" modality MAY }
+  overall_decision : enum { definition "APPROVED | REJECTED | CONDITIONALLY_APPROVED" modality SHALL }
+  conditions : string { cardinality "[0..*]" modality MAY }
+  review_notes : text { modality SHALL }
+  reviewer_name : string { modality SHALL }
+  review_date : date { modality SHALL }
+  finalized_at : datetime { cardinality "[0..1]" modality MAY }
+  certificate_id : string { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class Certificate#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  certificate_number : string { modality SHALL }
+  issuing_authority_id : string { modality SHALL }
+  evaluation_report_id : string { modality SHALL }
+  test_report_ids : string { cardinality "[1..*]" modality SHALL }
+  instrument_model_family_id : string { modality SHALL }
+  issued_date : date { modality SHALL }
+  status : enum { definition "DRAFT | PENDING_REGISTRATION | ACTIVE | EXPIRED | WITHDRAWN | SUSPENDED | UNDER_INVESTIGATION" modality SHALL }
+  scope_groups : object { cardinality "[0..*]" modality MAY }
+  characteristics : object { modality MAY }
+  revisions : object { cardinality "[0..*]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class CertificateAnnex#data {
+  id : string { modality SHALL }
+  certificate_id : string { modality SHALL }
+  certificate_number : string { modality SHALL }
+  member_state : string { modality SHALL }
+  correction : string { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Data registries
+// ─────────────────────────────────────────────────────────────────────
+
+data_registry ManufacturerRegistry {
+  title "Manufacturers"
+  data_class Manufacturer#data
+}
+
+data_registry IssuingAuthorityRegistry {
+  title "Issuing Authorities"
+  data_class IssuingAuthority#data
+}
+
+data_registry TestLaboratoryRegistry {
+  title "Test Laboratories"
+  data_class TestLaboratory#data
+}
+
+data_registry InstrumentModelFamilyRegistry {
+  title "Instrument model families"
+  data_class InstrumentModelFamily#data
+}
+
+data_registry InstrumentModelGroupRegistry {
+  title "Instrument model groups"
+  data_class InstrumentModelGroup#data
+}
+
+data_registry MeasuringInstrumentRegistry {
+  title "Measuring instruments"
+  data_class MeasuringInstrument#data
+}
+
+data_registry InstrumentSampleRegistry {
+  title "Instrument samples"
+  data_class InstrumentSample#data
+}
+
+data_registry ApplicationRegistry {
+  title "Applications"
+  data_class Application#data
+}
+
+data_registry TestRequestRegistry {
+  title "IA-issued test requests"
+  data_class TestRequest#data
+}
+
+data_registry TestAssignmentRegistry {
+  title "Test assignments (atomic form × sample × model tuples)"
+  data_class TestAssignment#data
+}
+
+data_registry TestReportRegistry {
+  title "Lab-issued test reports"
+  data_class TestReport#data
+}
+
+data_registry FormInstanceRegistry {
+  title "Form instances (filled-in TRFs)"
+  data_class FormInstance#data
+}
+
+data_registry FormOmissionRegistry {
+  title "Form omissions (forms omitted per group with justification)"
+  data_class FormOmission#data
+}
+
+data_registry EvaluationReportRegistry {
+  title "IA evaluation reports"
+  data_class EvaluationReport#data
+}
+
+data_registry CertificateRegistry {
+  title "Certificates of Conformity"
+  data_class Certificate#data
+}
+
+data_registry CertificateAnnexRegistry {
+  title "Certificate annexes"
+  data_class CertificateAnnex#data
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// References (R 60-1, R 60-2, R 60-3, Annexes)
+// ─────────────────────────────────────────────────────────────────────
+
+// R 60-1 references
+reference R60-1-3-3 { document "OIML R 60-1:2021" clause "3.3" title "Maximum capacity (Emax)" }
+reference R60-1-3-5-8 { document "OIML R 60-1:2021" clause "3.5.8" title "Maximum number of verification intervals (nLC)" }
+reference R60-1-3-7-2 { document "OIML R 60-1:2021" clause "3.7.2" title "Apportioning factor (p_LC)" }
+reference R60-1-4-2 { document "OIML R 60-1:2021" clause "4.2" title "Construction of load cell families" }
+reference R60-1-5-1-1 { document "OIML R 60-1:2021" clause "5.1.1" title "Accuracy classes and their symbols" }
+reference R60-1-5-1-2 { document "OIML R 60-1:2021" clause "5.1.2" title "Maximum number of load cell verification intervals" }
+reference R60-1-5-1-3 { document "OIML R 60-1:2021" clause "5.1.3" title "Minimum load cell verification interval" }
+reference R60-1-5-1-4 { document "OIML R 60-1:2021" clause "5.1.4" title "Supplementary classifications for loading type" }
+reference R60-1-5-1-5 { document "OIML R 60-1:2021" clause "5.1.5" title "Complete load cell classification" }
+reference R60-1-5-1-6 { document "OIML R 60-1:2021" clause "5.1.6" title "Standard classification" }
+reference R60-1-5-1-7 { document "OIML R 60-1:2021" clause "5.1.7" title "Multiple classifications" }
+reference R60-1-5-2 { document "OIML R 60-1:2021" clause "5.2" title "Measuring range" }
+reference R60-1-5-3-1 { document "OIML R 60-1:2021" clause "5.3.1" title "Maximum permissible errors per accuracy class" }
+reference R60-1-5-3-2 { document "OIML R 60-1:2021" clause "5.3.2" title "MPE on type evaluation" }
+reference R60-1-5-4 { document "OIML R 60-1:2021" clause "5.4" title "Repeatability error" }
+reference R60-1-5-5-1 { document "OIML R 60-1:2021" clause "5.5.1" title "Creep" }
+reference R60-1-5-5-2 { document "OIML R 60-1:2021" clause "5.5.2" title "Minimum dead load output return (DR)" }
+reference R60-1-5-6-1-1 { document "OIML R 60-1:2021" clause "5.6.1.1" title "Temperature limits" }
+reference R60-1-5-6-1-2 { document "OIML R 60-1:2021" clause "5.6.1.2" title "Special limits of working temperature" }
+reference R60-1-5-6-1-3 { document "OIML R 60-1:2021" clause "5.6.1.3" title "Temperature effect on MDLO" }
+reference R60-1-5-6-2 { document "OIML R 60-1:2021" clause "5.6.2" title "Barometric pressure" }
+reference R60-1-5-6-3-1 { document "OIML R 60-1:2021" clause "5.6.3.1" title "Humidity effects for CH or unmarked" }
+reference R60-1-5-6-3-2 { document "OIML R 60-1:2021" clause "5.6.3.2" title "Humidity effects for SH" }
+reference R60-1-5-7-1 { document "OIML R 60-1:2021" clause "5.7.1" title "Disturbances — general" }
+reference R60-1-5-7-2-1 { document "OIML R 60-1:2021" clause "5.7.2.1" title "Warm-up time" }
+reference R60-1-5-7-2-2 { document "OIML R 60-1:2021" clause "5.7.2.2" title "Power voltage variation" }
+reference R60-1-5-7-2-3 { document "OIML R 60-1:2021" clause "5.7.2.3" title "Short-time power reductions" }
+reference R60-1-5-7-2-4 { document "OIML R 60-1:2021" clause "5.7.2.4" title "Bursts (electrical fast transients)" }
+reference R60-1-5-7-2-5 { document "OIML R 60-1:2021" clause "5.7.2.5" title "Surge" }
+reference R60-1-5-7-2-6 { document "OIML R 60-1:2021" clause "5.7.2.6" title "ESD" }
+reference R60-1-5-7-2-7 { document "OIML R 60-1:2021" clause "5.7.2.7" title "Radiated RF EM fields" }
+reference R60-1-5-7-2-8 { document "OIML R 60-1:2021" clause "5.7.2.8" title "Conducted RF EM fields" }
+reference R60-1-5-7-3 { document "OIML R 60-1:2021" clause "5.7.3" title "Span stability" }
+reference R60-1-6-1 { document "OIML R 60-1:2021" clause "6.1" title "Software" }
+reference R60-1-6-2-1 { document "OIML R 60-1:2021" clause "6.2.1" title "Mandatory markings on the load cell" }
+reference R60-1-6-2-2 { document "OIML R 60-1:2021" clause "6.2.2" title "Mandatory additional information" }
+reference R60-1-6-2-3 { document "OIML R 60-1:2021" clause "6.2.3" title "Non-mandatory additional information" }
+reference R60-1-6-2-4-1 { document "OIML R 60-1:2021" clause "6.2.4.1" title "Accuracy class designation" }
+reference R60-1-6-2-4-2 { document "OIML R 60-1:2021" clause "6.2.4.2" title "Load type designation" }
+reference R60-1-6-2-4-3 { document "OIML R 60-1:2021" clause "6.2.4.3" title "Working temperature designation" }
+reference R60-1-6-2-4-4 { document "OIML R 60-1:2021" clause "6.2.4.4" title "Humidity symbols" }
+reference R60-1-6-2-4-5 { document "OIML R 60-1:2021" clause "6.2.4.5" title "nLC designation" }
+
+// R 60-2 references
+reference R60-2-2-3 { document "OIML R 60-2:2021" clause "2.3" title "Suitability for testing" }
+reference R60-2-2-4 { document "OIML R 60-2:2021" clause "2.4" title "Selection of specimens for evaluation" }
+reference R60-2-2-5 { document "OIML R 60-2:2021" clause "2.5" title "Documentation for type approval" }
+reference R60-2-2-6 { document "OIML R 60-2:2021" clause "2.6" title "Performance tests — conditions" }
+reference R60-2-2-7 { document "OIML R 60-2:2021" clause "2.7" title "Rules concerning the determination of errors" }
+reference R60-2-2-10-1 { document "OIML R 60-2:2021" clause "2.10.1" title "Determination of measurement error, repeatability error, and temperature effect on MDLO" }
+reference R60-2-2-10-2 { document "OIML R 60-2:2021" clause "2.10.2" title "Determination of creep error" }
+reference R60-2-2-10-3 { document "OIML R 60-2:2021" clause "2.10.3" title "Determination of DR" }
+reference R60-2-2-10-4 { document "OIML R 60-2:2021" clause "2.10.4" title "Determination of barometric pressure effects" }
+reference R60-2-2-10-5 { document "OIML R 60-2:2021" clause "2.10.5" title "Determination of humidity effects (CH/unmarked)" }
+reference R60-2-2-10-6 { document "OIML R 60-2:2021" clause "2.10.6" title "Determination of humidity effects (SH)" }
+reference R60-2-2-10-7-1 { document "OIML R 60-2:2021" clause "2.10.7.1" title "Warm-up time test" }
+reference R60-2-2-10-7-2 { document "OIML R 60-2:2021" clause "2.10.7.2" title "Power voltage variation test" }
+reference R60-2-2-10-7-3 { document "OIML R 60-2:2021" clause "2.10.7.3" title "Short-time power reductions test" }
+reference R60-2-2-10-7-4 { document "OIML R 60-2:2021" clause "2.10.7.4" title "Bursts test" }
+reference R60-2-2-10-7-5 { document "OIML R 60-2:2021" clause "2.10.7.5" title "Surge test" }
+reference R60-2-2-10-7-6 { document "OIML R 60-2:2021" clause "2.10.7.6" title "ESD test" }
+reference R60-2-2-10-7-7 { document "OIML R 60-2:2021" clause "2.10.7.7" title "EMC susceptibility test" }
+reference R60-2-2-10-7-8 { document "OIML R 60-2:2021" clause "2.10.7.8" title "Conducted EMC test" }
+reference R60-2-2-10-8 { document "OIML R 60-2:2021" clause "2.10.8" title "Span stability test" }
+
+// R 60-3 references (forms and tables)
+reference R60-3-2-1-2-2 { document "OIML R 60-3:2021" clause "2.1.2.2" title "Load cell error (E_L) calculation" }
+reference R60-3-2-1-2-4 { document "OIML R 60-3:2021" clause "2.1.2.4" title "Conversion factor (f)" }
+reference R60-3-2-1-2-6 { document "OIML R 60-3:2021" clause "2.1.2.6" title "Reference indication" }
+reference R60-3-2-1-3 { document "OIML R 60-3:2021" clause "2.1.3" title "Repeatability error calculation" }
+reference R60-3-2-1-4 { document "OIML R 60-3:2021" clause "2.1.4" title "Temperature effect on MDLO (C_M)" }
+reference R60-3-2-1-5 { document "OIML R 60-3:2021" clause "2.1.5" title "Creep (C_C) and DR (C_DR)" }
+reference R60-3-2-1-7 { document "OIML R 60-3:2021" clause "2.1.7" title "Humidity effects (C_Hmin, C_Hmax)" }
+reference R60-3-4 { document "OIML R 60-3:2021" clause "4" title "Evaluation report metadata" }
+reference R60-3-5 { document "OIML R 60-3:2021" clause "5" title "Examination" }
+reference R60-3-6 { document "OIML R 60-3:2021" clause "6" title "Performance tests" }
+
+// Annex references
+reference R60-A-A { document "OIML R 60 Annex A-A" clause "A-A" title "Definitions from other publications" }
+reference R60-A-B { document "OIML R 60 Annex A-B" clause "A-B" title "Certificate content (page 1)" }
+reference R60-A-C { document "OIML R 60 Annex A-C" clause "A-C" title "Certificate content (page 2 — per-load-cell)" }
+reference R60-A-D { document "OIML R 60 Annex A-D" clause "A-D" title "Selection of load cells for testing — practical example" }
+reference R60-A-E { document "OIML R 60 Annex A-E" clause "A-E" title "Load transmission" }
+
+// External standard references (Annex A-A)
+reference OIML-D-11 { document "OIML D 11:2004" clause "general" title "General requirements for electronic measuring instruments" }
+reference OIML-D-31 { document "OIML D 31" clause "general" title "General requirements for computer-controlled measuring instruments" }
+reference OIML-R-76 { document "OIML R 76:2006" clause "T.2.2.7" title "Non-automatic weighing instruments — weighing module" }
+
+// ─────────────────────────────────────────────────────────────────────
+// Symbols — formal symbol registry (R 60-3 + Annex)
+// ─────────────────────────────────────────────────────────────────────
+
+// Metrological symbols
+symbol f {
+  name "Conversion factor"
+  type number
+  unit "counts/v"
+  latex "f"
+  reference { R60-3-2-1-2-4 }
+}
+
+symbol nLC {
+  name "Maximum number of load cell verification intervals"
+  type integer
+  unit "1"
+  latex "n_{LC}"
+  reference { R60-1-3-5-8 }
+}
+
+symbol Emax {
+  name "Maximum capacity"
+  type number
+  unit "kg"
+  latex "E_{max}"
+  reference { R60-1-3-3 }
+}
+
+symbol Emin {
+  name "Minimum dead load"
+  type number
+  unit "kg"
+  latex "E_{min}"
+}
+
+symbol pLC {
+  name "Apportioning factor"
+  type number
+  unit "1"
+  latex "p_{LC}"
+  reference { R60-1-3-7-2 }
+}
+
+symbol vmin {
+  name "Minimum verification interval"
+  type number
+  unit "kg"
+  latex "v_{min}"
+}
+
+symbol Y {
+  name "Ratio of min verification interval (Emax / vmin)"
+  type integer
+  unit "1"
+  latex "Y"
+}
+
+symbol Z {
+  name "Ratio of min DR"
+  type integer
+  unit "1"
+  latex "Z"
+}
+
+symbol DR {
+  name "Dead load output return"
+  type number
+  unit "% RO"
+  latex "DR"
+}
+
+symbol MPE {
+  name "Maximum permissible error"
+  type number
+  unit "v"
+  latex "MPE"
+  reference { R60-1-5-3-2 }
+}
+
+symbol EL {
+  name "Load cell error"
+  type number
+  unit "v"
+  latex "E_L"
+  reference { R60-3-2-1-2-2 }
+}
+
+symbol ER {
+  name "Repeatability error"
+  type number
+  unit "v"
+  latex "E_R"
+  reference { R60-3-2-1-3 }
+}
+
+symbol CC {
+  name "Creep"
+  type number
+  unit "v"
+  latex "C_C"
+  reference { R60-1-5-5-1 }
+}
+
+symbol CDR {
+  name "Dead load output return value"
+  type number
+  unit "v"
+  latex "C_{DR}"
+  reference { R60-1-5-5-2 }
+}
+
+symbol CM {
+  name "Temperature effect on minimum dead load output"
+  type number
+  unit "v"
+  latex "C_M"
+  reference { R60-3-2-1-4 }
+}
+
+symbol CHmin {
+  name "Humidity effect on minimum test load indication"
+  type number
+  unit "v"
+  latex "C_{Hmin}"
+  reference { R60-1-5-6-3-1 }
+}
+
+symbol CHmax {
+  name "Humidity effect on span"
+  type number
+  unit "v"
+  latex "C_{Hmax}"
+  reference { R60-1-5-6-3 }
+}
+
+symbol Dmax {
+  name "Maximum test load"
+  type number
+  unit "kg"
+  latex "D_{max}"
+}
+
+symbol Dmin {
+  name "Minimum test load"
+  type number
+  unit "kg"
+  latex "D_{min}"
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Calculations — OCL primitives
+// ─────────────────────────────────────────────────────────────────────
+
+calculation loadCellError {
+  name "Load cell error"
+  inputs {
+    avgIndication : number { unit "counts" }
+    referenceIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(avgIndication - referenceIndication) / conversionFactor}"
+  reference { R60-3-2-1-2-2 }
+}
+
+calculation referenceIndication {
+  name "Reference indication (R_i)"
+  inputs {
+    testLoad : number { unit "kg" }
+    dMin : number { unit "kg" }
+    dMax : number { unit "kg" }
+    n : integer { unit "1" }
+    f : number { unit "counts/v" }
+  }
+  output : number { unit "counts" }
+  expression "ocl{(testLoad - dMin) / (dMax - dMin) * n * f}"
+  reference { R60-3-2-1-2-6 }
+}
+
+calculation conversionFactor {
+  name "Conversion factor (f)"
+  inputs {
+    avgIndicationAt75pct : number { unit "counts" }
+    indicationAtDmin : number { unit "counts" }
+    n_LC : integer { unit "1" }
+  }
+  output : number { unit "counts/v" }
+  expression "ocl{(avgIndicationAt75pct - indicationAtDmin) / (0.75 * n_LC)}"
+  reference { R60-3-2-1-2-4 }
+}
+
+calculation repeatabilityError {
+  name "Repeatability error"
+  inputs {
+    values : list<number> { unit "counts" }
+  }
+  output : number { unit "counts" }
+  expression "ocl{values->max() - values->min()}"
+  reference { R60-3-2-1-3 }
+}
+
+calculation mean {
+  name "Arithmetic mean"
+  inputs {
+    values : list<number> { unit "1" }
+  }
+  output : number { unit "1" }
+  expression "ocl{values->sum() / values->size()}"
+}
+
+calculation creep {
+  name "Creep error"
+  inputs {
+    indicationAtTime : number { unit "counts" }
+    initialIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indicationAtTime - initialIndication) / conversionFactor}"
+  reference { R60-1-5-5-1 }
+}
+
+calculation deadLoadOutputReturn {
+  name "Dead load output return (DR)"
+  inputs {
+    minLoadIndication2 : number { unit "counts" }
+    minLoadIndication1 : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(minLoadIndication2 - minLoadIndication1) / conversionFactor}"
+  reference { R60-1-5-5-2 }
+}
+
+calculation humidityCHmin {
+  name "C_Hmin (humidity effect on MDLO)"
+  inputs {
+    indDminAfter : number { unit "counts" }
+    indDminBefore : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indDminAfter - indDminBefore) / conversionFactor}"
+  reference { R60-3-2-1-7 }
+}
+
+calculation humidityCHmax {
+  name "C_Hmax (humidity effect on span)"
+  inputs {
+    avgDmaxAfter : number { unit "counts" }
+    avgDminAfter : number { unit "counts" }
+    avgDmaxBefore : number { unit "counts" }
+    avgDminBefore : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{((avgDmaxAfter - avgDminAfter) - (avgDmaxBefore - avgDminBefore)) / conversionFactor}"
+  reference { R60-3-2-1-7 }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Provisions — R 60-1 requirements
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Classification (R 60-1 §5.1) ─────────────────────────────────────
+
+provision AccuracyClasses {
+  condition "Load cells shall be ranked into one of the four accuracy classes: A, B, C, D."
+  modality SHALL
+  reference { R60-1-5-1-1 }
+}
+
+provision MaxVerificationIntervals {
+  condition "The maximum number of load cell verification intervals (nLC) shall be within the limits presented in R 60-1 Table 1."
+  modality SHALL
+  reference { R60-1-5-1-2 }
+}
+
+provision MinVerificationInterval {
+  condition "The minimum load cell verification interval (v_min) shall be specified by the manufacturer."
+  modality SHALL
+  reference { R60-1-5-1-3 }
+}
+
+provision SupplementaryLoading {
+  condition "Load cells shall be classified by the intended manner of load application where there would be a risk of confusing loading type."
+  modality SHALL
+  reference { R60-1-5-1-4 }
+}
+
+provision CompleteClassification {
+  condition "The load cell shall be classified per the six parameters: accuracy class, nLC, load application, working temperature, humidity symbol, and additional characterisation."
+  modality SHALL
+  reference { R60-1-5-1-5 }
+}
+
+provision StandardClassification {
+  condition "Standard classifications shall be used."
+  modality SHALL
+  reference { R60-1-5-1-6 }
+}
+
+provision MultipleClassifications {
+  condition "A load cell may bear multiple classifications according to the intended manner of load application."
+  modality MAY
+  reference { R60-1-5-1-7 }
+}
+
+// ── Measuring range (R 60-1 §5.2) ───────────────────────────────────
+
+provision MeasuringRangeMin {
+  condition "The smallest load applied during test shall not be less than E_min."
+  modality SHALL
+  reference { R60-1-5-2 }
+}
+
+provision MeasuringRangeMax {
+  condition "The largest load applied during test shall not be greater than E_max."
+  modality SHALL
+  reference { R60-1-5-2 }
+}
+
+// ── MPE (R 60-1 §5.3) ───────────────────────────────────────────────
+
+provision MPEPerClass {
+  condition "The MPE values for each accuracy class shall be as tabulated in R 60-1 Table 4."
+  modality SHALL
+  reference { R60-1-5-3-1 }
+}
+
+provision MPETypeEvaluation {
+  condition "The MPE on type evaluation shall be derived as p_LC × 0.5 v (first tier), p_LC × 1.0 v (second tier), p_LC × 1.5 v (third tier)."
+  modality SHALL
+  reference { R60-1-5-3-2 }
+}
+
+// ── Repeatability (R 60-1 §5.4) ─────────────────────────────────────
+
+provision RepeatabilityError {
+  condition "The repeatability error at any test load shall not exceed the absolute value of MPE at that load."
+  modality SHALL
+  reference { R60-1-5-4 }
+}
+
+// ── Creep + DR (R 60-1 §5.5) ────────────────────────────────────────
+
+provision Creep30Min {
+  condition "The creep change over 30 minutes shall not exceed 0.7 × |MPE| at D_max."
+  modality SHALL
+  reference { R60-1-5-5-1 }
+}
+
+provision Creep20To30Min {
+  condition "The creep change between 20 and 30 minutes shall not exceed 0.15 × |MPE| at D_max."
+  modality SHALL
+  reference { R60-1-5-5-1 }
+}
+
+provision DRHalfV {
+  condition "The dead load output return shall not exceed 0.5 v."
+  modality SHALL
+  reference { R60-1-5-5-2 }
+}
+
+// ── Influence quantities (R 60-1 §5.6) ──────────────────────────────
+
+provision TemperatureLimits {
+  condition "The load cell shall meet the requirements within the temperature limits specified by the manufacturer (-10°C to +40°C if not specified)."
+  modality SHALL
+  reference { R60-1-5-6-1-1 }
+}
+
+provision SpecialTemperatureLimits {
+  condition "Special limits of working temperature may be specified; if so, they shall be marked on the load cell."
+  modality MAY
+  reference { R60-1-5-6-1-2 }
+}
+
+provision TemperatureEffectMDLO {
+  condition "The temperature effect on minimum dead load output shall not exceed p_LC × v_min per 5°C."
+  modality SHALL
+  reference { R60-1-5-6-1-3 }
+}
+
+provision BarometricPressure {
+  condition "The change in indication due to a change in barometric pressure shall not exceed the prescribed limits."
+  modality SHALL
+  reference { R60-1-5-6-2 }
+}
+
+provision HumidityCH {
+  condition "For CH or unmarked load cells, the humidity effect on MDLO (C_Hmin) shall not exceed 4% × n_LC and the humidity effect on span (C_Hmax) shall not exceed |MPE|."
+  modality SHALL
+  reference { R60-1-5-6-3-1 }
+}
+
+provision HumiditySH {
+  condition "For SH load cells, the humidity effect on span shall not exceed the prescribed limits after damp heat steady-state test."
+  modality SHALL
+  reference { R60-1-5-6-3-2 }
+}
+
+// ── Electronic (R 60-1 §5.7) ────────────────────────────────────────
+
+provision WarmUpTime {
+  condition "After warm-up, the load cell indication shall be within ±0.5 v of the steady-state indication."
+  modality SHALL
+  reference { R60-1-5-7-2-1 }
+}
+
+provision PowerVoltageVariation {
+  condition "Variations in power voltage shall not cause a change in indication exceeding ±0.5 v (or significant fault threshold)."
+  modality SHALL
+  reference { R60-1-5-7-2-2 }
+}
+
+provision ShortTimePowerReductions {
+  condition "Short-time power reductions shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-3 }
+}
+
+provision Bursts {
+  condition "Bursts (electrical fast transients) shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-4 }
+}
+
+provision Surge {
+  condition "Surge shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-5 }
+}
+
+provision ESD {
+  condition "Electrostatic discharge shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-6 }
+}
+
+provision EMCSusceptibility {
+  condition "Exposure to radiated RF EM fields shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-7 }
+}
+
+provision ConductedEMC {
+  condition "Exposure to conducted RF EM fields shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-8 }
+}
+
+provision SpanStability {
+  condition "The span shall not drift more than the prescribed limit over the duration of the span stability test."
+  modality SHALL
+  reference { R60-1-5-7-3 }
+}
+
+// ── Technical (R 60-1 §6) ───────────────────────────────────────────
+
+provision Software {
+  condition "Embedded software that influences the raw count output of the load cell shall be evaluated under the terms of this Recommendation and OIML D 31."
+  modality SHALL
+  reference { R60-1-6-1 }
+}
+
+provision MandatoryMarkings {
+  condition "The following mandatory markings shall be clearly and indelibly marked on the load cell: manufacturer identification, type designation, serial number, accuracy class, nLC, and marking of humidity class."
+  modality SHALL
+  reference { R60-1-6-2-1 }
+}
+
+provision MandatoryAdditionalInfo {
+  condition "Mandatory additional information shall be marked either on the load cell or in an accompanying document."
+  modality SHALL
+  reference { R60-1-6-2-2 }
+}
+
+provision NonMandatoryInfo {
+  condition "Non-mandatory additional information may be provided at the manufacturer's discretion."
+  modality MAY
+  reference { R60-1-6-2-3 }
+}
+
+provision ClassDesignation {
+  condition "The accuracy class shall be marked per R 60-1 §6.2.4.1."
+  modality SHALL
+  reference { R60-1-6-2-4-1 }
+}
+
+provision LoadTypeDesignation {
+  condition "The load type (compression, tension, beam, universal) shall be marked per R 60-1 §6.2.4.2."
+  modality SHALL
+  reference { R60-1-6-2-4-2 }
+}
+
+provision TemperatureDesignation {
+  condition "Working temperature shall be marked per R 60-1 §6.2.4.3."
+  modality SHALL
+  reference { R60-1-6-2-4-3 }
+}
+
+provision HumidityDesignation {
+  condition "Humidity symbols (CH, SH, NH) shall be marked per R 60-1 §6.2.4.4."
+  modality SHALL
+  reference { R60-1-6-2-4-4 }
+}
+
+provision NLCDdesignation {
+  condition "The n_LC shall be marked per R 60-1 §6.2.4.5."
+  modality SHALL
+  reference { R60-1-6-2-4-5 }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Notes — Annex A-A external definitions
+// ─────────────────────────────────────────────────────────────────────
+
+note ExternalDefinitions {
+  type NOTE
+  message "This model imports terminology from OIML D 11 (electronic measuring instruments) and OIML R 76 (non-automatic weighing instruments) per R 60 Annex A-A. External definitions include: electronic measuring instrument, module, device, checking facility (P, I, N types), durability protection facility, test (performance, type), mains power, power converter, batteries, and weighing module."
+  reference { R60-A-A OIML-D-11 OIML-R-76 }
+}
+
+note CertificateLayout {
+  type NOTE
+  message "The certificate layout (page 1 + page 2) is defined per R 60 Annex B and C. Page 1 contains the certificate header (issuer, certificate number, classification symbol). Page 2 contains per-load-cell characteristics (Emax, nLC, Y, Z, p_LC, DR, rated output, input/output impedance, excitation, material, sealing)."
+  reference { R60-A-B R60-A-C }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Processes — R 60-2 conformance tests
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Examinations (R 60-2 §2.5–2.9) ──────────────────────────────────
+
+process ExamineDocumentation {
+  name "Documentation review"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Software }
+  validate_measurement { "[documentation_completeness] = true" }
+  output { FormInstanceRegistry }
+  reference { R60-2-2-5 }
+}
+
+process ExamineMarkings {
+  name "Marking examination"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision {
+    MandatoryMarkings
+    MandatoryAdditionalInfo
+    ClassDesignation
+    LoadTypeDesignation
+    TemperatureDesignation
+    HumidityDesignation
+    NLCDdesignation
+  }
+  output { FormInstanceRegistry }
+  reference { R60-2-2-5 }
+}
+
+process ExamineSuitability {
+  name "Suitability for testing examination"
+  actor TestLaboratory
+  modality SHALL
+  output { FormInstanceRegistry }
+  reference { R60-2-2-3 }
+}
+
+process ExamineSoftware {
+  name "Software examination"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Software }
+  output { FormInstanceRegistry }
+  reference { R60-2-2-5 }
+}
+
+// ── Performance tests — metrological (R 60-2 §2.10.1–2.10.6) ────────
+
+process DetermineMeasurementError {
+  name "Determination of measurement error, repeatability error, and temperature effect on MDLO"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision {
+    MeasuringRangeMin
+    MeasuringRangeMax
+    MPETypeEvaluation
+    RepeatabilityError
+    TemperatureEffectMDLO
+  }
+  validate_measurement {
+    "[EL] <= [MPE]"
+    "[ER] <= [MPE]"
+  }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference_data_registry { TestRequestRegistry }
+  reference { R60-2-2-10-1 R60-3-2-1-2-2 }
+}
+
+process DetermineCreep {
+  name "Determination of creep error"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Creep30Min Creep20To30Min }
+  validate_measurement {
+    "[CC] <= 0.7 * [MPE]"
+    "abs([CC_30min] - [CC_20min]) <= 0.15 * [MPE]"
+  }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-2 }
+}
+
+process DetermineDR {
+  name "Determination of minimum dead load output return (DR)"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { DRHalfV }
+  validate_measurement { "[CDR] <= 0.5" }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-3 }
+}
+
+process DetermineBarometricPressure {
+  name "Determination of barometric pressure effects"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { BarometricPressure }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-4 }
+}
+
+process DetermineHumidityCH {
+  name "Determination of humidity effects for CH/unmarked load cells"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { HumidityCH }
+  validate_measurement {
+    "[CHmin] <= 0.04 * [nLC]"
+    "[CHmax] <= [MPE]"
+  }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-5 R60-3-2-1-7 }
+}
+
+process DetermineHumiditySH {
+  name "Determination of humidity effects for SH marked load cells"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { HumiditySH }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-6 }
+}
+
+// ── Performance tests — electronic (R 60-2 §2.10.7–2.10.8) ──────────
+
+process TestWarmUpTime {
+  name "Warm-up time test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { WarmUpTime }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-1 }
+}
+
+process TestPowerVoltage {
+  name "Power voltage variation test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { PowerVoltageVariation }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-2 }
+}
+
+process TestShortTimePowerReductions {
+  name "Short-time power reductions test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { ShortTimePowerReductions }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-3 }
+}
+
+process TestBursts {
+  name "Bursts (electrical fast transients) test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Bursts }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-4 }
+}
+
+process TestSurge {
+  name "Surge test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Surge }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-5 }
+}
+
+process TestESD {
+  name "Electrostatic discharge test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { ESD }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-6 }
+}
+
+process TestEMCSusceptibility {
+  name "Radiated RF electromagnetic field susceptibility test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { EMCSusceptibility }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-7 }
+}
+
+process TestConductedEMC {
+  name "Conducted (common mode) RF electromagnetic field test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { ConductedEMC }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-8 }
+}
+
+process TestSpanStability {
+  name "Span stability test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { SpanStability }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-8 }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// IA evaluation processes
+// ─────────────────────────────────────────────────────────────────────
+
+process ReviewTestReportAdmissibility {
+  name "Review TestReport admissibility (Level 1)"
+  actor IssuingAuthority
+  modality SHALL
+  output { EvaluationReportRegistry }
+  reference_data_registry { TestReportRegistry }
+}
+
+process SynthesizePerModel {
+  name "Per-model technical synthesis across labs (Level 2)"
+  actor IssuingAuthority
+  modality SHALL
+  output { EvaluationReportRegistry }
+}
+
+process IssueCertificate {
+  name "Issue Certificate of Conformity if approved"
+  actor IssuingAuthority
+  modality SHALL
+  output { CertificateRegistry }
+  reference_data_registry { EvaluationReportRegistry }
+}
+
+approval BIMLRegistration {
+  name "BIML registration of the certificate"
+  actor IssuingAuthority
+  modality SHALL
+  approve_by BIML
+  approval_record { CertificateRegistry }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Sample selection (Annex A-D)
+// ─────────────────────────────────────────────────────────────────────
+
+process SelectSamplesPerR60AnnexD {
+  name "Sample selection per R 60 Annex D practical example"
+  actor IssuingAuthority
+  modality SHALL
+  reference_data_registry { MeasuringInstrumentRegistry InstrumentModelGroupRegistry InstrumentSampleRegistry }
+  reference { R60-A-D }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Workflow — 5-phase certification subprocess
+// ─────────────────────────────────────────────────────────────────────
+
+start_event ApplicationAccepted { }
+
+end_event CertificateIssued { }
+
+end_event ApplicationRejected { }
+
+exclusive_gateway AdmissibilityPass {
+  label "Are all submitted TestReports admissible?"
+}
+
+exclusive_gateway AllModelsPass {
+  label "Do all models pass technical synthesis?"
+}
+
+subprocess R60CertificationFlow {
+  elements {
+    ApplicationAccepted { x 0 y 0 }
+    ExamineDocumentation { x 0 y 100 }
+    ExamineMarkings { x 200 y 100 }
+    ExamineSuitability { x 400 y 100 }
+    ExamineSoftware { x 600 y 100 }
+    DetermineMeasurementError { x 0 y 250 }
+    DetermineCreep { x 200 y 250 }
+    DetermineDR { x 400 y 250 }
+    DetermineBarometricPressure { x 600 y 250 }
+    DetermineHumidityCH { x 800 y 250 }
+    DetermineHumiditySH { x 1000 y 250 }
+    TestWarmUpTime { x 0 y 400 }
+    TestPowerVoltage { x 200 y 400 }
+    TestShortTimePowerReductions { x 400 y 400 }
+    TestBursts { x 600 y 400 }
+    TestSurge { x 800 y 400 }
+    TestESD { x 1000 y 400 }
+    TestEMCSusceptibility { x 0 y 550 }
+    TestConductedEMC { x 200 y 550 }
+    TestSpanStability { x 400 y 550 }
+    ReviewTestReportAdmissibility { x 600 y 700 }
+    AdmissibilityPass { x 600 y 800 }
+    SynthesizePerModel { x 600 y 900 }
+    AllModelsPass { x 600 y 1000 }
+    IssueCertificate { x 600 y 1100 }
+    BIMLRegistration { x 600 y 1200 }
+    CertificateIssued { x 600 y 1300 }
+    ApplicationRejected { x 800 y 1300 }
+  }
+  process_flow {
+    Edge1 { from ApplicationAccepted to ExamineDocumentation }
+    Edge2 { from ApplicationAccepted to ExamineMarkings }
+    Edge3 { from ApplicationAccepted to ExamineSuitability }
+    Edge4 { from ApplicationAccepted to ExamineSoftware }
+    Edge5 { from ExamineDocumentation to DetermineMeasurementError }
+    Edge6 { from ExamineMarkings to DetermineCreep }
+    Edge7 { from ExamineSuitability to DetermineDR }
+    Edge8 { from ExamineSoftware to DetermineBarometricPressure }
+    Edge9 { from DetermineMeasurementError to DetermineHumidityCH }
+    Edge10 { from DetermineCreep to DetermineHumiditySH }
+    Edge11 { from DetermineDR to TestWarmUpTime }
+    Edge12 { from DetermineBarometricPressure to TestPowerVoltage }
+    Edge13 { from DetermineHumidityCH to TestShortTimePowerReductions }
+    Edge14 { from DetermineHumiditySH to TestBursts }
+    Edge15 { from TestWarmUpTime to TestSurge }
+    Edge16 { from TestPowerVoltage to TestESD }
+    Edge17 { from TestShortTimePowerReductions to TestEMCSusceptibility }
+    Edge18 { from TestBursts to TestConductedEMC }
+    Edge19 { from TestSurge to TestSpanStability }
+    Edge20 { from TestESD to ReviewTestReportAdmissibility }
+    Edge21 { from TestEMCSusceptibility to ReviewTestReportAdmissibility }
+    Edge22 { from TestConductedEMC to ReviewTestReportAdmissibility }
+    Edge23 { from TestSpanStability to ReviewTestReportAdmissibility }
+    Edge24 { from ReviewTestReportAdmissibility to AdmissibilityPass }
+    Edge25 { from AdmissibilityPass to SynthesizePerModel label "yes" }
+    Edge26 { from AdmissibilityPass to ApplicationRejected label "no" }
+    Edge27 { from SynthesizePerModel to AllModelsPass }
+    Edge28 { from AllModelsPass to IssueCertificate label "yes" }
+    Edge29 { from AllModelsPass to ApplicationRejected label "no" }
+    Edge30 { from IssueCertificate to BIMLRegistration }
+    Edge31 { from BIMLRegistration to CertificateIssued }
+  }
+  data { }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Terminology — R 60-1 §3 (terms & definitions, condensed)
+// ─────────────────────────────────────────────────────────────────────
+
+// A subset of the ~30 terms defined in R 60-1 §3. Full terminology
+// lives in the OIML SMART YAML at data/oiml-r60/terminology/.
+
+// (Primmel's terminology construct is part of the spec's terminology
+// part; the symbol registry above carries the formal symbols that
+// would appear in the terminology section.)
+
+// ─────────────────────────────────────────────────────────────────────
+// State machines — entity lifecycles with declarative cascades
+// ─────────────────────────────────────────────────────────────────────
+
+state_machine Application {
+  initial DRAFT
+
+  states {
+    DRAFT
+    SUBMITTED
+    SAMPLES_REQUESTED
+    SAMPLES_RECEIVED
+    UNDER_REVIEW
+    ACCEPTED
+    REJECTED
+    WITHDRAWN
+  }
+
+  transition DRAFT -> SUBMITTED action applicant_submits {
+  }
+
+  transition SUBMITTED -> SAMPLES_REQUESTED action ia_requests_samples {
+  }
+
+  transition SAMPLES_REQUESTED -> SAMPLES_RECEIVED action ia_receives_samples {
+    cascade InstrumentSample {
+      where "applicationId = ${this.id}"
+      set { status: "RECEIVED_BY_IA" }
+    }
+  }
+
+  transition SAMPLES_RECEIVED -> UNDER_REVIEW action ia_starts_review {
+  }
+
+  transition UNDER_REVIEW -> ACCEPTED action ia_accepts {
+    guard "documentation_complete = true"
+    cascade TestRequest {
+      where "applicationId = ${this.id}"
+      set { status: "ISSUED" }
+    }
+  }
+
+  transition UNDER_REVIEW -> REJECTED action ia_rejects {
+    set { rejection_reason: "${this.rejection_reason}" }
+  }
+
+  transition * -> WITHDRAWN action applicant_withdraws {
+  }
+}
+
+state_machine TestRequest {
+  initial DRAFT
+
+  states {
+    DRAFT
+    ISSUED
+    ACCEPTED_BY_LAB
+    IN_PROGRESS
+    COMPLETED
+    WITHDRAWN
+    REJECTED_BY_LAB
+  }
+
+  transition DRAFT -> ISSUED action ia_issues {
+    cascade TestAssignment {
+      where "testRequestId = ${this.id}"
+      set { status: "PENDING" }
+    }
+  }
+
+  transition ISSUED -> ACCEPTED_BY_LAB action lab_accepts {
+    cascade TestAssignment {
+      where "testRequestId = ${this.id}"
+      set { status: "ACCEPTED" }
+    }
+  }
+
+  transition ACCEPTED_BY_LAB -> IN_PROGRESS action lab_starts {
+    cascade TestAssignment {
+      where "testRequestId = ${this.id} and status = 'ACCEPTED'"
+      set { status: "IN_PROGRESS" }
+    }
+  }
+
+  transition IN_PROGRESS -> COMPLETED action lab_issues_test_report {
+    cascade TestReport {
+      where "testRequestId = ${this.id}"
+      set { status: "SUBMITTED" }
+    }
+    cascade TestAssignment {
+      where "testRequestId = ${this.id} and status = 'IN_PROGRESS'"
+      set { status: "COMPLETED" }
+    }
+    cascade FormInstance {
+      where "testRequestId = ${this.id}"
+      set { status: "LOCKED" }
+    }
+  }
+
+  transition ISSUED -> REJECTED_BY_LAB action lab_rejects {
+  }
+
+  transition * -> WITHDRAWN action ia_withdraws {
+    set { withdrawn_reason: "${this.withdrawn_reason}" }
+  }
+}
+
+state_machine TestReport {
+  initial DRAFT
+
+  states {
+    DRAFT
+    SUBMITTED
+    UNDER_REVIEW
+    ACCEPTED
+    REJECTED
+  }
+
+  transition DRAFT -> SUBMITTED action lab_submits {
+    cascade FormInstance {
+      where "testReportId = ${this.id}"
+      set { status: "LOCKED" }
+    }
+    cascade TestRequest {
+      where "id = ${this.testRequestId}"
+      set { status: "COMPLETED" }
+    }
+  }
+
+  transition SUBMITTED -> UNDER_REVIEW action ia_starts_review {
+  }
+
+  transition UNDER_REVIEW -> ACCEPTED action ia_accepts_report {
+    guard "not some(FormInstance where testReportId = ${this.id} and result = 'FAIL')"
+    cascade TestReportDetermination {
+      where "testReportId = ${this.id}"
+      set { decision: "ACCEPTED" }
+    }
+  }
+
+  transition UNDER_REVIEW -> REJECTED action ia_rejects_report {
+    guard "some(FormInstance where testReportId = ${this.id} and result = 'FAIL')"
+    cascade TestReportDetermination {
+      where "testReportId = ${this.id}"
+      set { decision: "REJECTED" }
+    }
+  }
+}
+
+state_machine FormInstance {
+  initial OPEN
+
+  states {
+    OPEN
+    LOCKED
+    ACCEPTED
+    REJECTED
+  }
+
+  transition OPEN -> LOCKED action lab_submits_report {
+  }
+
+  transition LOCKED -> ACCEPTED action ia_accepts_report {
+  }
+
+  transition LOCKED -> REJECTED action ia_rejects_report {
+  }
+}
+
+state_machine EvaluationReport {
+  initial DRAFT
+
+  states {
+    DRAFT
+    IN_PROGRESS
+    FINALIZED
+    AMENDED
+  }
+
+  transition DRAFT -> IN_PROGRESS action ia_starts_evaluation {
+  }
+
+  transition IN_PROGRESS -> FINALIZED action ia_finalizes {
+    guard "every TestReport has a TestReportDetermination"
+    cascade Certificate {
+      where "evaluationReportId = ${this.id}"
+      set { status: "PENDING_REGISTRATION" }
+    }
+  }
+
+  transition FINALIZED -> AMENDED action ia_amends {
+    cascade Certificate {
+      where "evaluationReportId = ${this.id}"
+      set { status: "UNDER_INVESTIGATION" }
+    }
+  }
+}
+
+state_machine Certificate {
+  initial DRAFT
+
+  states {
+    DRAFT
+    PENDING_REGISTRATION
+    ACTIVE
+    EXPIRED
+    WITHDRAWN
+    SUSPENDED
+    UNDER_INVESTIGATION
+  }
+
+  transition DRAFT -> PENDING_REGISTRATION action ia_submits_for_registration {
+  }
+
+  transition PENDING_REGISTRATION -> ACTIVE action biml_registers {
+  }
+
+  transition ACTIVE -> EXPIRED action periodicity_elapsed {
+  }
+
+  transition ACTIVE -> WITHDRAWN action ia_withdraws {
+    set { withdrawn_reason: "${this.withdrawn_reason}" }
+  }
+
+  transition ACTIVE -> SUSPENDED action ia_suspends {
+  }
+
+  transition SUSPENDED -> ACTIVE action ia_lifts_suspension {
+  }
+
+  transition ACTIVE -> UNDER_INVESTIGATION action biml_investigates {
+  }
+
+  transition UNDER_INVESTIGATION -> WITHDRAWN action investigation_concludes_negative {
+  }
+}
+
+state_machine InstrumentSample {
+  initial REQUESTED
+
+  states {
+    REQUESTED
+    IN_TRANSIT_TO_IA
+    RECEIVED_BY_IA
+    IN_TRANSIT_TO_LAB
+    AT_LAB
+    IN_TESTING
+    RETURNED_TO_IA
+    RETURNED_TO_MANUFACTURER
+    DISPOSED
+  }
+
+  transition REQUESTED -> IN_TRANSIT_TO_IA action manufacturer_dispatches {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set {
+        sampleId: "${this.id}"
+        fromParty: "${this.manufacturerId}"
+        toParty: "${this.applicationId}_IA"
+        timestamp: "${now}"
+      }
+    }
+  }
+
+  transition IN_TRANSIT_TO_IA -> RECEIVED_BY_IA action ia_receives {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set {
+        sampleId: "${this.id}"
+        toParty: "${this.applicationId}_IA"
+        timestamp: "${now}"
+      }
+    }
+  }
+
+  transition RECEIVED_BY_IA -> IN_TRANSIT_TO_LAB action ia_dispatches_to_lab {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { fromParty: "${this.applicationId}_IA" toParty: "${this.laboratoryId}" timestamp: "${now}" }
+    }
+  }
+
+  transition IN_TRANSIT_TO_LAB -> AT_LAB action lab_receives {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { toParty: "${this.laboratoryId}" timestamp: "${now}" }
+    }
+  }
+
+  transition AT_LAB -> IN_TESTING action lab_starts_testing {
+  }
+
+  transition IN_TESTING -> AT_LAB action lab_ends_testing {
+  }
+
+  transition AT_LAB -> IN_TRANSIT_TO_IA action lab_returns_to_ia {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { fromParty: "${this.laboratoryId}" timestamp: "${now}" }
+    }
+  }
+
+  transition IN_TRANSIT_TO_IA -> RETURNED_TO_IA action ia_receives_back {
+  }
+
+  transition RETURNED_TO_IA -> RETURNED_TO_MANUFACTURER action ia_returns_to_manufacturer {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { toParty: "${this.manufacturerId}" timestamp: "${now}" }
+    }
+  }
+
+  transition RETURNED_TO_MANUFACTURER -> DISPOSED action manufacturer_disposes {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { timestamp: "${now}" condition: "DISPOSED" }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Subforms — parameterized row shapes for TRFs (R 60-3)
+// ─────────────────────────────────────────────────────────────────────
+
+subform LoadTestRow {
+  parameters {
+    n_runs : integer {
+      description "Number of runs per test_load. Resolved from accuracy_class."
+      mapping {
+        A: 5
+        B: 5
+        C: 3
+        D: 3
+      }
+    }
+  }
+
+  type object
+  description "One row of a load-test table: applied load + N runs of (indication, time) + computed aggregates."
+
+  field test_load : number {
+    label "Test load"
+    unit "g, kg, or t"
+    measurement_method direct
+    required true
+  }
+
+  field runs : array {
+    label "Runs"
+    min_items "${{ n_runs }}"
+    max_items "${{ n_runs }}"
+    items {
+      type object
+      fields {
+        field indication : number {
+          label "Indication"
+          unit "counts"
+          measurement_method direct
+          required true
+        }
+        field time : string {
+          label "Time"
+          measurement_method direct
+          description "Time of the reading (HH:MM:SS)"
+        }
+      }
+    }
+  }
+
+  field average_indication : number {
+    label "Average"
+    unit "counts"
+    measurement_method derived
+    derivation "ocl{runs.indication->mean()}"
+  }
+
+  field repeatability_error : number {
+    label "Repeatability error"
+    unit "counts"
+    measurement_method derived
+    derivation "ocl{runs.indication->max() - runs.indication->min()}"
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Forms — declarative TRF schemas (R 60-3)
+//
+// A representative sample of the 40+ forms in data/oiml-r60/forms/.
+// The full form set is in the YAML; these demonstrate the Primmel
+// `form` construct with subform composition and OCL evaluation rules.
+// ─────────────────────────────────────────────────────────────────────
+
+form LoadCellInfo {
+  name "Load cell information (R 60-3 §4.5)"
+  description "Identification and parameters of the load cell under test."
+  data_class FormInstance#data
+  header FormHeaderA
+
+  field manufacturer {
+    label "Manufacturer"
+    measurement_method declared
+    required true
+  }
+
+  field type_designation {
+    label "Type designation"
+    measurement_method declared
+    required true
+  }
+
+  field emax {
+    label "Maximum capacity (Emax)"
+    unit "kg"
+    measurement_method declared
+    required true
+  }
+
+  field emin {
+    label "Minimum dead load (Emin)"
+    unit "kg"
+    measurement_method declared
+    required true
+  }
+
+  field accuracy_class {
+    label "Accuracy class"
+    type enum
+    values [A, B, C, D]
+    measurement_method declared
+    required true
+  }
+
+  field n_lc {
+    label "Maximum number of verification intervals (nLC)"
+    type integer
+    measurement_method declared
+    required true
+  }
+
+  field y {
+    label "Y (Emax / vmin)"
+    type integer
+    measurement_method declared
+  }
+
+  field z {
+    label "Z (DR ratio)"
+    type integer
+    measurement_method declared
+  }
+
+  field p_lc {
+    label "Apportioning factor (pLC)"
+    type number
+    default 0.7
+    measurement_method declared
+  }
+}
+
+form LoadTest {
+  name "Load test data (R 60-3 Tables 6.3 + 6.4 — parameterized)"
+  description "Per-load-point measurements. N is 3 for classes C/D, 5 for classes A/B per R 60-2 §2.10.1."
+  data_class FormInstance#data
+  header FormHeaderA
+  conformance_process DetermineMeasurementError
+  applicability {
+    accuracy_class: [A, B, C, D]
+    n_runs: { A: 5 B: 5 C: 3 D: 3 }
+  }
+
+  field electronics_power_voltage {
+    label "Power supply voltage"
+    measurement_method direct
+  }
+
+  field test_loads {
+    label "Test load measurements"
+    type array
+    subform_ref LoadTestRow {
+      parameters { n_runs: 3 }
+    }
+  }
+
+  pass_fail {
+    criteria "All |E_L| <= |MPE| at every test load"
+    pass_if "ocl{test_loads->forAll(t | t.within_mpe = 'yes')"
+  }
+}
+
+form LoadCellErrors {
+  name "Load cell errors (R 60-3 Table 6.5)"
+  description "E_L calculation across four test temperatures (20°C, T_high, T_low, 20°C return)."
+  data_class FormInstance#data
+  header FormHeaderA
+  conformance_process DetermineMeasurementError
+
+  field conversion_factor_f {
+    label "Conversion factor (f)"
+    type number
+    unit "counts/v"
+    measurement_method computed
+    calculation conversionFactor
+  }
+
+  field indication_at_dmin {
+    label "Indication at D_min"
+    type number
+    unit "counts"
+    measurement_method direct
+  }
+
+  field reference_indication_75pct {
+    label "Reference indication at 75%"
+    type number
+    unit "counts"
+    measurement_method direct
+  }
+
+  field n_lc {
+    label "Number of verification intervals (nLC)"
+    type integer
+    measurement_method declared
+  }
+
+  field dmin {
+    label "Minimum test load (D_min)"
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field dmax {
+    label "Maximum test load (D_max)"
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field plc {
+    label "Apportioning factor (pLC)"
+    type number
+    default 0.7
+    measurement_method declared
+  }
+
+  field temperature_series {
+    label "Temperature test series"
+    type array
+    min_items 4
+    max_items 4
+    items {
+      type object
+      fields {
+        field temperature : number { label "Temperature" unit "degC" measurement_method direct }
+        field test_loads {
+          label "Test load measurements"
+          type array
+          items {
+            type object
+            fields {
+              field test_load : number { label "Test load" unit "g, kg, or t" measurement_method direct }
+              field indication : number { label "Indication" unit "counts" measurement_method direct }
+              field reference_indication : number {
+                label "Reference indication (R_i)"
+                type number
+                unit "indication units"
+                measurement_method computed
+                calculation referenceIndication
+                calculation_bindings {
+                  testLoad: test_load
+                  dMin: dmin
+                  dMax: dmax
+                  n: n_lc
+                  f: conversion_factor_f
+                }
+              }
+              field error_EL : number {
+                label "Error (E_L)"
+                unit "v"
+                measurement_method derived
+                calculation loadCellError
+                calculation_bindings {
+                  avgIndication: indication
+                  referenceIndication: reference_indication
+                  conversionFactor: conversion_factor_f
+                }
+              }
+              field mpe : number {
+                label "MPE"
+                unit "v"
+                measurement_method lookup
+              }
+              field within_mpe {
+                label "Within MPE"
+                type enum
+                values [yes, no]
+                measurement_method evaluated
+                evaluation {
+                  rule "ocl{abs(error_EL) <= abs(mpe)}"
+                  condition "|E_L| <= |MPE|"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  field overall_result {
+    label "Overall result"
+    type enum
+    values [pass, fail]
+    measurement_method evaluated
+    evaluation {
+      rule "ocl{temperature_series->forAll(t | t.test_loads->forAll(l | l.within_mpe = 'yes'))}"
+      condition "All |E_L| <= |MPE| at every test load at every temperature"
+    }
+  }
+
+  pass_fail {
+    criteria "All |E_L| <= |MPE| for every test load at every temperature"
+    pass_if "ocl{every(within_mpe) = yes}"
+  }
+}
+
+form CreepDR {
+  name "Creep (C_C) and minimum dead load output return (C_DR) — R 60-3 Table 6.8"
+  data_class FormInstance#data
+  header FormHeaderA
+  conformance_process DetermineCreep
+
+  field conversion_factor_f {
+    label "Conversion factor (f)"
+    type number
+    unit "counts/v"
+    measurement_method computed
+    calculation conversionFactor
+  }
+
+  field n_lc {
+    label "Number of verification intervals (nLC)"
+    type integer
+    measurement_method declared
+  }
+
+  field dmin {
+    label "D_min (minimum test load)"
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field dmax {
+    label "D_max (maximum test load)"
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field initial_dmin_indication {
+    label "Initial D_min indication"
+    type number
+    unit "counts"
+    measurement_method direct
+  }
+
+  field initial_dmax_indication {
+    label "Initial D_max indication"
+    type number
+    unit "counts"
+    measurement_method direct
+  }
+
+  field creep_readings {
+    label "Creep readings (time series at D_max)"
+    type array
+    items {
+      type object
+      fields {
+        field test_load : string { measurement_method declared }
+        field indication_counts : number { label "Indication" unit "counts" measurement_method direct }
+        field indication_time : string { label "Time" measurement_method direct }
+        field change_v : number {
+          label "Creep change"
+          unit "v"
+          measurement_method derived
+          calculation creep
+          calculation_bindings {
+            indicationAtTime: indication_counts
+            initialIndication: initial_dmax_indication
+            conversionFactor: conversion_factor_f
+          }
+        }
+      }
+    }
+  }
+
+  field dr_readings {
+    label "DR readings"
+    type array
+    items {
+      type object
+      fields {
+        field indication_counts : number { unit "counts" measurement_method direct }
+        field indication_time : string { measurement_method direct }
+        field change_v : number {
+          unit "v"
+          measurement_method derived
+          calculation deadLoadOutputReturn
+          calculation_bindings {
+            minLoadIndication2: indication_counts
+            minLoadIndication1: initial_dmin_indication
+            conversionFactor: conversion_factor_f
+          }
+        }
+      }
+    }
+  }
+
+  field max_creep_change_v {
+    label "Maximum creep change"
+    unit "v"
+    measurement_method derived
+    derivation "ocl{creep_readings->collect(r | r.change_v)->max()}"
+  }
+
+  field creep_30min {
+    label "Creep at 30 min"
+    unit "v"
+    measurement_method derived
+    derivation "ocl{creep_readings->select(r | r.test_load = 'D_max')->first().change_v}"
+  }
+
+  field creep_20min {
+    label "Creep at 20 min"
+    unit "v"
+    measurement_method derived
+    derivation "ocl{creep_readings->select(r | r.elapsed_time = '20:00')->first().change_v}"
+  }
+
+  field creep_30min_result {
+    label "30-min creep result"
+    type enum
+    values [pass, fail]
+    measurement_method evaluated
+    evaluation {
+      rule "ocl{abs(max_creep_change_v) <= 0.7 * abs(mpe_at_dmax)}"
+      condition "|C_C(30 min)| <= 0.7 × |MPE|"
+    }
+  }
+
+  field dr_value {
+    label "DR value"
+    unit "v"
+    measurement_method derived
+    derivation "ocl{dr_readings->collect(r | r.change_v)->last()}"
+  }
+
+  field dr_half_v_result {
+    label "DR <= 0.5 v result"
+    type enum
+    values [pass, fail]
+    measurement_method evaluated
+    evaluation {
+      rule "ocl{abs(dr_value) <= 0.5}"
+      condition "|C_DR| <= 0.5 v"
+    }
+  }
+
+  pass_fail {
+    criteria "30-min creep C_C(t) <= 0.7 × |MPE|; C_DR <= 0.5 v"
+    pass_if "ocl{creep_30min_result = 'pass' and dr_half_v_result = 'pass'}"
+  }
+}
+
+form HumidityCH {
+  name "Humidity effects for CH or unmarked load cells (R 60-3 Table 6.10.1)"
+  data_class FormInstance#data
+  header FormHeaderB
+  conformance_process DetermineHumidityCH
+  applicability { humidity_class: [CH] }
+
+  field conversion_factor_f {
+    type number
+    unit "counts/v"
+    measurement_method computed
+    calculation conversionFactor
+  }
+
+  field nlc {
+    type integer
+    measurement_method declared
+  }
+
+  field dmin {
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field dmax {
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field summary {
+    label "Humidity effects summary"
+    type object
+    fields {
+      field test_loads {
+        label "Per-load-point readings"
+        type array
+        items {
+          type object
+          fields {
+            field test_load : number { unit "g, kg, or t" measurement_method direct }
+            field indication_before : number { unit "counts" measurement_method direct }
+            field indication_after : number { unit "counts" measurement_method direct }
+            field change_v : number {
+              unit "v"
+              measurement_method derived
+              derivation "ocl{(indication_after - indication_before) / conversion_factor_f}"
+            }
+          }
+        }
+      }
+
+      field chmin {
+        label "C_Hmin"
+        unit "v"
+        measurement_method derived
+        calculation humidityCHmin
+      }
+
+      field chmin_limit {
+        label "C_Hmin limit (4% n_LC)"
+        unit "v"
+        measurement_method derived
+        derivation "ocl{0.04 * nlc}"
+      }
+
+      field chmin_result {
+        type enum
+        values [pass, fail]
+        measurement_method evaluated
+        evaluation {
+          rule "ocl{abs(chmin) <= chmin_limit}"
+          condition "|C_Hmin| <= 4% × n_LC"
+        }
+      }
+
+      field chmax {
+        label "C_Hmax"
+        unit "v"
+        measurement_method derived
+        calculation humidityCHmax
+      }
+
+      field chmax_result {
+        type enum
+        values [pass, fail]
+        measurement_method evaluated
+        evaluation {
+          rule "ocl{abs(chmax) <= abs(mpe)}"
+          condition "|C_Hmax| <= |MPE|"
+        }
+      }
+    }
+  }
+
+  // Load test before humidity (parameterized subform composition)
+  field load_test_before {
+    label "Load test before humidity exposure"
+    type array
+    applicability { phase: before }
+    subform_ref LoadTestRow {
+      parameters { n_runs: 3 }
+    }
+  }
+
+  field load_test_after {
+    label "Load test after humidity exposure"
+    type array
+    applicability { phase: after }
+    subform_ref LoadTestRow {
+      parameters { n_runs: 3 }
+    }
+  }
+
+  field overall_result {
+    label "Overall result"
+    type enum
+    values [pass, fail]
+    measurement_method evaluated
+    evaluation {
+      rule "ocl{summary.chmin_result = 'pass' and summary.chmax_result = 'pass'}"
+      condition "C_Hmin <= 4% × n_LC AND C_Hmax <= |MPE|"
+    }
+  }
+
+  pass_fail {
+    criteria "C_Hmin <= 4% × n_LC; C_Hmax <= |MPE|"
+    pass_if "ocl{summary.chmin_result = 'pass' and summary.chmax_result = 'pass'}"
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Auto-generated forms from YAML source (data/oiml-r60/forms/*.yaml)
+// Generated by scripts/gen-r60-forms.py
+// ─────────────────────────────────────────────────────────────────────
+
+form AccessoriesInfo {
+  name "AccessoriesInfo (r60-3/sec-4.6)"
+  description "Accessories supplied with the test pattern"
+  field accessories : array {
+    items {
+      type object
+      fields {
+        field name : string { label "Name" required true }
+        field remarks : string { label "Remarks" }
+      }
+    }
+  }
+  field further_remarks : text { label "Further Remarks" }
+}
+
+form AdditionalInfo {
+  name "AdditionalInfo (r60-3/sec-4.9)"
+  description "Additional information concerning the type"
+  field general_info : object {
+    field manufacturer_name : string { label "Manufacturer Name" }
+    field type_designation : string { label "Type Designation" }
+    field serial_number : string { label "Serial Number" }
+    field construction_type : string { label "Construction Type" }
+    field load_cell_material : string { label "Load Cell Material" }
+    field strain_gauge_sealing : string { label "Strain Gauge Sealing" }
+    field is_digital : enum { label "Is Digital" values [yes, no] }
+    field accuracy_classes : string { label "Accuracy Classes" }
+    field nlc : integer { label "Nlc" }
+    field emax : number { label "Emax" unit "g, kg, or t" }
+    field emin : number { label "Emin" unit "g, kg, or t" }
+    field vmin : number { label "Vmin" unit "g, kg, or t" }
+    field DR : number { label "DR" unit "g, kg, or t" }
+    field rated_output : string { label "Rated Output" unit "mV/V or counts" }
+    field input_impedance : string { label "Input Impedance" unit "Ohm" }
+    field cable_connection : string { label "Cable Connection" }
+    field cable_length : number { label "Cable Length" unit "m" }
+  }
+  field performance_test_info : object {
+    field accuracy_class : string { label "Accuracy Class" }
+    field upper_temperature : number { label "Upper Temperature" unit "degC" }
+    field lower_temperature : number { label "Lower Temperature" unit "degC" }
+    field humidity_symbol : string { label "Humidity Symbol" }
+    field loading_designation : string { label "Loading Designation" }
+    field emin_value : number { label "Emin Value" }
+    field elim_value : number { label "Elim Value" }
+    field excitation_voltage_type : string { label "Excitation Voltage Type" }
+    field plc_override : number { label "Plc Override" }
+  }
+  field digital_load_cell_info : object {
+    field power_voltage_type : string { label "Power Voltage Type" }
+    field interfaces : string { label "Interfaces" }
+    field output_signal : string { label "Output Signal" }
+    field software_identification : string { label "Software Identification" }
+    field plc_override : number { label "Plc Override" }
+  }
+  field photographs : array {
+    items {
+      type object
+      fields {
+        field description : string { label "Description" }
+        field attachment : string { label "Attachment" }
+      }
+    }
+  }
+  field documentation_supplied : array {
+    items {
+      type object
+      fields {
+        field document_name : string { label "Document Name" }
+        field content : string { label "Content" }
+        field version_date : string { label "Version Date" }
+      }
+    }
+  }
+  field inscriptions : array {
+    items {
+      type object
+      fields {
+        field r60_reference : string { label "R60 Reference" }
+        field information : string { label "Information" }
+        field on_load_cell : enum { label "On Load Cell" values [yes, no, n/a] }
+        field accompanying_document : enum { label "Accompanying Document" values [yes, no, n/a] }
+        field data_sheet : enum { label "Data Sheet" values [yes, no, n/a] }
+      }
+    }
+  }
+  field model_range : array {
+    items {
+      type object
+      fields {
+        field model_designation : string { label "Model Designation" }
+        field emax : number { label "Emax" }
+        field emin : number { label "Emin" }
+        field nlc : integer { label "Nlc" }
+        field vmin : number { label "Vmin" }
+        field DR : number { label "DR" }
+      }
+    }
+  }
+  field load_cell_families : array {
+    items {
+      type object
+      fields {
+        field model_designation : string { label "Model Designation" }
+        field application_of_load : string { label "Application Of Load" }
+        field construction : string { label "Construction" }
+        field material : string { label "Material" }
+        field shape : string { label "Shape" }
+        field measuring_technique : string { label "Measuring Technique" }
+        field strain_gauge_sealing : string { label "Strain Gauge Sealing" }
+        field mounting_method : string { label "Mounting Method" }
+        field load_transmission : string { label "Load Transmission" }
+        field output_rating : string { label "Output Rating" }
+        field supply_voltage : string { label "Supply Voltage" }
+        field input_impedance : string { label "Input Impedance" }
+        field cable_connection : string { label "Cable Connection" }
+        field cable_length : string { label "Cable Length" }
+        field remark : string { label "Remark" }
+      }
+    }
+  }
+  field previous_test_results : array {
+    items {
+      type object
+      fields {
+        field model_designation : string { label "Model Designation" }
+        field serial_number : string { label "Serial Number" }
+        field justification_remark : string { label "Justification Remark" }
+        field test_report_no : string { label "Test Report No" }
+      }
+    }
+  }
+}
+
+form AdjustmentsInfo {
+  name "AdjustmentsInfo (r60-3/sec-4.8)"
+  description "Adjustments and modifications made to samples during testing"
+  field adjustments : array {
+    items {
+      type object
+      fields {
+        field model_designation : string { label "Model Designation" }
+        field serial_number : string { label "Serial Number" }
+        field adjustments_modifications : text { label "Adjustments Modifications" }
+        field test_report_no : string { label "Test Report No" }
+      }
+    }
+  }
+  field further_information : text { label "Further Information" }
+}
+
+form AuthorityInfo {
+  name "AuthorityInfo (r60-3/sec-4.1)"
+  description "Issuing authority responsible for the evaluation report"
+  field authority_name : string { label "Authority Name" required true }
+  field address : string { label "Address" required true }
+  field report_number : string { label "Report Number" required true }
+  field application_number : string { label "Application Number" required true }
+  field period_of_tests : string { label "Period Of Tests" }
+  field date_of_issuing : date { label "Date Of Issuing" required true }
+  field responsible_person_name : string { label "Responsible Person Name" required true }
+  field responsible_person_signature : string { label "Responsible Person Signature" }
+  field stamp : string { label "Stamp" }
+}
+
+form BarometricPressure {
+  name "BarometricPressure (r60-3/table-6.9)"
+  description "Barometric pressure effects (C_P)"
+  conformance_process conf_metrological_tests_barometric_pressure
+  field conversion_factor_f : number { label "Conversion factor (f)" unit "counts/v" required true measurement_method computed calculation conversionFactor }
+  field reference_indication_75pct : number { label "Reference indication at 75%" unit "counts" required true measurement_method direct }
+  field indication_at_dmin : number { label "Indication at D_min" unit "counts" required true measurement_method direct }
+  field n_lc : integer { label "Number of verification intervals (n_LC)" required true measurement_method declared }
+  field vmin : number { label "Minimum verification interval (v_min)" unit "g, kg, or t" required true measurement_method declared }
+  field pressure_readings : array {
+    items {
+      type object
+      fields {
+        field pressure : number { label "Pressure" unit "kPa" required true measurement_method direct }
+        field indication : number { label "Indication" unit "counts" required true measurement_method direct }
+        field time : string { label "Time" measurement_method direct }
+        field change_v : number { label "Change (v)" unit "v" measurement_method derived calculation barometricPressureEffect }
+        field change_per_kpa : number { label "Change (v_min/kPa)" unit "v_min/kPa" measurement_method derived derivation "ocl{if $index = 0 then 0 else change_v / abs(pressure - $prev.pressure) endif}" }
+        field mpc : number { label "MPC (v_min/kPa)" unit "v_min/kPa" measurement_method declared derivation "ocl{$context.v_min}" }
+        field within_mpc : enum { label "Within MPC" measurement_method evaluated }
+      }
+    }
+  }
+  field overall_result : enum { label "Overall result" required true measurement_method evaluated values [pass, fail] }
+  pass_fail {
+    criteria "C_P(v_min) <= v_min per 1 kPa"
+    pass_if "ocl{pressure_readings->forAll(r | r.within_mpc = 'yes')}"
+  }
+}
+
+form Bursts {
+  name "Bursts (r60-3/form-6.14)"
+  description "Bursts (electrical fast transients) test - power supply lines and I/O circuits"
+  conformance_process conf_electronic_tests_bursts
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
+  field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
+  field power_supply_lines : array {
+    items {
+      type object
+      fields {
+        field test_load : number { label "Test Load" unit "g, kg, or t" }
+        field connection : enum { label "Connection" values [L_ground, N_ground, PE_ground] }
+        field polarity : enum { label "Polarity" values [positive, negative] }
+        field indication : number { label "Indication" unit "counts" }
+        field difference : number { label "Difference" unit "v" calculation ocl{(indication - indication_without_disturbance) / conversion_factor_f} }
+        field significant_fault : enum { label "Significant Fault" values [no, yes] calculation ocl{abs(difference) > vmin ? ''yes'' : ''no''} }
+        field remarks : string { label "Remarks" }
+      }
+    }
+  }
+  field io_circuits : array {
+    items {
+      type object
+      fields {
+        field test_load : number { label "Test Load" unit "g, kg, or t" }
+        field cable_interface : string { label "Cable Interface" }
+        field polarity : enum { label "Polarity" values [positive, negative] }
+        field indication : number { label "Indication" unit "counts" }
+        field difference : number { label "Difference" unit "v" calculation ocl{(indication - indication_without_disturbance) / conversion_factor_f} }
+        field significant_fault : enum { label "Significant Fault" values [no, yes] calculation ocl{abs(difference) > vmin ? ''yes'' : ''no''} }
+        field remarks : string { label "Remarks" }
+      }
+    }
+  }
+  field equipment_used : text { label "Equipment Used" }
+  field remarks : text { label "Remarks" }
+  field overall_result : enum { label "Overall Result" required true values [pass, fail] }
+  pass_fail {
+    criteria "No significant fault (> v_min) or fault detected and acted upon"
+    pass_if "ocl{every(significant_fault) = no}"
+  }
+}
+
+form ConductedEMC {
+  name "ConductedEMC (r60-3/form-6.18)"
+  description "Immunity to conducted electromagnetic fields test"
+  conformance_process conf_electronic_tests_conducted_emc
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
+  field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
+  field rate_of_sweep : string { label "Rate Of Sweep" }
+  field test_load : number { label "Test Load" }
+  field test_load_material : string { label "Test Load Material" }
+  field test_conditions : object {
+    field output_gained_method : enum { label "Output Gained Method" values [actual_loads, simulating_loading] }
+    field simulating_using : string { label "Simulating Using" }
+    field frequency_low_mhz : number { label "Frequency Low Mhz" unit "MHz" }
+    field frequency_high_mhz : number { label "Frequency High Mhz" unit "MHz" }
+    field rf_voltage : number { label "Rf Voltage" unit "V" }
+    field cable_exposed : string { label "Cable Exposed" }
+    field modulation_pct : number { label "Modulation Pct" unit "%" }
+    field dwell_time_s : number { label "Dwell Time S" unit "s" }
+  }
+  field frequency_cycles : array {
+    items {
+      type object
+      fields {
+        field frequency : number { label "Frequency" unit "MHz" }
+        field fault_deviation : string { label "Fault Deviation" }
+        field significant : enum { label "Significant" values [yes, no] }
+        field acts_on_fault : enum { label "Acts On Fault" values [yes, no] }
+      }
+    }
+  }
+  field observations : text { label "Observations" }
+  field overall_result : enum { label "Overall Result" required true values [pass, fail] }
+  pass_fail {
+    criteria "No significant fault or fault detected and acted upon"
+    pass_if "ocl{every(significant) = no or every(acts_on_fault) = yes}"
+  }
+}
+
+form DocumentationExamination {
+  name "DocumentationExamination (r60-3/sec-5.4)"
+  description "Documentation for type approval examination"
+  conformance_process conf_examinations_documentation
+  field documentation_items : array {
+    items {
+      type object
+      fields {
+        field item : string { label "Document item" }
+        field r60_reference : string { label "R 60 reference" }
+        field present : enum { label "Present" values [yes, no] }
+        field remarks : string { label "Remarks" }
+      }
+    }
+  }
+  field further_information : text { label "Further information" }
+  field remarks : text { label "Remarks" }
+  field overall_result : enum { label "Overall result" required true values [pass, fail] }
+  pass_fail {
+    criteria ""
+    pass_if "ocl{overall_result = pass}"
+  }
+}
+
+form EMCSusceptibility {
+  name "EMCSusceptibility (r60-3/form-6.17)"
+  description "Electromagnetic susceptibility test"
+  conformance_process conf_electronic_tests_emc_susceptibility
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
+  field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
+  field rate_of_sweep : string { label "Rate Of Sweep" }
+  field test_load : number { label "Test Load" unit "g, kg, or t" }
+  field test_load_material : string { label "Test Load Material" }
+  field without_disturbance : object {
+    field indication : number { label "Indication" unit "counts" }
+    field difference : number { label "Difference" unit "v" }
+  }
+  field disturbance_results : array {
+    items {
+      type object
+      fields {
+        field antenna : string { label "Antenna" }
+        field frequency_range_mhz : string { label "Frequency Range Mhz" }
+        field polarisation : enum { label "Polarisation" values [vertical, horizontal] }
+        field facing : enum { label "Facing" values [front, right, left, rear] }
+        field indication : number { label "Indication" unit "counts" }
+        field difference : number { label "Difference" unit "v" calculation ocl{(indication - without_disturbance.indication) / conversion_factor_f} }
+        field significant_fault : enum { label "Significant Fault" values [no, yes] calculation ocl{abs(difference) > vmin ? ''yes'' : ''no''} }
+        field remarks : string { label "Remarks" }
+      }
+    }
+  }
+  field test_setup_description : text { label "Test Setup Description" }
+  field remarks : text { label "Remarks" }
+  field overall_result : enum { label "Overall Result" required true values [pass, fail] }
+  pass_fail {
+    criteria "No significant fault (> v_min)"
+    pass_if "ocl{every(significant_fault) = no}"
+  }
+}
+
+form EquipmentInfo {
+  name "EquipmentInfo (r60-3/form-2)"
+  description "Test equipment information (force generating system, indicating instrument, etc.)"
+  field force_generating_system : array {
+    items {
+      type object
+      fields {
+        field designation : string { label "Designation" }
+        field type : string { label "Type" }
+        field manufacturer : string { label "Manufacturer" }
+        field identification_number : string { label "Identification Number" }
+        field load_range : string { label "Load Range" }
+        field load_steps : string { label "Load Steps" }
+        field unit : string { label "Unit" }
+        field preload : string { label "Preload" }
+        field relative_uncertainty_k2 : string { label "Relative Uncertainty K2" }
+        field last_calibration : date { label "Last Calibration" }
+        field certificate_no : string { label "Certificate No" }
+        field recalibration_interval : string { label "Recalibration Interval" }
+        field usage_matrix : object {
+          field used_for_2_10_1 : enum { label "Used For 2 10 1" values [yes, no] }
+          field used_for_2_10_2 : enum { label "Used For 2 10 2" values [yes, no] }
+          field used_for_2_10_3 : enum { label "Used For 2 10 3" values [yes, no] }
+          field used_for_2_10_4 : enum { label "Used For 2 10 4" values [yes, no] }
+          field used_for_2_10_5 : enum { label "Used For 2 10 5" values [yes, no] }
+          field used_for_2_10_6 : enum { label "Used For 2 10 6" values [yes, no] }
+          field used_for_2_10_7 : enum { label "Used For 2 10 7" values [yes, no] }
+        }
+      }
+    }
+  }
+  field indicating_instrument : array {
+    items {
+      type object
+      fields {
+        field designation : string { label "Designation" }
+        field type : string { label "Type" }
+        field manufacturer : string { label "Manufacturer" }
+        field identification_serial_number : string { label "Identification Serial Number" }
+        field measurement_range : string { label "Measurement Range" }
+        field relative_uncertainty_k2 : string { label "Relative Uncertainty K2" }
+        field last_calibration : date { label "Last Calibration" }
+        field certificate_no : string { label "Certificate No" }
+        field recalibration_interval : string { label "Recalibration Interval" }
+        field settings : object {
+          field measurement_range : string { label "Measurement Range" }
+          field supply_voltage : string { label "Supply Voltage" }
+          field filter_settings : string { label "Filter Settings" }
+          field cable_connections : string { label "Cable Connections" }
+        }
+        field usage_matrix : object {
+          field used_for_2_10_1 : enum { label "Used For 2 10 1" values [yes, no] }
+          field used_for_2_10_2 : enum { label "Used For 2 10 2" values [yes, no] }
+          field used_for_2_10_3 : enum { label "Used For 2 10 3" values [yes, no] }
+          field used_for_2_10_4 : enum { label "Used For 2 10 4" values [yes, no] }
+          field used_for_2_10_5 : enum { label "Used For 2 10 5" values [yes, no] }
+          field used_for_2_10_6 : enum { label "Used For 2 10 6" values [yes, no] }
+          field used_for_2_10_7 : enum { label "Used For 2 10 7" values [yes, no] }
+        }
+      }
+    }
+  }
+  field temperature_chamber : array {
+    items {
+      type object
+      fields {
+        field designation : string { label "Designation" }
+        field type : string { label "Type" }
+        field manufacturer : string { label "Manufacturer" }
+        field identification_number : string { label "Identification Number" }
+        field dimensions : string { label "Dimensions" }
+        field temperature_range : string { label "Temperature Range" }
+        field temperature_stability : string { label "Temperature Stability" }
+        field humidity_range : string { label "Humidity Range" }
+        field humidity_stability : string { label "Humidity Stability" }
+        field relative_uncertainty_k2 : string { label "Relative Uncertainty K2" }
+        field last_calibration : date { label "Last Calibration" }
+        field certificate_no : string { label "Certificate No" }
+        field recalibration_interval : string { label "Recalibration Interval" }
+      }
+    }
+  }
+  field climate_chamber : array {
+    items {
+      type object
+      fields {
+        field designation : string { label "Designation" }
+        field type : string { label "Type" }
+        field manufacturer : string { label "Manufacturer" }
+        field identification_number : string { label "Identification Number" }
+        field dimensions : string { label "Dimensions" }
+        field temperature_range : string { label "Temperature Range" }
+        field temperature_stability : string { label "Temperature Stability" }
+        field humidity_range : string { label "Humidity Range" }
+        field humidity_stability : string { label "Humidity Stability" }
+        field relative_uncertainty_k2 : string { label "Relative Uncertainty K2" }
+        field last_calibration : date { label "Last Calibration" }
+        field certificate_no : string { label "Certificate No" }
+        field recalibration_interval : string { label "Recalibration Interval" }
+      }
+    }
+  }
+  field barometric_pressure_meter : array {
+    items {
+      type object
+      fields {
+        field type : string { label "Type" }
+        field manufacturer : string { label "Manufacturer" }
+        field identification_serial_number : string { label "Identification Serial Number" }
+        field measurement_range : string { label "Measurement Range" }
+        field relative_uncertainty_k2 : string { label "Relative Uncertainty K2" }
+        field last_calibration : date { label "Last Calibration" }
+        field certificate_no : string { label "Certificate No" }
+        field recalibration_interval : string { label "Recalibration Interval" }
+      }
+    }
+  }
+  field additional_equipment : array {
+    items {
+      type object
+      fields {
+        field test_equipment : string { label "Test Equipment" }
+        field type : string { label "Type" }
+        field manufacturer : string { label "Manufacturer" }
+        field identification_serial_number : string { label "Identification Serial Number" }
+        field measurement_range : string { label "Measurement Range" }
+        field relative_uncertainty_k2 : string { label "Relative Uncertainty K2" }
+        field last_calibration : date { label "Last Calibration" }
+        field certificate_no : string { label "Certificate No" }
+        field recalibration_interval : string { label "Recalibration Interval" }
+      }
+    }
+  }
+}
+
+form ESD {
+  name "ESD (r60-3/form-6.16)"
+  description "Electrostatic discharge test - direct and indirect application"
+  conformance_process conf_electronic_tests_esd
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
+  field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
+  field discharge_types : object {
+    field contact_discharges : enum { label "Contact Discharges" values [yes, no] }
+    field paint_penetration : enum { label "Paint Penetration" values [yes, no] }
+    field air_discharges : enum { label "Air Discharges" values [yes, no] }
+    field polarity : enum { label "Polarity" values [positive, negative] }
+  }
+  field direct_application : array {
+    items {
+      type object
+      fields {
+        field test_load : number { label "Test Load" unit "g, kg, or t" }
+        field test_voltage_kv : number { label "Test Voltage Kv" unit "kV" }
+        field no_of_discharges : integer { label "No Of Discharges" }
+        field repetition_interval_s : number { label "Repetition Interval S" unit "s" }
+        field indication : number { label "Indication" unit "counts" }
+        field difference : number { label "Difference" unit "v" calculation ocl{(indication - indication_without) / conversion_factor_f} }
+        field significant_fault : enum { label "Significant Fault" values [no, yes] calculation ocl{abs(difference) > vmin ? ''yes'' : ''no''} }
+        field remarks : string { label "Remarks" }
+      }
+    }
+  }
+  field horizontal_coupling_plane : array {
+    items {
+      type object
+      fields {
+        field test_load : number { label "Test Load" unit "g, kg, or t" }
+        field test_voltage_kv : number { label "Test Voltage Kv" unit "kV" }
+        field no_of_discharges : integer { label "No Of Discharges" }
+        field repetition_interval_s : number { label "Repetition Interval S" unit "s" }
+        field indication : number { label "Indication" unit "counts" }
+        field difference : number { label "Difference" unit "v" calculation ocl{(indication - indication_without) / conversion_factor_f} }
+        field significant_fault : enum { label "Significant Fault" values [no, yes] calculation ocl{abs(difference) > vmin ? ''yes'' : ''no''} }
+        field remarks : string { label "Remarks" }
+      }
+    }
+  }
+  field vertical_coupling_plane : array {
+    items {
+      type object
+      fields {
+        field test_load : number { label "Test Load" unit "g, kg, or t" }
+        field test_voltage_kv : number { label "Test Voltage Kv" unit "kV" }
+        field no_of_discharges : integer { label "No Of Discharges" }
+        field repetition_interval_s : number { label "Repetition Interval S" unit "s" }
+        field indication : number { label "Indication" unit "counts" }
+        field difference : number { label "Difference" unit "v" calculation ocl{(indication - indication_without) / conversion_factor_f} }
+        field significant_fault : enum { label "Significant Fault" values [no, yes] calculation ocl{abs(difference) > vmin ? ''yes'' : ''no''} }
+        field remarks : string { label "Remarks" }
+      }
+    }
+  }
+  field test_points : object {
+    field direct_contact_discharges : text { label "Direct Contact Discharges" }
+    field direct_air_discharges : text { label "Direct Air Discharges" }
+    field indirect_application : text { label "Indirect Application" }
+  }
+  field remarks : text { label "Remarks" }
+  field overall_result : enum { label "Overall Result" required true values [pass, fail] }
+  pass_fail {
+    criteria "No significant fault (> v_min)"
+    pass_if "ocl{every(significant_fault) = no}"
+  }
+}
+
+form HumiditySH {
+  name "HumiditySH (r60-3/table-6.10.2)"
+  description "Humidity effects for SH marked load cells"
+  conformance_process conf_metrological_tests_humidity_sh
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true measurement_method computed calculation conversionFactor }
+  field reference_indication_75pct : number { label "Reference indication at 75%" unit "counts" required true measurement_method direct }
+  field indication_at_dmin : number { label "Indication at D_min" unit "counts" required true measurement_method direct }
+  field dmin : number { label "Minimum test load (D_min)" unit "g, kg, or t" required true measurement_method declared }
+  field dmax : number { label "Maximum test load (D_max)" unit "g, kg, or t" required true measurement_method declared }
+  field nlc : integer { label "Number of verification intervals (n_LC)" required true measurement_method declared }
+  field plc : number { label "Apportionment factor (p_LC)" measurement_method declared default 0.7 }
+  field page_load_test_before : string { label "Page of Load Test Before Humidity" }
+  field page_load_test_during : string { label "Page of Load Test During Humidity" }
+  field page_load_test_after : string { label "Page of Load Test After Humidity" }
+  field test_loads : array {
+    items {
+      type object
+      fields {
+        field test_load : number { label "Test Load" unit "g, kg, or t" required true }
+        field reference_indication : number { label "Reference Indication" unit "counts" measurement_method computed calculation referenceIndication }
+        field condition_20c_50rh : object {
+          field temperature : number { label "Temperature" unit "degC" }
+          field humidity : number { label "Humidity" unit "%" }
+          field indication : number { label "Indication" unit "counts" }
+          field error_EL : number { label "Error (E_L)" unit "v" measurement_method derived calculation loadCellError }
+        }
+        field condition_high_85rh : object {
+          field temperature : number { label "Temperature" unit "degC" }
+          field humidity : number { label "Humidity" unit "%" }
+          field indication : number { label "Indication" unit "counts" }
+          field error_EL : number { label "Error (E_L)" unit "v" measurement_method derived calculation loadCellError }
+        }
+        field condition_20c_return : object {
+          field temperature : number { label "Temperature" unit "degC" }
+          field humidity : number { label "Humidity" unit "%" }
+          field indication : number { label "Indication" unit "counts" }
+          field error_EL : number { label "Error (E_L)" unit "v" measurement_method derived calculation loadCellError }
+        }
+        field mpe : number { label "MPE" unit "v" measurement_method lookup calculation mpe }
+      }
+    }
+  }
+  field overall_result : enum { label "Overall Result" required true values [pass, fail] }
+  pass_fail {
+    criteria "All |E_L| <= |MPE| at all humidity conditions"
+    pass_if "ocl{every(error_EL) <= every(mpe)}"
+  }
+}
+
+form InitialTests {
+  name "InitialTests (r60-3/sec-6.2)"
+  description "Initial tests and general notes — units, measurement range, conditions, input impedance"
+  field test_units : array {
+    items {
+      type object
+      fields {
+        field r60_reference : string { label "R 60-2 reference" }
+        field test_procedure : string { label "Test procedure" }
+        field unit : string { label "Unit" }
+      }
+    }
+  }
+  field measurement_range : array {
+    items {
+      type object
+      fields {
+        field test_procedure_ref : string { label "Test procedure (R 60-2 ref)" }
+        field dmax : number { label "D_max" }
+        field dmin : number { label "D_min" }
+        field conversion_factor_f : number { label "Conversion factor (f)" }
+        field fulfils_requirements : enum { label "Fulfils requirements" }
+      }
+    }
+  }
+  field measurement_range_passed : enum { label "Measurement range passed" }
+  field conditions_check : array {
+    items {
+      type object
+      fields {
+        field test_procedure_ref : string { label "Test procedure (R 60-2 ref)" }
+        field dmin : number { label "D_min" }
+        field dmax : number { label "D_max" }
+        field nlc : integer { label "n_LC" }
+        field check_nlc : enum { label "Fulfilled with n_LC" }
+        field check_nlc_500 : enum { label "Fulfilled with n_LC - 500" }
+        field check_nlc_1000 : enum { label "Fulfilled with n_LC - 1000" }
+      }
+    }
+  }
+  field conditions_passed : enum { label "Conditions passed" }
+  field input_impedance : object {
+    field measured_value : number { label "Measured value" unit "Ohm" }
+    field specified_value : number { label "Specified value" unit "Ohm" }
+    field within_spec : enum { label "Within specification" }
+  }
+}
+
+form LoadCellTypeInfo {
+  name "LoadCellTypeInfo (r60-3/sec-4.5)"
+  description "General information concerning the load cell type"
+  field manufacturer_name_trademark : string { label "Manufacturer Name Trademark" required true }
+  field type_designation : string { label "Type Designation" required true }
+  field accuracy_classes : array { label "Accuracy Classes" required true }
+  field nlc : integer { label "Nlc" required true }
+  field emax : number { label "Emax" unit "g, kg, or t" required true }
+  field emin : number { label "Emin" unit "g, kg, or t" }
+  field vmin : number { label "Vmin" unit "g, kg, or t" calculation ocl{(emax - emin) / Y} }
+  field DR : number { label "DR" unit "g, kg, or t" calculation ocl{0.5 * (emax - emin) / Z} }
+  field rated_output : string { label "Rated Output" unit "mV/V or counts" }
+  field input_impedance : string { label "Input Impedance" unit "Ohm" }
+}
+
+form ManufacturerInfo {
+  name "ManufacturerInfo (r60-3/sec-4.4)"
+  description "General information regarding the evaluation process - manufacturer and applicant"
+  field manufacturer : object {
+    field company : string { label "Company" required true }
+    field address : string { label "Address" }
+    field contact_information : string { label "Contact Information" }
+  }
+  field applicant : object {
+    field company : string { label "Company" }
+    field representative : string { label "Representative" }
+    field address : string { label "Address" }
+    field contact_information : string { label "Contact Information" }
+    field reference : string { label "Reference" }
+    field date_of_application : date { label "Date Of Application" }
+    field application_number : string { label "Application Number" }
+    field authorised_by_manufacturer : enum { label "Authorised By Manufacturer" values [yes, no] }
+    field no_concurrent_application : enum { label "No Concurrent Application" values [yes, no] }
+    field remarks : text { label "Remarks" }
+  }
+  field testing_laboratories : array {
+    items {
+      type object
+      fields {
+        field name : string { label "Name" }
+        field address : string { label "Address" }
+        field application_number : string { label "Application Number" }
+        field tests_by_lab : string { label "Tests By Lab" }
+        field date_period : string { label "Date Period" }
+        field test_engineers : string { label "Test Engineers" }
+        field accredited_by : string { label "Accredited By" }
+        field accreditation_number : string { label "Accreditation Number" }
+        field accreditation_expires : date { label "Accreditation Expires" }
+        field accreditation_includes_r60 : enum { label "Accreditation Includes R60" values [yes, no] }
+        field accreditation_edition : string { label "Accreditation Edition" }
+        field peer_assessment_details : text { label "Peer Assessment Details" }
+        field offsite_test_details : text { label "Offsite Test Details" }
+        field responsible_person : string { label "Responsible Person" }
+        field signature_date : date { label "Signature Date" }
+        field stamp_signature : string { label "Stamp Signature" }
+        field remarks : text { label "Remarks" }
+      }
+    }
+  }
+}
+
+form MarkingExamination {
+  name "MarkingExamination (r60-3/sec-5.1)"
+  description "Marking requirements examination (R 60-1, 6.2)"
+  conformance_process conf_examinations_inscriptions
+  field mandatory_markings_on_load_cell : array {
+    items {
+      type object
+      fields {
+        field r60_reference : string { label "R 60 reference" }
+        field information : string { label "Information" }
+        field fulfils_requirements : enum { label "Fulfils requirements" values [yes, no] }
+      }
+    }
+  }
+  field mandatory_markings_on_load_cell_or_document : array {
+    items {
+      type object
+      fields {
+        field r60_reference : string { label "R 60 reference" }
+        field information : string { label "Information" }
+        field on_load_cell : enum { label "On load cell" values [yes, no] }
+        field in_document : enum { label "In document" values [yes, no] }
+        field fulfils_requirements : enum { label "Fulfils requirements" values [yes, no] }
+      }
+    }
+  }
+  pass_fail {
+    criteria "All mandatory markings present and correct"
+    pass_if "ocl{every(fulfils_requirements) = 'yes'}"
+  }
+}
+
+form ModelRangeInfo {
+  name "ModelRangeInfo (r60-3/sec-4.11)"
+  description "Documentation of the model range — various designs within the model range, relevant photographs of the range, definition of load cell families/construction, load cell dimensions within the family, and"
+  field model_range_designs : array {
+    items {
+      type object
+      fields {
+        field designation : string { label "Design designation" measurement_method declared }
+        field description : text { label "Description" measurement_method declared }
+        field capacities : string { label "Capacities covered" measurement_method declared }
+      }
+    }
+  }
+  field family_definition : object {
+    field construction_type : string { label "Construction type" measurement_method declared }
+    field sealing_method : string { label "Sealing method" measurement_method declared }
+    field strain_gauge_type : string { label "Strain gauge type" measurement_method declared }
+    field material : string { label "Material" measurement_method declared }
+  }
+  field dimensions : array {
+    items {
+      type object
+      fields {
+        field model_designation : string { label "Model designation" measurement_method declared }
+        field height : number { label "Height" unit "mm" measurement_method declared }
+        field diameter : number { label "Diameter (or width)" unit "mm" measurement_method declared }
+        field weight : number { label "Weight" unit "kg" measurement_method declared }
+        field drawing_reference : string { label "Drawing reference" measurement_method declared }
+      }
+    }
+  }
+  field recommended_load_transmissions : array {
+    items {
+      type object
+      fields {
+        field load_direction : enum { label "Load direction" measurement_method declared values [compression, tension, beam, universal] }
+        field mounting_hardware : string { label "Mounting hardware" measurement_method declared }
+        field loading_fixture : string { label "Loading fixture" measurement_method declared }
+        field notes : text { label "Notes" measurement_method declared }
+      }
+    }
+  }
+}
+
+form PerformanceTestSummary {
+  name "PerformanceTestSummary (r60-3/sec-6.1)"
+  description "Results of the performance tests — data-derived from test form instances"
+  field base_tests : array {
+    items {
+      type object
+      fields {
+        field form_id : string { label "Form" }
+        field clause : string { label "Clause" }
+        field test_name : string { label "Performance Test" required true }
+        field temperature : string { label "Temperature" }
+        field page_no : string { label "Report Page No." }
+        field max_error_v : number { label "Max Error (v)" unit "v" }
+        field passed : boolean { label "Passed" }
+        field failed : boolean { label "Failed" }
+        field remark : string { label "Remark" }
+      }
+    }
+  }
+  field electronic_tests : array {
+    items {
+      type object
+      fields {
+        field form_id : string { label "Form" }
+        field clause : string { label "Clause" }
+        field test_name : string { label "Performance Test" required true }
+        field temperature : string { label "Temperature" }
+        field page_no : string { label "Report Page No." }
+        field max_error_v : number { label "Max Error (v)" unit "v" }
+        field passed : boolean { label "Passed" }
+        field failed : boolean { label "Failed" }
+        field remark : string { label "Remark" }
+      }
+    }
+  }
+}
+
+form PhotographsInfo {
+  name "PhotographsInfo (r60-3/sec-4.10)"
+  description "Photographs of the test pattern taken during examination and tests. Per R 60-3 §4 (Evaluation Report), photographs document the physical state of the load cell during key testing phases. "
+  field photographs : array {
+    items {
+      type object
+      fields {
+        field description : text { label "Description" measurement_method direct }
+        field file : string { label "Photograph file" measurement_method direct }
+        field date_taken : date { label "Date taken" measurement_method direct }
+        field test_phase : enum { label "Test phase" measurement_method direct values [pre_test, during_test, post_test, examination, other] }
+      }
+    }
+  }
+  field remarks : text { label "Remarks" measurement_method direct }
+}
+
+form PowerVoltage {
+  name "PowerVoltage (r60-3/form-6.12)"
+  description "Power voltage variation test"
+  conformance_process conf_electronic_tests_power_voltage
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
+  field main_voltage : string { label "Main Voltage" required true }
+  field supply_type : enum { label "Supply Type" required true values [AC, DC] }
+  field preloads : array {
+    items {
+      type object
+      fields {
+        field test_load : string { label "Test Load" }
+        field indication : number { label "Indication" unit "counts" }
+        field time : string { label "Time" }
+      }
+    }
+  }
+  field voltage_tests : object {
+    field initial_run : object {
+      field dmin_indication : number { label "Dmin Indication" }
+      field dmax_indication : number { label "Dmax Indication" }
+      field span_counts : number { label "Span Counts" calculation ocl{dmax_indication - dmin_indication} }
+      field span_vmin : number { label "Span Vmin" calculation ocl{span_counts / conversion_factor_f} }
+    }
+    field lower_limit : object {
+      field dmin_indication : number { label "Dmin Indication" }
+      field dmax_indication : number { label "Dmax Indication" }
+      field span_counts : number { label "Span Counts" calculation ocl{dmax_indication - dmin_indication} }
+      field span_vmin : number { label "Span Vmin" calculation ocl{span_counts / conversion_factor_f} }
+      field change : number { label "Change" calculation ocl{span_vmin - initial_run.span_vmin} }
+    }
+    field upper_limit : object {
+      field dmin_indication : number { label "Dmin Indication" }
+      field dmax_indication : number { label "Dmax Indication" }
+      field span_counts : number { label "Span Counts" calculation ocl{dmax_indication - dmin_indication} }
+      field span_vmin : number { label "Span Vmin" calculation ocl{span_counts / conversion_factor_f} }
+      field change : number { label "Change" calculation ocl{span_vmin - initial_run.span_vmin} }
+    }
+    field mpc : number { label "Mpc" unit "v_min" calculation ocl{abs(lookup_mpe(dmax, accuracy_class, plc))} }
+  }
+  field overall_result : enum { label "Overall Result" required true values [pass, fail] }
+  pass_fail {
+    criteria "Change of span must not exceed v_min at lower/upper voltage limits"
+    pass_if "ocl{abs(lower_limit.change) <= mpc and abs(upper_limit.change) <= mpc}"
+  }
+}
+
+form Repeatability {
+  name "Repeatability (r60-3/table-6.6)"
+  description "Repeatability errors (E_R) calculation across four test temperatures"
+  conformance_process conf_metrological_tests_measurement_error_repeatability_mdlo
+  field conversion_factor_f : number { label "Conversion factor (f)" unit "counts/v" required true measurement_method computed calculation conversionFactor }
+  field reference_indication_75pct : number { label "Reference indication at 75%" unit "counts" required true measurement_method direct }
+  field indication_at_dmin : number { label "Indication at D_min" unit "counts" required true measurement_method direct }
+  field n_lc : integer { label "Number of verification intervals (n_LC)" required true measurement_method declared }
+  field plc : number { label "Apportionment factor (p_LC)" measurement_method declared default 0.7 }
+  field temperature_series : array {
+    items {
+      type object
+      fields {
+        field temperature : number { label "Temperature" unit "degC" required true measurement_method direct }
+        field test_loads : array {
+          items {
+            type object
+            fields {
+              field test_load : number { label "Test load" unit "g, kg, or t" required true measurement_method direct }
+              field runs : array {
+                items {
+                  type object
+                  fields {
+                    field run_number : integer { label "Run number" required true measurement_method declared }
+                    field indication : number { label "Indication (counts)" unit "counts" required true measurement_method direct }
+                  }
+                }
+              }
+              field repeatability_error_v : number { label "Repeatability error (E_R)" unit "v" measurement_method derived calculation repeatabilityError }
+              field mpe : number { label "MPE" unit "v" measurement_method lookup calculation mpe }
+              field within_mpe : enum { label "Within MPE" measurement_method evaluated }
+            }
+          }
+        }
+      }
+    }
+  }
+  field overall_result : enum { label "Overall result" required true measurement_method evaluated values [pass, fail] }
+  pass_fail {
+    criteria "All E_R <= |MPE| for every test load at every temperature"
+    pass_if "ocl{every(within_mpe) = yes}"
+  }
+}
+
+form SampleSelection {
+  name "SampleSelection (r60-3/sec-4.7)"
+  description "Selection of sample(s) tested"
+  field test_pattern : array {
+    items {
+      type object
+      fields {
+        field model_designation : string { label "Model Designation" required true }
+        field serial_number : string { label "Serial Number" required true }
+        field emax : number { label "Emax" unit "g, kg, or t" }
+        field nlc : integer { label "Nlc" }
+        field vmin : number { label "Vmin" unit "g, kg, or t" }
+        field DR : number { label "DR" unit "g, kg, or t" }
+      }
+    }
+  }
+  field justification : array {
+    items {
+      type object
+      fields {
+        field model_designation : string { label "Model Designation" }
+        field serial_number : string { label "Serial Number" }
+        field justification_remark : string { label "Justification Remark" }
+        field test_report_no : string { label "Test Report No" }
+      }
+    }
+  }
+}
+
+form ShortTimePower {
+  name "ShortTimePower (r60-3/form-6.13)"
+  description "Short-time power reductions test"
+  conformance_process conf_electronic_tests_short_time_power
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
+  field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
+  field reference_voltage_range : number { label "Reference Voltage Range" unit "V" required true }
+  field disturbance_tests : array {
+    items {
+      type object
+      fields {
+        field test_load : number { label "Test Load" unit "g, kg, or t" }
+        field amplitude_pct : number { label "Amplitude Pct" unit "%" }
+        field duration_cycles : number { label "Duration Cycles" unit "cycles" }
+        field number_of_disturbances : integer { label "Number Of Disturbances" }
+        field indication_without : number { label "Indication Without" unit "counts" }
+        field indication_with : number { label "Indication With" unit "counts" }
+        field difference : number { label "Difference" unit "v" calculation ocl{(indication_with - indication_without) / conversion_factor_f} }
+        field repetition_interval_v : number { label "Repetition Interval V" unit "v" }
+        field significant_fault : enum { label "Significant Fault" values [no, yes] calculation ocl{if abs(difference) > vmin then 'yes' else 'no' endif} }
+        field remarks : string { label "Remarks" }
+      }
+    }
+  }
+  field equipment_used : text { label "Equipment Used" }
+  field remarks : text { label "Remarks" }
+  field overall_result : enum { label "Overall Result" required true values [pass, fail] }
+  pass_fail {
+    criteria "No significant fault (> v_min) or fault detected and acted upon"
+    pass_if "ocl{every(significant_fault) = 'no'}"
+  }
+}
+
+form SoftwareExamination {
+  name "SoftwareExamination (r60-3/sec-5.3)"
+  description "Software examination (R 60-1, 6.1)"
+  conformance_process conf_examinations_software
+  field date : date { label "Date of examination" required true }
+  field observer : string { label "Observer" }
+  field serial_number : string { label "Serial number" required true }
+  field software_version : string { label "Software version" }
+  field identification_code : string { label "Identification code" }
+  field software_sealed : enum { label "Software sealed" }
+  field auto_change_identification_code : enum { label "Auto-change identification code" }
+  field fixed_version_number : enum { label "Fixed version number" }
+  field remarks : text { label "Remarks" }
+  field overall_result : enum { label "Overall result" required true values [pass, fail] }
+  pass_fail {
+    criteria ""
+    pass_if "ocl{software_sealed = yes and auto_change_identification_code = yes and fixed_version_number = yes}"
+  }
+}
+
+form SpanStability {
+  name "SpanStability (r60-3/form-6.19)"
+  description "Span stability test measurement data"
+  conformance_process conf_electronic_tests_span_stability
+  applicability {
+    accuracy_class: [B, C, D]
+    runs_per_measurement: { B: 5 C: 3 D: 3 }
+  }
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true measurement_method computed }
+  field dmin_value : number { label "Minimum Test Load (D_min)" unit "g, kg, or t" measurement_method declared }
+  field dmax_value : number { label "Maximum Test Load (D_max)" unit "g, kg, or t" measurement_method declared }
+  field measurements : array {
+    items {
+      type object
+      fields {
+        field measurement_no : integer { label "Measurement No" required true measurement_method declared }
+        field readings : object {
+          field dmin : array {
+            items {
+              type object
+              fields {
+                field indication : number { label "Indication" unit "counts" measurement_method direct }
+                field time : string { label "Time" measurement_method direct }
+              }
+            }
+          }
+          field dmax : array {
+            items {
+              type object
+              fields {
+                field indication : number { label "Indication" unit "counts" measurement_method direct }
+                field time : string { label "Time" measurement_method direct }
+              }
+            }
+          }
+        }
+        field avg_dmin : number { label "Average D_min Indication" unit "counts" measurement_method derived derivation "ocl{mean(readings.dmin->collect(r | r.indication))}" }
+        field avg_dmax : number { label "Average D_max Indication" unit "counts" measurement_method derived derivation "ocl{mean(readings.dmax->collect(r | r.indication))}" }
+        field span : number { label "Span" unit "counts" measurement_method derived derivation "ocl{avg_dmax - avg_dmin}" }
+        field span_vmin : number { label "Span (v_min)" unit "v_min" measurement_method derived derivation "ocl{span / conversion_factor_f}" }
+        field variation : number { label "Variation from first (v_min)" unit "v_min" measurement_method derived derivation "ocl{abs(span_vmin - measurements[0].span_vmin)}" }
+        field within_limit : enum { label "Within limit" measurement_method evaluated }
+        field evaluator : string { label "Evaluator" measurement_method declared }
+        field remarks : text { label "Remarks" measurement_method declared }
+        field conditions : object {
+          field date : date { label "Date" measurement_method direct }
+          field time : string { label "Time" measurement_method direct }
+          field temperature : number { label "Temperature" unit "degC" measurement_method direct }
+          field relative_humidity : number { label "Relative Humidity" unit "%" measurement_method direct }
+          field barometric_pressure : number { label "Barometric Pressure" unit "kPa" measurement_method direct }
+        }
+      }
+    }
+  }
+  field max_allowable_variation : number { label "Maximum Allowable Variation" unit "v_min" measurement_method computed derivation "ocl{max(0.5, lookup_mpe(dmax_value, accuracy_class, plc) * 0.5)}" }
+  field overall_result : enum { label "Overall Result" required true measurement_method evaluated values [pass, fail] }
+  pass_fail {
+    criteria "Span variation between any two measurements must not exceed max(0.5 v_min, 0.5 * |MPE|) per R 60-1, 5.7.2.6"
+    pass_if "ocl{measurements->forAll(m | m.within_limit = 'yes')}"
+  }
+}
+
+form SuitabilityExamination {
+  name "SuitabilityExamination (r60-3/sec-5.2)"
+  description "Suitability for testing examination"
+  conformance_process conf_examinations_suitability
+  field date : date { label "Date of examination" required true }
+  field observer : string { label "Observer" }
+  field serial_number : string { label "Serial number" required true }
+  field suitability_items : array {
+    items {
+      type object
+      fields {
+        field item : string { label "Item" }
+        field fulfils_requirements : enum { label "Fulfils requirements" }
+      }
+    }
+  }
+  field remarks : text { label "Remarks" }
+  field overall_result : enum { label "Overall result" required true values [pass, fail] }
+  pass_fail {
+    criteria ""
+    pass_if "ocl{overall_result = 'pass'}"
+  }
+}
+
+form SummaryResults {
+  name "SummaryResults (r60-3/sec-4.3)"
+  description "Summary of examination and test results — data-derived from completed form instances"
+  field examination_results : array {
+    items {
+      type object
+      fields {
+        field form_id : string { label "Form" }
+        field test_name : string { label "Test" required true }
+        field passed : boolean { label "Passed" }
+        field failed : boolean { label "Failed" }
+        field details_reference : string { label "Details in R 60" }
+      }
+    }
+  }
+  field performance_results : array {
+    items {
+      type object
+      fields {
+        field form_id : string { label "Form" }
+        field test_name : string { label "Test" required true }
+        field temperatures : string { label "Temperature" }
+        field passed : boolean { label "Passed" }
+        field failed : boolean { label "Failed" }
+        field max_error_v : number { label "Max Error V" unit "v" }
+        field details_reference : string { label "Details in R 60" }
+        field remark : string { label "Remark" }
+      }
+    }
+  }
+  field electronic_results : array {
+    items {
+      type object
+      fields {
+        field form_id : string { label "Form" }
+        field test_name : string { label "Test" required true }
+        field passed : boolean { label "Passed" }
+        field failed : boolean { label "Failed" }
+        field max_error_v : number { label "Max Error V" unit "v" }
+        field details_reference : string { label "Details in R 60" }
+        field remark : string { label "Remark" }
+      }
+    }
+  }
+}
+
+form Surge {
+  name "Surge (r60-3/form-6.15)"
+  description "Surge test"
+  conformance_process conf_electronic_tests_surge
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
+  field dmin_value : number { label "Dmin Value" }
+  field unit : enum { label "Unit" values [g, kg, t] }
+  field test_conditions : object {
+    field output_gained_method : enum { label "Output Gained Method" values [actual_loads, simulating_loading] }
+    field simulating_using : string { label "Simulating Using" }
+    field cable_type : enum { label "Cable Type" values [symmetrical, unsymmetrical] }
+    field line_to_line_kv : number { label "Line To Line Kv" unit "kV" }
+    field line_to_earth_kv : number { label "Line To Earth Kv" unit "kV" }
+    field test_load_value : number { label "Test Load Value" }
+  }
+  field test_cycles : array {
+    items {
+      type object
+      fields {
+        field cycle_phase : enum { label "Cycle Phase" values [initial, during_exposure, after] }
+        field load : number { label "Load" }
+        field time_start : string { label "Time Start" }
+        field time_stop : string { label "Time Stop" }
+        field reference : number { label "Reference" }
+        field indicated : number { label "Indicated" }
+        field error : number { label "Error" unit "v_min" }
+        field relative_error_pct : number { label "Relative Error Pct" unit "%" }
+        field mpe_pct : number { label "Mpe Pct" unit "%" }
+      }
+    }
+  }
+  field observed_faults : array {
+    items {
+      type object
+      fields {
+        field fault_type : enum { label "Fault Type" values [line_to_line_up, line_to_line_down, line_to_earth_up, line_to_earth_down] }
+        field fault_limit_pct : number { label "Fault Limit Pct" unit "%" }
+        field fault_deviation : string { label "Fault Deviation" }
+        field significant : enum { label "Significant" values [yes, no] }
+        field acts_on_fault : enum { label "Acts On Fault" values [yes, no] }
+      }
+    }
+  }
+  field observations : text { label "Observations" }
+  field overall_result : enum { label "Overall Result" required true values [pass, fail] }
+  pass_fail {
+    criteria "No significant fault or fault detected and acted upon"
+    pass_if "ocl{every(significant) = no or every(acts_on_fault) = yes}"
+  }
+}
+
+form Synopsis {
+  name "Synopsis (r60-3/sec-4.2)"
+  description "Synopsis of examination and test results"
+  field fulfils_all_requirements : enum { label "Fulfils All Requirements" required true values [yes, no] }
+  field remarks : text { label "Remarks" }
+}
+
+form TemperatureMDLO {
+  name "TemperatureMDLO (r60-3/table-6.7)"
+  description "Temperature effects on minimum dead load output (C_M)"
+  conformance_process conf_metrological_tests_measurement_error_repeatability_mdlo
+  field conversion_factor_f : number { label "Conversion factor (f)" unit "counts/v" required true measurement_method computed calculation conversionFactor }
+  field reference_indication_75pct : number { label "Reference indication at 75%" unit "counts" required true measurement_method direct }
+  field indication_at_dmin : number { label "Indication at D_min" unit "counts" required true measurement_method direct }
+  field n_lc : integer { label "Number of verification intervals (n_LC)" required true measurement_method declared }
+  field plc : number { label "Apportionment factor (p_LC)" measurement_method declared default 0.7 }
+  field temperature_readings : array {
+    items {
+      type object
+      fields {
+        field temperature : number { label "Temperature" unit "degC" required true measurement_method direct }
+        field indication : number { label "Indication" unit "counts" required true measurement_method direct }
+        field change_v : number { label "Change (v)" unit "v" measurement_method derived derivation "ocl{if $index = 0 then 0 else (indication - $prev.indication) / conversion_factor_f endif}" }
+        field change_per_5deg : number { label "Change per 5 degC" unit "v" measurement_method derived derivation "ocl{if $index = 0 then 0 else change_v * 5 / abs(temperature - $prev.temperature) endif}" }
+        field mpc : number { label "MPC" unit "v" measurement_method declared derivation "ocl{$context.p_LC}" }
+        field within_mpc : enum { label "Within MPC" measurement_method evaluated }
+      }
+    }
+  }
+  field overall_result : enum { label "Overall result" required true measurement_method evaluated values [pass, fail] }
+  pass_fail {
+    criteria "C_M(v) per 5 degC <= p_LC for classes B/C/D; per 2 degC for class A"
+    pass_if "ocl{temperature_readings->forAll(r | r.within_mpc = 'yes')}"
+  }
+}
+
+form TestUsageMatrix {
+  name "TestUsageMatrix (r60-3/form-1)"
+  description "Test equipment usage matrix - which test procedures use which equipment"
+  field equipment_usage : array {
+    items {
+      type object
+      fields {
+        field test_procedure_reference : string { label "Test Procedure Reference" }
+        field used_for_2_10_1 : enum { label "Used For 2 10 1" values [yes, no] }
+        field used_for_2_10_2 : enum { label "Used For 2 10 2" values [yes, no] }
+        field used_for_2_10_3 : enum { label "Used For 2 10 3" values [yes, no] }
+        field used_for_2_10_4 : enum { label "Used For 2 10 4" values [yes, no] }
+        field used_for_2_10_5 : enum { label "Used For 2 10 5" values [yes, no] }
+        field used_for_2_10_6 : enum { label "Used For 2 10 6" values [yes, no] }
+        field used_for_2_10_7 : enum { label "Used For 2 10 7" values [yes, no] }
+      }
+    }
+  }
+}
+
+form WarmUpTime {
+  name "WarmUpTime (r60-3/form-6.11)"
+  description "Warm-up time test for electronic load cells"
+  conformance_process conf_electronic_tests_warm_up_time
+  field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
+  field duration_of_disconnection : string { label "Duration Of Disconnection" required true }
+  field readings : object {
+    field initial_dmin : object {
+      field indication : number { label "Indication" unit "counts" }
+      field time : string { label "Time" }
+    }
+    field initial_dmax : object {
+      field indication : number { label "Indication" unit "counts" }
+      field time : string { label "Time" }
+    }
+    field initial_span_counts : number { label "Initial Span Counts" unit "counts" calculation ocl{initial_dmax.indication - initial_dmin.indication} }
+    field initial_span_vmin : number { label "Initial Span Vmin" unit "v_min" calculation ocl{initial_span_counts / conversion_factor_f} }
+    field after_5min_dmin : object {
+      field indication : number { label "Indication" }
+      field time : string { label "Time" }
+    }
+    field after_5min_dmax : object {
+      field indication : number { label "Indication" }
+      field time : string { label "Time" }
+    }
+    field after_5min_span_counts : number { label "After 5min Span Counts" calculation ocl{after_5min_dmax.indication - after_5min_dmin.indication} }
+    field after_5min_span_vmin : number { label "After 5min Span Vmin" calculation ocl{after_5min_span_counts / conversion_factor_f} }
+    field after_5min_change : number { label "After 5min Change" calculation ocl{after_5min_span_vmin - initial_span_vmin} }
+    field after_15min_dmin : object {
+      field indication : number { label "Indication" }
+      field time : string { label "Time" }
+    }
+    field after_15min_dmax : object {
+      field indication : number { label "Indication" }
+      field time : string { label "Time" }
+    }
+    field after_15min_span_counts : number { label "After 15min Span Counts" calculation ocl{after_15min_dmax.indication - after_15min_dmin.indication} }
+    field after_15min_span_vmin : number { label "After 15min Span Vmin" calculation ocl{after_15min_span_counts / conversion_factor_f} }
+    field after_15min_change : number { label "After 15min Change" calculation ocl{after_15min_span_vmin - initial_span_vmin} }
+    field after_30min_dmin : object {
+      field indication : number { label "Indication" }
+      field time : string { label "Time" }
+    }
+    field after_30min_dmax : object {
+      field indication : number { label "Indication" }
+      field time : string { label "Time" }
+    }
+    field after_30min_span_counts : number { label "After 30min Span Counts" calculation ocl{after_30min_dmax.indication - after_30min_dmin.indication} }
+    field after_30min_span_vmin : number { label "After 30min Span Vmin" calculation ocl{after_30min_span_counts / conversion_factor_f} }
+    field after_30min_change : number { label "After 30min Change" calculation ocl{after_30min_span_vmin - initial_span_vmin} }
+    field mpc : number { label "Mpc" unit "v_min" calculation ocl{abs(lookup_mpe(dmax, accuracy_class, plc))} }
+  }
+  field overall_result : enum { label "Overall Result" required true values [pass, fail] }
+  pass_fail {
+    criteria "Change of span must not exceed v_min"
+    pass_if "ocl{max(after_5min_change, after_15min_change, after_30min_change) <= mpc}"
+  }
+}
+
+// Generated 32 forms
+
+
+// ─────────────────────────────────────────────────────────────────────
+// Supplementary symbols and calculations from YAML source
+// (only entries not already declared above)
+// ─────────────────────────────────────────────────────────────────────
+
+Existing symbols: 19
+Existing calcs: 9
+Added 11 new symbols
+Added 8 new calculations
+symbol CC-30-20 {
+  name "Creep difference 20–30 min"
+  type number
+  unit "v"
+  latex "CC-30-20"
+}
+
+symbol CM-vmin {
+  name "Temperature effect on MDLO (mass units)"
+  type number
+  unit "g, kg, or t per degC"
+  latex "CM-vmin"
+}
+
+symbol CP {
+  name "Barometric pressure effect"
+  type number
+  unit "v"
+  latex "CP"
+}
+
+symbol CP-vmin {
+  name "Barometric pressure effect (mass units)"
+  type number
+  unit "g, kg, or t per kPa"
+  latex "CP-vmin"
+}
+
+symbol Ri {
+  name "Reference indication"
+  type number
+  unit "indication units"
+  latex "Ri"
+}
+
+symbol n {
+  name "Number of verification intervals"
+  type integer
+  unit "1"
+  latex "n"
+}
+
+symbol v {
+  name "Verification interval"
+  type number
+  unit "1"
+  latex "v"
+}
+
+symbol t0 {
+  name "Initial time"
+  type number
+  unit "min"
+  latex "t0"
+}
+
+symbol t {
+  name "Elapsed time"
+  type number
+  unit "min"
+  latex "t"
+}
+
+symbol T1 {
+  name "Temperature 1"
+  type number
+  unit "°C"
+  latex "T1"
+}
+
+symbol T2 {
+  name "Temperature 2"
+  type number
+  unit "°C"
+  latex "T2"
+}
+
+calculation vMin {
+  name "vMin"
+  description "Computes verification interval v_min per R 60-1, 3.7.5"
+  inputs {
+    dMax : number { unit "g, kg, or t" }
+    dMin : number { unit "g, kg, or t" }
+    nLC : integer { unit "1" }
+    f : number { unit "counts/v" }
+  }
+  output : number { unit "g, kg, or t" }
+  expression "ocl{(dMax - dMin) / (nLC * f)}"
+}
+
+calculation mpe {
+  name "mpe"
+  description "Looks up MPE for a given load in v units per R 60-1 Table 4"
+  inputs {
+    load : number { unit "v" }
+    accuracyClass : enum { unit "1" }
+    pLC : number { unit "dimensionless" }
+  }
+  output : number { unit "v" }
+  expression "ocl{lookup_mpe(load, accuracyClass, pLC)}"
+}
+
+calculation barometricPressureEffect {
+  name "barometricPressureEffect"
+  description "Barometric pressure effect: C_P = (I_2 - I_1) / f"
+  inputs {
+    indication2 : number { unit "counts" }
+    indication1 : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indication2 - indication1) / conversionFactor}"
+}
+
+calculation temperatureMDLO {
+  name "temperatureMDLO"
+  description "Temperature effect on MDLO per 5 degC increment"
+  inputs {
+    indication2 : number { unit "counts" }
+    indication1 : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+    temperature2 : number { unit "degC" }
+    temperature1 : number { unit "degC" }
+  }
+  output : number { unit "v" }
+  expression "ocl{((indication2 - indication1) / conversionFactor) * 5 / abs(temperature2 - temperature1)}"
+}
+
+calculation maxAllowableSpanVariation {
+  name "maxAllowableSpanVariation"
+  description "Maximum allowable span variation: max(0.5, 0.5 × |MPE|) with p_LC = 1.0"
+  inputs {
+    dMax : number { unit "1" }
+    accuracyClass : enum { unit "1" }
+  }
+  output : number { unit "v" }
+  expression "ocl{max(0.5, 0.5 * abs(lookup_mpe(dMax, accuracyClass, 1.0)))}"
+}
+
+calculation electronicDifference {
+  name "electronicDifference"
+  description "Electronic disturbance difference between with/without readings"
+  inputs {
+    indicationWith : number { unit "counts" }
+    indicationWithout : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indicationWith - indicationWithout) / conversionFactor}"
+}
+
+calculation significantFault {
+  name "significantFault"
+  description "Determines if an electronic disturbance causes a significant fault (> v_min)"
+  inputs {
+    difference : number { unit "v" }
+    vMin : number { unit "v" }
+  }
+  output : boolean { unit "1" }
+  expression "ocl{abs(difference) > vMin}"
+}
+
+calculation deadLoadReturnMass {
+  name "deadLoadReturnMass"
+  description "Dead load output return in mass units: DR = (E_max − E_min) × C_DR / n_LC"
+  inputs {
+    eMax : number { unit "g, kg, or t" }
+    eMin : number { unit "g, kg, or t" }
+    cdr : number { unit "v" }
+    nLC : integer { unit "1" }
+  }
+  output : number { unit "g, kg, or t" }
+  expression "(eMax - eMin) * cdr / nLC"
+}

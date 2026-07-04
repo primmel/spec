@@ -1,0 +1,150 @@
+// ─────────────────────────────────────────────────────────────────────
+// Symbols — formal symbol registry (R 60-3 + Annex)
+// ─────────────────────────────────────────────────────────────────────
+
+// Metrological symbols
+symbol f {
+  name "Conversion factor"
+  type number
+  unit "counts/v"
+  latex "f"
+  reference { R60-3-2-1-2-4 }
+}
+
+symbol nLC {
+  name "Maximum number of load cell verification intervals"
+  type integer
+  unit "1"
+  latex "n_{LC}"
+  reference { R60-1-3-5-8 }
+}
+
+symbol Emax {
+  name "Maximum capacity"
+  type number
+  unit "kg"
+  latex "E_{max}"
+  reference { R60-1-3-3 }
+}
+
+symbol Emin {
+  name "Minimum dead load"
+  type number
+  unit "kg"
+  latex "E_{min}"
+}
+
+symbol pLC {
+  name "Apportioning factor"
+  type number
+  unit "1"
+  latex "p_{LC}"
+  reference { R60-1-3-7-2 }
+}
+
+symbol vmin {
+  name "Minimum verification interval"
+  type number
+  unit "kg"
+  latex "v_{min}"
+}
+
+symbol Y {
+  name "Ratio of min verification interval (Emax / vmin)"
+  type integer
+  unit "1"
+  latex "Y"
+}
+
+symbol Z {
+  name "Ratio of min DR"
+  type integer
+  unit "1"
+  latex "Z"
+}
+
+symbol DR {
+  name "Dead load output return"
+  type number
+  unit "% RO"
+  latex "DR"
+}
+
+symbol MPE {
+  name "Maximum permissible error"
+  type number
+  unit "v"
+  latex "MPE"
+  reference { R60-1-5-3-2 }
+}
+
+symbol EL {
+  name "Load cell error"
+  type number
+  unit "v"
+  latex "E_L"
+  reference { R60-3-2-1-2-2 }
+}
+
+symbol ER {
+  name "Repeatability error"
+  type number
+  unit "v"
+  latex "E_R"
+  reference { R60-3-2-1-3 }
+}
+
+symbol CC {
+  name "Creep"
+  type number
+  unit "v"
+  latex "C_C"
+  reference { R60-1-5-5-1 }
+}
+
+symbol CDR {
+  name "Dead load output return value"
+  type number
+  unit "v"
+  latex "C_{DR}"
+  reference { R60-1-5-5-2 }
+}
+
+symbol CM {
+  name "Temperature effect on minimum dead load output"
+  type number
+  unit "v"
+  latex "C_M"
+  reference { R60-3-2-1-4 }
+}
+
+symbol CHmin {
+  name "Humidity effect on minimum test load indication"
+  type number
+  unit "v"
+  latex "C_{Hmin}"
+  reference { R60-1-5-6-3-1 }
+}
+
+symbol CHmax {
+  name "Humidity effect on span"
+  type number
+  unit "v"
+  latex "C_{Hmax}"
+  reference { R60-1-5-6-3 }
+}
+
+symbol Dmax {
+  name "Maximum test load"
+  type number
+  unit "kg"
+  latex "D_{max}"
+}
+
+symbol Dmin {
+  name "Minimum test load"
+  type number
+  unit "kg"
+  latex "D_{min}"
+}
+

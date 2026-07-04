@@ -1,0 +1,184 @@
+// ─────────────────────────────────────────────────────────────────────
+// Supplementary symbols and calculations from YAML source
+// (only entries not already declared above)
+// ─────────────────────────────────────────────────────────────────────
+
+Existing symbols: 19
+Existing calcs: 9
+Added 11 new symbols
+Added 8 new calculations
+symbol CC-30-20 {
+  name "Creep difference 20–30 min"
+  type number
+  unit "v"
+  latex "CC-30-20"
+}
+
+symbol CM-vmin {
+  name "Temperature effect on MDLO (mass units)"
+  type number
+  unit "g, kg, or t per degC"
+  latex "CM-vmin"
+}
+
+symbol CP {
+  name "Barometric pressure effect"
+  type number
+  unit "v"
+  latex "CP"
+}
+
+symbol CP-vmin {
+  name "Barometric pressure effect (mass units)"
+  type number
+  unit "g, kg, or t per kPa"
+  latex "CP-vmin"
+}
+
+symbol Ri {
+  name "Reference indication"
+  type number
+  unit "indication units"
+  latex "Ri"
+}
+
+symbol n {
+  name "Number of verification intervals"
+  type integer
+  unit "1"
+  latex "n"
+}
+
+symbol v {
+  name "Verification interval"
+  type number
+  unit "1"
+  latex "v"
+}
+
+symbol t0 {
+  name "Initial time"
+  type number
+  unit "min"
+  latex "t0"
+}
+
+symbol t {
+  name "Elapsed time"
+  type number
+  unit "min"
+  latex "t"
+}
+
+symbol T1 {
+  name "Temperature 1"
+  type number
+  unit "°C"
+  latex "T1"
+}
+
+symbol T2 {
+  name "Temperature 2"
+  type number
+  unit "°C"
+  latex "T2"
+}
+
+calculation vMin {
+  name "vMin"
+  description "Computes verification interval v_min per R 60-1, 3.7.5"
+  inputs {
+    dMax : number { unit "g, kg, or t" }
+    dMin : number { unit "g, kg, or t" }
+    nLC : integer { unit "1" }
+    f : number { unit "counts/v" }
+  }
+  output : number { unit "g, kg, or t" }
+  expression "ocl{(dMax - dMin) / (nLC * f)}"
+}
+
+calculation mpe {
+  name "mpe"
+  description "Looks up MPE for a given load in v units per R 60-1 Table 4"
+  inputs {
+    load : number { unit "v" }
+    accuracyClass : enum { unit "1" }
+    pLC : number { unit "dimensionless" }
+  }
+  output : number { unit "v" }
+  expression "ocl{lookup_mpe(load, accuracyClass, pLC)}"
+}
+
+calculation barometricPressureEffect {
+  name "barometricPressureEffect"
+  description "Barometric pressure effect: C_P = (I_2 - I_1) / f"
+  inputs {
+    indication2 : number { unit "counts" }
+    indication1 : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indication2 - indication1) / conversionFactor}"
+}
+
+calculation temperatureMDLO {
+  name "temperatureMDLO"
+  description "Temperature effect on MDLO per 5 degC increment"
+  inputs {
+    indication2 : number { unit "counts" }
+    indication1 : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+    temperature2 : number { unit "degC" }
+    temperature1 : number { unit "degC" }
+  }
+  output : number { unit "v" }
+  expression "ocl{((indication2 - indication1) / conversionFactor) * 5 / abs(temperature2 - temperature1)}"
+}
+
+calculation maxAllowableSpanVariation {
+  name "maxAllowableSpanVariation"
+  description "Maximum allowable span variation: max(0.5, 0.5 × |MPE|) with p_LC = 1.0"
+  inputs {
+    dMax : number { unit "1" }
+    accuracyClass : enum { unit "1" }
+  }
+  output : number { unit "v" }
+  expression "ocl{max(0.5, 0.5 * abs(lookup_mpe(dMax, accuracyClass, 1.0)))}"
+}
+
+calculation electronicDifference {
+  name "electronicDifference"
+  description "Electronic disturbance difference between with/without readings"
+  inputs {
+    indicationWith : number { unit "counts" }
+    indicationWithout : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indicationWith - indicationWithout) / conversionFactor}"
+}
+
+calculation significantFault {
+  name "significantFault"
+  description "Determines if an electronic disturbance causes a significant fault (> v_min)"
+  inputs {
+    difference : number { unit "v" }
+    vMin : number { unit "v" }
+  }
+  output : boolean { unit "1" }
+  expression "ocl{abs(difference) > vMin}"
+}
+
+calculation deadLoadReturnMass {
+  name "deadLoadReturnMass"
+  description "Dead load output return in mass units: DR = (E_max − E_min) × C_DR / n_LC"
+  inputs {
+    eMax : number { unit "g, kg, or t" }
+    eMin : number { unit "g, kg, or t" }
+    cdr : number { unit "v" }
+    nLC : integer { unit "1" }
+  }
+  output : number { unit "g, kg, or t" }
+  expression "(eMax - eMin) * cdr / nLC"
+}
+

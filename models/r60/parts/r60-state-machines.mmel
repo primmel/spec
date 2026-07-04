@@ -1,0 +1,320 @@
+// ─────────────────────────────────────────────────────────────────────
+// State machines — entity lifecycles with declarative cascades
+// ─────────────────────────────────────────────────────────────────────
+
+state_machine Application {
+  initial DRAFT
+
+  states {
+    DRAFT
+    SUBMITTED
+    SAMPLES_REQUESTED
+    SAMPLES_RECEIVED
+    UNDER_REVIEW
+    ACCEPTED
+    REJECTED
+    WITHDRAWN
+  }
+
+  transition DRAFT -> SUBMITTED action applicant_submits {
+  }
+
+  transition SUBMITTED -> SAMPLES_REQUESTED action ia_requests_samples {
+  }
+
+  transition SAMPLES_REQUESTED -> SAMPLES_RECEIVED action ia_receives_samples {
+    cascade InstrumentSample {
+      where "applicationId = ${this.id}"
+      set { status: "RECEIVED_BY_IA" }
+    }
+  }
+
+  transition SAMPLES_RECEIVED -> UNDER_REVIEW action ia_starts_review {
+  }
+
+  transition UNDER_REVIEW -> ACCEPTED action ia_accepts {
+    guard "documentation_complete = true"
+    cascade TestRequest {
+      where "applicationId = ${this.id}"
+      set { status: "ISSUED" }
+    }
+  }
+
+  transition UNDER_REVIEW -> REJECTED action ia_rejects {
+    set { rejection_reason: "${this.rejection_reason}" }
+  }
+
+  transition * -> WITHDRAWN action applicant_withdraws {
+  }
+}
+
+state_machine TestRequest {
+  initial DRAFT
+
+  states {
+    DRAFT
+    ISSUED
+    ACCEPTED_BY_LAB
+    IN_PROGRESS
+    COMPLETED
+    WITHDRAWN
+    REJECTED_BY_LAB
+  }
+
+  transition DRAFT -> ISSUED action ia_issues {
+    cascade TestAssignment {
+      where "testRequestId = ${this.id}"
+      set { status: "PENDING" }
+    }
+  }
+
+  transition ISSUED -> ACCEPTED_BY_LAB action lab_accepts {
+    cascade TestAssignment {
+      where "testRequestId = ${this.id}"
+      set { status: "ACCEPTED" }
+    }
+  }
+
+  transition ACCEPTED_BY_LAB -> IN_PROGRESS action lab_starts {
+    cascade TestAssignment {
+      where "testRequestId = ${this.id} and status = 'ACCEPTED'"
+      set { status: "IN_PROGRESS" }
+    }
+  }
+
+  transition IN_PROGRESS -> COMPLETED action lab_issues_test_report {
+    cascade TestReport {
+      where "testRequestId = ${this.id}"
+      set { status: "SUBMITTED" }
+    }
+    cascade TestAssignment {
+      where "testRequestId = ${this.id} and status = 'IN_PROGRESS'"
+      set { status: "COMPLETED" }
+    }
+    cascade FormInstance {
+      where "testRequestId = ${this.id}"
+      set { status: "LOCKED" }
+    }
+  }
+
+  transition ISSUED -> REJECTED_BY_LAB action lab_rejects {
+  }
+
+  transition * -> WITHDRAWN action ia_withdraws {
+    set { withdrawn_reason: "${this.withdrawn_reason}" }
+  }
+}
+
+state_machine TestReport {
+  initial DRAFT
+
+  states {
+    DRAFT
+    SUBMITTED
+    UNDER_REVIEW
+    ACCEPTED
+    REJECTED
+  }
+
+  transition DRAFT -> SUBMITTED action lab_submits {
+    cascade FormInstance {
+      where "testReportId = ${this.id}"
+      set { status: "LOCKED" }
+    }
+    cascade TestRequest {
+      where "id = ${this.testRequestId}"
+      set { status: "COMPLETED" }
+    }
+  }
+
+  transition SUBMITTED -> UNDER_REVIEW action ia_starts_review {
+  }
+
+  transition UNDER_REVIEW -> ACCEPTED action ia_accepts_report {
+    guard "not some(FormInstance where testReportId = ${this.id} and result = 'FAIL')"
+    cascade TestReportDetermination {
+      where "testReportId = ${this.id}"
+      set { decision: "ACCEPTED" }
+    }
+  }
+
+  transition UNDER_REVIEW -> REJECTED action ia_rejects_report {
+    guard "some(FormInstance where testReportId = ${this.id} and result = 'FAIL')"
+    cascade TestReportDetermination {
+      where "testReportId = ${this.id}"
+      set { decision: "REJECTED" }
+    }
+  }
+}
+
+state_machine FormInstance {
+  initial OPEN
+
+  states {
+    OPEN
+    LOCKED
+    ACCEPTED
+    REJECTED
+  }
+
+  transition OPEN -> LOCKED action lab_submits_report {
+  }
+
+  transition LOCKED -> ACCEPTED action ia_accepts_report {
+  }
+
+  transition LOCKED -> REJECTED action ia_rejects_report {
+  }
+}
+
+state_machine EvaluationReport {
+  initial DRAFT
+
+  states {
+    DRAFT
+    IN_PROGRESS
+    FINALIZED
+    AMENDED
+  }
+
+  transition DRAFT -> IN_PROGRESS action ia_starts_evaluation {
+  }
+
+  transition IN_PROGRESS -> FINALIZED action ia_finalizes {
+    guard "every TestReport has a TestReportDetermination"
+    cascade Certificate {
+      where "evaluationReportId = ${this.id}"
+      set { status: "PENDING_REGISTRATION" }
+    }
+  }
+
+  transition FINALIZED -> AMENDED action ia_amends {
+    cascade Certificate {
+      where "evaluationReportId = ${this.id}"
+      set { status: "UNDER_INVESTIGATION" }
+    }
+  }
+}
+
+state_machine Certificate {
+  initial DRAFT
+
+  states {
+    DRAFT
+    PENDING_REGISTRATION
+    ACTIVE
+    EXPIRED
+    WITHDRAWN
+    SUSPENDED
+    UNDER_INVESTIGATION
+  }
+
+  transition DRAFT -> PENDING_REGISTRATION action ia_submits_for_registration {
+  }
+
+  transition PENDING_REGISTRATION -> ACTIVE action biml_registers {
+  }
+
+  transition ACTIVE -> EXPIRED action periodicity_elapsed {
+  }
+
+  transition ACTIVE -> WITHDRAWN action ia_withdraws {
+    set { withdrawn_reason: "${this.withdrawn_reason}" }
+  }
+
+  transition ACTIVE -> SUSPENDED action ia_suspends {
+  }
+
+  transition SUSPENDED -> ACTIVE action ia_lifts_suspension {
+  }
+
+  transition ACTIVE -> UNDER_INVESTIGATION action biml_investigates {
+  }
+
+  transition UNDER_INVESTIGATION -> WITHDRAWN action investigation_concludes_negative {
+  }
+}
+
+state_machine InstrumentSample {
+  initial REQUESTED
+
+  states {
+    REQUESTED
+    IN_TRANSIT_TO_IA
+    RECEIVED_BY_IA
+    IN_TRANSIT_TO_LAB
+    AT_LAB
+    IN_TESTING
+    RETURNED_TO_IA
+    RETURNED_TO_MANUFACTURER
+    DISPOSED
+  }
+
+  transition REQUESTED -> IN_TRANSIT_TO_IA action manufacturer_dispatches {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set {
+        sampleId: "${this.id}"
+        fromParty: "${this.manufacturerId}"
+        toParty: "${this.applicationId}_IA"
+        timestamp: "${now}"
+      }
+    }
+  }
+
+  transition IN_TRANSIT_TO_IA -> RECEIVED_BY_IA action ia_receives {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set {
+        sampleId: "${this.id}"
+        toParty: "${this.applicationId}_IA"
+        timestamp: "${now}"
+      }
+    }
+  }
+
+  transition RECEIVED_BY_IA -> IN_TRANSIT_TO_LAB action ia_dispatches_to_lab {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { fromParty: "${this.applicationId}_IA" toParty: "${this.laboratoryId}" timestamp: "${now}" }
+    }
+  }
+
+  transition IN_TRANSIT_TO_LAB -> AT_LAB action lab_receives {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { toParty: "${this.laboratoryId}" timestamp: "${now}" }
+    }
+  }
+
+  transition AT_LAB -> IN_TESTING action lab_starts_testing {
+  }
+
+  transition IN_TESTING -> AT_LAB action lab_ends_testing {
+  }
+
+  transition AT_LAB -> IN_TRANSIT_TO_IA action lab_returns_to_ia {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { fromParty: "${this.laboratoryId}" timestamp: "${now}" }
+    }
+  }
+
+  transition IN_TRANSIT_TO_IA -> RETURNED_TO_IA action ia_receives_back {
+  }
+
+  transition RETURNED_TO_IA -> RETURNED_TO_MANUFACTURER action ia_returns_to_manufacturer {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { toParty: "${this.manufacturerId}" timestamp: "${now}" }
+    }
+  }
+
+  transition RETURNED_TO_MANUFACTURER -> DISPOSED action manufacturer_disposes {
+    cascade CustodyEvent {
+      where "id = NULL"
+      set { timestamp: "${now}" condition: "DISPOSED" }
+    }
+  }
+}
+

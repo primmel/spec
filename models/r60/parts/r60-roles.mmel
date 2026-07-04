@@ -1,0 +1,28 @@
+// ─────────────────────────────────────────────────────────────────────
+// Roles (R 60-CS participants)
+// ─────────────────────────────────────────────────────────────────────
+
+role IssuingAuthority {
+  name "Issuing Authority (IA)"
+}
+
+role TestLaboratory {
+  name "Test Laboratory"
+}
+
+role ManufacturerTestLab {
+  name "Manufacturer Test Laboratory (MTL, Scheme A)"
+}
+
+role Manufacturer {
+  name "Manufacturer / Applicant"
+}
+
+role AuthorisedRepresentative {
+  name "Authorised representative"
+}
+
+role BIML {
+  name "BIML (certificate registration)"
+}
+

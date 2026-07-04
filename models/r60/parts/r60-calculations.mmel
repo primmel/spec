@@ -1,0 +1,111 @@
+// ─────────────────────────────────────────────────────────────────────
+// Calculations — OCL primitives
+// ─────────────────────────────────────────────────────────────────────
+
+calculation loadCellError {
+  name "Load cell error"
+  inputs {
+    avgIndication : number { unit "counts" }
+    referenceIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(avgIndication - referenceIndication) / conversionFactor}"
+  reference { R60-3-2-1-2-2 }
+}
+
+calculation referenceIndication {
+  name "Reference indication (R_i)"
+  inputs {
+    testLoad : number { unit "kg" }
+    dMin : number { unit "kg" }
+    dMax : number { unit "kg" }
+    n : integer { unit "1" }
+    f : number { unit "counts/v" }
+  }
+  output : number { unit "counts" }
+  expression "ocl{(testLoad - dMin) / (dMax - dMin) * n * f}"
+  reference { R60-3-2-1-2-6 }
+}
+
+calculation conversionFactor {
+  name "Conversion factor (f)"
+  inputs {
+    avgIndicationAt75pct : number { unit "counts" }
+    indicationAtDmin : number { unit "counts" }
+    n_LC : integer { unit "1" }
+  }
+  output : number { unit "counts/v" }
+  expression "ocl{(avgIndicationAt75pct - indicationAtDmin) / (0.75 * n_LC)}"
+  reference { R60-3-2-1-2-4 }
+}
+
+calculation repeatabilityError {
+  name "Repeatability error"
+  inputs {
+    values : list<number> { unit "counts" }
+  }
+  output : number { unit "counts" }
+  expression "ocl{values->max() - values->min()}"
+  reference { R60-3-2-1-3 }
+}
+
+calculation mean {
+  name "Arithmetic mean"
+  inputs {
+    values : list<number> { unit "1" }
+  }
+  output : number { unit "1" }
+  expression "ocl{values->sum() / values->size()}"
+}
+
+calculation creep {
+  name "Creep error"
+  inputs {
+    indicationAtTime : number { unit "counts" }
+    initialIndication : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indicationAtTime - initialIndication) / conversionFactor}"
+  reference { R60-1-5-5-1 }
+}
+
+calculation deadLoadOutputReturn {
+  name "Dead load output return (DR)"
+  inputs {
+    minLoadIndication2 : number { unit "counts" }
+    minLoadIndication1 : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(minLoadIndication2 - minLoadIndication1) / conversionFactor}"
+  reference { R60-1-5-5-2 }
+}
+
+calculation humidityCHmin {
+  name "C_Hmin (humidity effect on MDLO)"
+  inputs {
+    indDminAfter : number { unit "counts" }
+    indDminBefore : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{(indDminAfter - indDminBefore) / conversionFactor}"
+  reference { R60-3-2-1-7 }
+}
+
+calculation humidityCHmax {
+  name "C_Hmax (humidity effect on span)"
+  inputs {
+    avgDmaxAfter : number { unit "counts" }
+    avgDminAfter : number { unit "counts" }
+    avgDmaxBefore : number { unit "counts" }
+    avgDminBefore : number { unit "counts" }
+    conversionFactor : number { unit "counts/v" }
+  }
+  output : number { unit "v" }
+  expression "ocl{((avgDmaxAfter - avgDminAfter) - (avgDmaxBefore - avgDminBefore)) / conversionFactor}"
+  reference { R60-3-2-1-7 }
+}
+

@@ -1,0 +1,254 @@
+// ─────────────────────────────────────────────────────────────────────
+// Provisions — R 60-1 requirements
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Classification (R 60-1 §5.1) ─────────────────────────────────────
+
+provision AccuracyClasses {
+  condition "Load cells shall be ranked into one of the four accuracy classes: A, B, C, D."
+  modality SHALL
+  reference { R60-1-5-1-1 }
+}
+
+provision MaxVerificationIntervals {
+  condition "The maximum number of load cell verification intervals (nLC) shall be within the limits presented in R 60-1 Table 1."
+  modality SHALL
+  reference { R60-1-5-1-2 }
+}
+
+provision MinVerificationInterval {
+  condition "The minimum load cell verification interval (v_min) shall be specified by the manufacturer."
+  modality SHALL
+  reference { R60-1-5-1-3 }
+}
+
+provision SupplementaryLoading {
+  condition "Load cells shall be classified by the intended manner of load application where there would be a risk of confusing loading type."
+  modality SHALL
+  reference { R60-1-5-1-4 }
+}
+
+provision CompleteClassification {
+  condition "The load cell shall be classified per the six parameters: accuracy class, nLC, load application, working temperature, humidity symbol, and additional characterisation."
+  modality SHALL
+  reference { R60-1-5-1-5 }
+}
+
+provision StandardClassification {
+  condition "Standard classifications shall be used."
+  modality SHALL
+  reference { R60-1-5-1-6 }
+}
+
+provision MultipleClassifications {
+  condition "A load cell may bear multiple classifications according to the intended manner of load application."
+  modality MAY
+  reference { R60-1-5-1-7 }
+}
+
+// ── Measuring range (R 60-1 §5.2) ───────────────────────────────────
+
+provision MeasuringRangeMin {
+  condition "The smallest load applied during test shall not be less than E_min."
+  modality SHALL
+  reference { R60-1-5-2 }
+}
+
+provision MeasuringRangeMax {
+  condition "The largest load applied during test shall not be greater than E_max."
+  modality SHALL
+  reference { R60-1-5-2 }
+}
+
+// ── MPE (R 60-1 §5.3) ───────────────────────────────────────────────
+
+provision MPEPerClass {
+  condition "The MPE values for each accuracy class shall be as tabulated in R 60-1 Table 4."
+  modality SHALL
+  reference { R60-1-5-3-1 }
+}
+
+provision MPETypeEvaluation {
+  condition "The MPE on type evaluation shall be derived as p_LC × 0.5 v (first tier), p_LC × 1.0 v (second tier), p_LC × 1.5 v (third tier)."
+  modality SHALL
+  reference { R60-1-5-3-2 }
+}
+
+// ── Repeatability (R 60-1 §5.4) ─────────────────────────────────────
+
+provision RepeatabilityError {
+  condition "The repeatability error at any test load shall not exceed the absolute value of MPE at that load."
+  modality SHALL
+  reference { R60-1-5-4 }
+}
+
+// ── Creep + DR (R 60-1 §5.5) ────────────────────────────────────────
+
+provision Creep30Min {
+  condition "The creep change over 30 minutes shall not exceed 0.7 × |MPE| at D_max."
+  modality SHALL
+  reference { R60-1-5-5-1 }
+}
+
+provision Creep20To30Min {
+  condition "The creep change between 20 and 30 minutes shall not exceed 0.15 × |MPE| at D_max."
+  modality SHALL
+  reference { R60-1-5-5-1 }
+}
+
+provision DRHalfV {
+  condition "The dead load output return shall not exceed 0.5 v."
+  modality SHALL
+  reference { R60-1-5-5-2 }
+}
+
+// ── Influence quantities (R 60-1 §5.6) ──────────────────────────────
+
+provision TemperatureLimits {
+  condition "The load cell shall meet the requirements within the temperature limits specified by the manufacturer (-10°C to +40°C if not specified)."
+  modality SHALL
+  reference { R60-1-5-6-1-1 }
+}
+
+provision SpecialTemperatureLimits {
+  condition "Special limits of working temperature may be specified; if so, they shall be marked on the load cell."
+  modality MAY
+  reference { R60-1-5-6-1-2 }
+}
+
+provision TemperatureEffectMDLO {
+  condition "The temperature effect on minimum dead load output shall not exceed p_LC × v_min per 5°C."
+  modality SHALL
+  reference { R60-1-5-6-1-3 }
+}
+
+provision BarometricPressure {
+  condition "The change in indication due to a change in barometric pressure shall not exceed the prescribed limits."
+  modality SHALL
+  reference { R60-1-5-6-2 }
+}
+
+provision HumidityCH {
+  condition "For CH or unmarked load cells, the humidity effect on MDLO (C_Hmin) shall not exceed 4% × n_LC and the humidity effect on span (C_Hmax) shall not exceed |MPE|."
+  modality SHALL
+  reference { R60-1-5-6-3-1 }
+}
+
+provision HumiditySH {
+  condition "For SH load cells, the humidity effect on span shall not exceed the prescribed limits after damp heat steady-state test."
+  modality SHALL
+  reference { R60-1-5-6-3-2 }
+}
+
+// ── Electronic (R 60-1 §5.7) ────────────────────────────────────────
+
+provision WarmUpTime {
+  condition "After warm-up, the load cell indication shall be within ±0.5 v of the steady-state indication."
+  modality SHALL
+  reference { R60-1-5-7-2-1 }
+}
+
+provision PowerVoltageVariation {
+  condition "Variations in power voltage shall not cause a change in indication exceeding ±0.5 v (or significant fault threshold)."
+  modality SHALL
+  reference { R60-1-5-7-2-2 }
+}
+
+provision ShortTimePowerReductions {
+  condition "Short-time power reductions shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-3 }
+}
+
+provision Bursts {
+  condition "Bursts (electrical fast transients) shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-4 }
+}
+
+provision Surge {
+  condition "Surge shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-5 }
+}
+
+provision ESD {
+  condition "Electrostatic discharge shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-6 }
+}
+
+provision EMCSusceptibility {
+  condition "Exposure to radiated RF EM fields shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-7 }
+}
+
+provision ConductedEMC {
+  condition "Exposure to conducted RF EM fields shall not cause significant faults."
+  modality SHALL
+  reference { R60-1-5-7-2-8 }
+}
+
+provision SpanStability {
+  condition "The span shall not drift more than the prescribed limit over the duration of the span stability test."
+  modality SHALL
+  reference { R60-1-5-7-3 }
+}
+
+// ── Technical (R 60-1 §6) ───────────────────────────────────────────
+
+provision Software {
+  condition "Embedded software that influences the raw count output of the load cell shall be evaluated under the terms of this Recommendation and OIML D 31."
+  modality SHALL
+  reference { R60-1-6-1 }
+}
+
+provision MandatoryMarkings {
+  condition "The following mandatory markings shall be clearly and indelibly marked on the load cell: manufacturer identification, type designation, serial number, accuracy class, nLC, and marking of humidity class."
+  modality SHALL
+  reference { R60-1-6-2-1 }
+}
+
+provision MandatoryAdditionalInfo {
+  condition "Mandatory additional information shall be marked either on the load cell or in an accompanying document."
+  modality SHALL
+  reference { R60-1-6-2-2 }
+}
+
+provision NonMandatoryInfo {
+  condition "Non-mandatory additional information may be provided at the manufacturer's discretion."
+  modality MAY
+  reference { R60-1-6-2-3 }
+}
+
+provision ClassDesignation {
+  condition "The accuracy class shall be marked per R 60-1 §6.2.4.1."
+  modality SHALL
+  reference { R60-1-6-2-4-1 }
+}
+
+provision LoadTypeDesignation {
+  condition "The load type (compression, tension, beam, universal) shall be marked per R 60-1 §6.2.4.2."
+  modality SHALL
+  reference { R60-1-6-2-4-2 }
+}
+
+provision TemperatureDesignation {
+  condition "Working temperature shall be marked per R 60-1 §6.2.4.3."
+  modality SHALL
+  reference { R60-1-6-2-4-3 }
+}
+
+provision HumidityDesignation {
+  condition "Humidity symbols (CH, SH, NH) shall be marked per R 60-1 §6.2.4.4."
+  modality SHALL
+  reference { R60-1-6-2-4-4 }
+}
+
+provision NLCDdesignation {
+  condition "The n_LC shall be marked per R 60-1 §6.2.4.5."
+  modality SHALL
+  reference { R60-1-6-2-4-5 }
+}
+
