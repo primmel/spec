@@ -1,0 +1,84 @@
+// ─────────────────────────────────────────────────────────────────────
+// Data registries
+// ─────────────────────────────────────────────────────────────────────
+
+data_registry ManufacturerRegistry {
+  title "Manufacturers"
+  data_class Manufacturer#data
+}
+
+data_registry IssuingAuthorityRegistry {
+  title "Issuing Authorities"
+  data_class IssuingAuthority#data
+}
+
+data_registry TestLaboratoryRegistry {
+  title "Test Laboratories"
+  data_class TestLaboratory#data
+}
+
+data_registry InstrumentModelFamilyRegistry {
+  title "Instrument model families"
+  data_class InstrumentModelFamily#data
+}
+
+data_registry InstrumentModelGroupRegistry {
+  title "Instrument model groups"
+  data_class InstrumentModelGroup#data
+}
+
+data_registry MeasuringInstrumentRegistry {
+  title "Measuring instruments"
+  data_class MeasuringInstrument#data
+}
+
+data_registry InstrumentSampleRegistry {
+  title "Instrument samples"
+  data_class InstrumentSample#data
+}
+
+data_registry ApplicationRegistry {
+  title "Applications"
+  data_class Application#data
+}
+
+data_registry TestRequestRegistry {
+  title "IA-issued test requests"
+  data_class TestRequest#data
+}
+
+data_registry TestAssignmentRegistry {
+  title "Test assignments (atomic form × sample × model tuples)"
+  data_class TestAssignment#data
+}
+
+data_registry TestReportRegistry {
+  title "Lab-issued test reports"
+  data_class TestReport#data
+}
+
+data_registry FormInstanceRegistry {
+  title "Form instances (filled-in TRFs)"
+  data_class FormInstance#data
+}
+
+data_registry FormOmissionRegistry {
+  title "Form omissions (forms omitted per group with justification)"
+  data_class FormOmission#data
+}
+
+data_registry EvaluationReportRegistry {
+  title "IA evaluation reports"
+  data_class EvaluationReport#data
+}
+
+data_registry CertificateRegistry {
+  title "Certificates of Conformity"
+  data_class Certificate#data
+}
+
+data_registry CertificateAnnexRegistry {
+  title "Certificate annexes"
+  data_class CertificateAnnex#data
+}
+

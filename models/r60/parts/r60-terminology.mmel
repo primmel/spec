@@ -1,0 +1,11 @@
+// ─────────────────────────────────────────────────────────────────────
+// Terminology — R 60-1 §3 (terms & definitions, condensed)
+// ─────────────────────────────────────────────────────────────────────
+
+// A subset of the ~30 terms defined in R 60-1 §3. Full terminology
+// lives in the OIML SMART YAML at data/oiml-r60/terminology/.
+
+// (Primmel's terminology construct is part of the spec's terminology
+// part; the symbol registry above carries the formal symbols that
+// would appear in the terminology section.)
+

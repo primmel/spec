@@ -1,0 +1,298 @@
+// ─────────────────────────────────────────────────────────────────────
+// Data classes — entity shapes (single source of truth)
+// ─────────────────────────────────────────────────────────────────────
+
+class Manufacturer#data {
+  id : string { definition "Unique identifier" modality SHALL }
+  standard_id : string { definition "Standard ID (oiml-r60)" modality SHALL }
+  company : string { definition "Company name" modality SHALL }
+  address : Address { definition "Postal address" modality SHALL }
+  contact : Contact { definition "Contact details" modality SHALL }
+  country : string { definition "Country of origin" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class IssuingAuthority#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  name : string { definition "IA name (e.g., PTB, NMi)" modality SHALL }
+  member_state : string { modality SHALL }
+  accreditation : Accreditation { modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestLaboratory#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  name : string { modality SHALL }
+  lab_kind : enum { definition "independent | manufacturer_test_lab" modality SHALL }
+  capabilities { definition "Declared test capabilities (capability-based matching)" cardinality "[0..*]" modality MAY }
+  accreditation : Accreditation { modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class InstrumentModelFamily#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  manufacturer_id : string { definition "FK to Manufacturer" modality SHALL }
+  family_name : string { definition "Human-readable family name" modality SHALL }
+  family_code : string { definition "Short code for URIs and certificate numbers" modality SHALL }
+  technology : enum { definition "Signal processing technology" modality SHALL }
+  description : text { modality MAY }
+  // Family-level electrical parameters (R 60-3 page-2)
+  rated_output : string { definition "e.g. '2.0 mV/V ± 0.04'" modality MAY }
+  input_impedance : string { modality MAY }
+  output_impedance : string { modality MAY }
+  recommended_excitation : string { modality MAY }
+  excitation_maximum : number { modality MAY }
+  // Family-level mechanical/environmental parameters
+  safe_overload : number { definition "Maximum overload capacity (% of Emax)" modality MAY }
+  transducer_material : string { modality MAY }
+  atmospheric_protection : string { modality MAY }
+  minimum_dead_load : number { definition "Emin (kg)" modality MAY }
+  temperature_range_min : number { modality MAY }
+  temperature_range_max : number { modality MAY }
+  p_LC : number { definition "Default apportioning factor (default 0.7)" cardinality "[0..1]" modality MAY }
+  humidity_class : enum { definition "CH | SH | NH default" cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class InstrumentModelGroup#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  family_id : string { definition "FK to InstrumentModelFamily" modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  group_label : string { definition "e.g., 'C6', 'B10', 'C3'" modality SHALL }
+  accuracy_class : enum { definition "A | B | C | D" modality SHALL }
+  n_LC : integer { definition "Maximum number of verification intervals" modality SHALL }
+  Y : integer { definition "v_min = Emax/Y" modality SHALL }
+  Z : integer { definition "DR ratio" modality SHALL }
+  construction : enum { definition "bending-beam | shear-beam | column | etc." cardinality "[0..1]" modality MAY }
+  load_type : enum { definition "compression | tension | beam | universal" cardinality "[0..1]" modality MAY }
+  humidity_class : enum { cardinality "[0..1]" modality MAY }
+  DR : number { definition "Stored DR value (%RO)" cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class MeasuringInstrument#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  model_family_id : string { definition "FK (denormalized from group)" cardinality "[0..1]" modality MAY }
+  model_group_id : string { cardinality "[0..1]" modality MAY }
+  model_designation : string { definition "e.g., 'ACME-LC-500-C-5kg'" modality SHALL }
+  model : string { modality SHALL }
+  emax : number { definition "Maximum capacity (kg)" modality SHALL }
+  emin : number { definition "Minimum dead load (kg)" cardinality "[0..1]" modality MAY }
+  accuracy_class : enum { modality SHALL }
+  technology : enum { modality MAY }
+  p_LC : number { cardinality "[0..1]" modality MAY }
+  load_type : enum { cardinality "[0..1]" modality MAY }
+  humidity_class : enum { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class InstrumentSample#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  sample_number : string { definition "IA-assigned (e.g., 'S-2024-001')" modality SHALL }
+  serial_number : string { definition "Manufacturer's serial" modality SHALL }
+  application_id : string { definition "FK to Application" modality SHALL }
+  model_id : string { definition "FK to MeasuringInstrument" modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  received_date : date { modality SHALL }
+  condition : enum { definition "NEW | USED | REFURBISHED | DAMAGED" modality SHALL }
+  status : enum { definition "REQUESTED | IN_TRANSIT_TO_IA | RECEIVED_BY_IA | IN_TRANSIT_TO_LAB | AT_LAB | IN_TESTING | RETURNED_TO_IA | RETURNED_TO_MANUFACTURER | DISPOSED" modality SHALL }
+  custody_events : CustodyEvent { cardinality "[0..*]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class Application#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  application_number : string { modality SHALL }
+  date_of_application : date { modality SHALL }
+  status : enum { definition "DRAFT | SUBMITTED | SAMPLES_REQUESTED | SAMPLES_RECEIVED | UNDER_REVIEW | ACCEPTED | REJECTED | WITHDRAWN" modality SHALL }
+  model_family_id : string { cardinality "[0..1]" modality MAY }
+  model_ids : string { cardinality "[0..*]" modality MAY }
+  sample_ids : string { cardinality "[0..*]" modality MAY }
+  applicant_id : string { modality SHALL }
+  manufacturer_id : string { modality SHALL }
+  instrument_id : string { modality SHALL }
+  scheme : enum { definition "A | B" modality MAY }
+  issuing_authority_id : string { cardinality "[0..1]" modality MAY }
+  laboratory_id : string { cardinality "[0..1]" modality MAY }
+  test_report_id : string { cardinality "[0..1]" modality MAY }
+  evaluation_report_id : string { cardinality "[0..1]" modality MAY }
+  certificate_id : string { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestRequest#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  request_number : string { modality SHALL }
+  application_id : string { modality SHALL }
+  requesting_authority_id : string { modality SHALL }
+  assigned_laboratory_id : string { modality SHALL }
+  sample_ids : string { cardinality "[0..*]" modality MAY }
+  model_ids : string { cardinality "[0..*]" modality MAY }
+  test_conditions : object { modality SHALL }
+  scheme : enum { definition "A | B" modality SHALL }
+  status : enum { definition "DRAFT | ISSUED | ACCEPTED_BY_LAB | IN_PROGRESS | COMPLETED | WITHDRAWN | REJECTED_BY_LAB" modality SHALL }
+  test_report_id : string { cardinality "[0..1]" modality MAY }
+  issued_date : datetime { cardinality "[0..1]" modality MAY }
+  accepted_date : datetime { cardinality "[0..1]" modality MAY }
+  completed_date : datetime { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestAssignment#data {
+  id : string { modality SHALL }
+  test_request_id : string { modality SHALL }
+  application_id : string { modality SHALL }
+  form_id : string { modality SHALL }
+  sample_id : string { modality SHALL }
+  model_id : string { modality SHALL }
+  laboratory_id : string { modality SHALL }
+  status : enum { definition "PENDING | ACCEPTED | IN_PROGRESS | COMPLETED | OMITTED | FAILED" modality SHALL }
+  form_instance_id : string { cardinality "[0..1]" modality MAY }
+  assigned_date : datetime { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestReport#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  application_id : string { cardinality "[0..1]" modality MAY }
+  test_request_id : string { cardinality "[0..1]" modality MAY }
+  model_family_id : string { cardinality "[0..1]" modality MAY }
+  model_group_id : string { cardinality "[0..1]" modality MAY }
+  instrument_id : string { modality SHALL }
+  laboratory_id : string { modality SHALL }
+  sample_ids : string { cardinality "[1..*]" modality SHALL }
+  dimensions : object { modality SHALL }
+  required_forms : string { cardinality "[1..*]" modality SHALL }
+  form_instances : string { cardinality "[0..*]" modality SHALL }
+  status : enum { definition "DRAFT | SUBMITTED | UNDER_REVIEW | ACCEPTED | REJECTED" modality SHALL }
+  evaluator : string { modality SHALL }
+  signature_date : date { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class FormInstance#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  form_id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  test_request_id : string { cardinality "[0..1]" modality MAY }
+  application_id : string { cardinality "[0..1]" modality MAY }
+  sample_id : string { modality SHALL }
+  model_id : string { cardinality "[0..1]" modality MAY }
+  laboratory_id : string { modality SHALL }
+  values : object { modality SHALL }
+  computed_values : object { modality SHALL }
+  result : enum { definition "PASS | FAIL | NA | PENDING" modality SHALL }
+  status : enum { definition "OPEN | LOCKED | ACCEPTED | REJECTED" modality SHALL }
+  evaluator : string { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class FormOmission#data {
+  id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  form_id : string { modality SHALL }
+  group_id : string { modality SHALL }
+  reason : string { modality SHALL }
+  decided_by : enum { definition "ia | test_lab" modality SHALL }
+  decided_date : date { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class TestReportDetermination#data {
+  id : string { modality SHALL }
+  evaluation_report_id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  decision : enum { definition "ACCEPTED | REJECTED | CONDITIONALLY_ACCEPTED" modality SHALL }
+  reviewer_name : string { modality SHALL }
+  supervisor_name : string { cardinality "[0..1]" modality MAY }
+  review_date : date { modality SHALL }
+  notes : text { cardinality "[0..1]" modality MAY }
+  conditions : string { cardinality "[0..*]" modality MAY }
+}
+
+class ModelEvaluation#data {
+  id : string { modality SHALL }
+  evaluation_report_id : string { modality SHALL }
+  model_id : string { modality SHALL }
+  group_id : string { cardinality "[0..1]" modality MAY }
+  required_form_ids : string { cardinality "[1..*]" modality SHALL }
+  covered_form_ids : string { cardinality "[0..*]" modality SHALL }
+  missing_form_ids : string { cardinality "[0..*]" modality SHALL }
+  contributor_test_report_ids : string { cardinality "[0..*]" modality SHALL }
+  contributor_lab_ids : string { cardinality "[0..*]" modality SHALL }
+  decision : enum { definition "PASS | FAIL | CONDITIONAL | INCOMPLETE" modality SHALL }
+  reviewer_name : string { modality SHALL }
+  review_date : date { modality SHALL }
+}
+
+class EvaluationReport#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  test_report_id : string { modality SHALL }
+  test_report_ids : string { cardinality "[1..*]" modality SHALL }
+  instrument_id : string { modality SHALL }
+  authority_id : string { modality SHALL }
+  test_report_determinations : TestReportDetermination { cardinality "[0..*]" modality MAY }
+  model_evaluations : ModelEvaluation { cardinality "[0..*]" modality MAY }
+  overall_decision : enum { definition "APPROVED | REJECTED | CONDITIONALLY_APPROVED" modality SHALL }
+  conditions : string { cardinality "[0..*]" modality MAY }
+  review_notes : text { modality SHALL }
+  reviewer_name : string { modality SHALL }
+  review_date : date { modality SHALL }
+  finalized_at : datetime { cardinality "[0..1]" modality MAY }
+  certificate_id : string { cardinality "[0..1]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class Certificate#data {
+  id : string { modality SHALL }
+  standard_id : string { modality SHALL }
+  certificate_number : string { modality SHALL }
+  issuing_authority_id : string { modality SHALL }
+  evaluation_report_id : string { modality SHALL }
+  test_report_ids : string { cardinality "[1..*]" modality SHALL }
+  instrument_model_family_id : string { modality SHALL }
+  issued_date : date { modality SHALL }
+  status : enum { definition "DRAFT | PENDING_REGISTRATION | ACTIVE | EXPIRED | WITHDRAWN | SUSPENDED | UNDER_INVESTIGATION" modality SHALL }
+  scope_groups : object { cardinality "[0..*]" modality MAY }
+  characteristics : object { modality MAY }
+  revisions : object { cardinality "[0..*]" modality MAY }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+
+class CertificateAnnex#data {
+  id : string { modality SHALL }
+  certificate_id : string { modality SHALL }
+  certificate_number : string { modality SHALL }
+  member_state : string { modality SHALL }
+  correction : string { modality SHALL }
+  created : datetime { modality SHALL }
+  modified : datetime { modality SHALL }
+}
+

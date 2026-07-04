@@ -1,0 +1,26 @@
+// ─────────────────────────────────────────────────────────────────────
+// OIML R 60 (Load Cells) — full Primmel model
+//
+// This file is the canonical Primmel representation of OIML R 60:2021.
+// It models parts 1 (metrological & technical requirements), 2 (test
+// procedures), 3 (test report forms), and the Annexes.
+//
+// Source data: ~/src/oimlsmart/smart/data/oiml-r60/
+// Companion: data/oiml-r60/examples/r60-metrological.mmel (partial demo)
+//
+// Per TODO.primmel 10.
+// ─────────────────────────────────────────────────────────────────────
+
+root OIMLR60
+
+version "2021-E1"
+
+metadata {
+  title "OIML R 60:2021 — Metrological regulation of load cells"
+  schema "MMEL 0.1"
+  edition "1"
+  author "OIML SMART project"
+  shortname "R60"
+  namespace "OIML.R60"
+}
+

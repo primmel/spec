@@ -1,0 +1,35 @@
+// ─────────────────────────────────────────────────────────────────────
+// IA evaluation processes
+// ─────────────────────────────────────────────────────────────────────
+
+process ReviewTestReportAdmissibility {
+  name "Review TestReport admissibility (Level 1)"
+  actor IssuingAuthority
+  modality SHALL
+  output { EvaluationReportRegistry }
+  reference_data_registry { TestReportRegistry }
+}
+
+process SynthesizePerModel {
+  name "Per-model technical synthesis across labs (Level 2)"
+  actor IssuingAuthority
+  modality SHALL
+  output { EvaluationReportRegistry }
+}
+
+process IssueCertificate {
+  name "Issue Certificate of Conformity if approved"
+  actor IssuingAuthority
+  modality SHALL
+  output { CertificateRegistry }
+  reference_data_registry { EvaluationReportRegistry }
+}
+
+approval BIMLRegistration {
+  name "BIML registration of the certificate"
+  actor IssuingAuthority
+  modality SHALL
+  approve_by BIML
+  approval_record { CertificateRegistry }
+}
+

@@ -1,0 +1,85 @@
+// ─────────────────────────────────────────────────────────────────────
+// Workflow — 5-phase certification subprocess
+// ─────────────────────────────────────────────────────────────────────
+
+start_event ApplicationAccepted { }
+
+end_event CertificateIssued { }
+
+end_event ApplicationRejected { }
+
+exclusive_gateway AdmissibilityPass {
+  label "Are all submitted TestReports admissible?"
+}
+
+exclusive_gateway AllModelsPass {
+  label "Do all models pass technical synthesis?"
+}
+
+subprocess R60CertificationFlow {
+  elements {
+    ApplicationAccepted { x 0 y 0 }
+    ExamineDocumentation { x 0 y 100 }
+    ExamineMarkings { x 200 y 100 }
+    ExamineSuitability { x 400 y 100 }
+    ExamineSoftware { x 600 y 100 }
+    DetermineMeasurementError { x 0 y 250 }
+    DetermineCreep { x 200 y 250 }
+    DetermineDR { x 400 y 250 }
+    DetermineBarometricPressure { x 600 y 250 }
+    DetermineHumidityCH { x 800 y 250 }
+    DetermineHumiditySH { x 1000 y 250 }
+    TestWarmUpTime { x 0 y 400 }
+    TestPowerVoltage { x 200 y 400 }
+    TestShortTimePowerReductions { x 400 y 400 }
+    TestBursts { x 600 y 400 }
+    TestSurge { x 800 y 400 }
+    TestESD { x 1000 y 400 }
+    TestEMCSusceptibility { x 0 y 550 }
+    TestConductedEMC { x 200 y 550 }
+    TestSpanStability { x 400 y 550 }
+    ReviewTestReportAdmissibility { x 600 y 700 }
+    AdmissibilityPass { x 600 y 800 }
+    SynthesizePerModel { x 600 y 900 }
+    AllModelsPass { x 600 y 1000 }
+    IssueCertificate { x 600 y 1100 }
+    BIMLRegistration { x 600 y 1200 }
+    CertificateIssued { x 600 y 1300 }
+    ApplicationRejected { x 800 y 1300 }
+  }
+  process_flow {
+    Edge1 { from ApplicationAccepted to ExamineDocumentation }
+    Edge2 { from ApplicationAccepted to ExamineMarkings }
+    Edge3 { from ApplicationAccepted to ExamineSuitability }
+    Edge4 { from ApplicationAccepted to ExamineSoftware }
+    Edge5 { from ExamineDocumentation to DetermineMeasurementError }
+    Edge6 { from ExamineMarkings to DetermineCreep }
+    Edge7 { from ExamineSuitability to DetermineDR }
+    Edge8 { from ExamineSoftware to DetermineBarometricPressure }
+    Edge9 { from DetermineMeasurementError to DetermineHumidityCH }
+    Edge10 { from DetermineCreep to DetermineHumiditySH }
+    Edge11 { from DetermineDR to TestWarmUpTime }
+    Edge12 { from DetermineBarometricPressure to TestPowerVoltage }
+    Edge13 { from DetermineHumidityCH to TestShortTimePowerReductions }
+    Edge14 { from DetermineHumiditySH to TestBursts }
+    Edge15 { from TestWarmUpTime to TestSurge }
+    Edge16 { from TestPowerVoltage to TestESD }
+    Edge17 { from TestShortTimePowerReductions to TestEMCSusceptibility }
+    Edge18 { from TestBursts to TestConductedEMC }
+    Edge19 { from TestSurge to TestSpanStability }
+    Edge20 { from TestESD to ReviewTestReportAdmissibility }
+    Edge21 { from TestEMCSusceptibility to ReviewTestReportAdmissibility }
+    Edge22 { from TestConductedEMC to ReviewTestReportAdmissibility }
+    Edge23 { from TestSpanStability to ReviewTestReportAdmissibility }
+    Edge24 { from ReviewTestReportAdmissibility to AdmissibilityPass }
+    Edge25 { from AdmissibilityPass to SynthesizePerModel label "yes" }
+    Edge26 { from AdmissibilityPass to ApplicationRejected label "no" }
+    Edge27 { from SynthesizePerModel to AllModelsPass }
+    Edge28 { from AllModelsPass to IssueCertificate label "yes" }
+    Edge29 { from AllModelsPass to ApplicationRejected label "no" }
+    Edge30 { from IssueCertificate to BIMLRegistration }
+    Edge31 { from BIMLRegistration to CertificateIssued }
+  }
+  data { }
+}
+

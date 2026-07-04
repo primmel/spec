@@ -1,0 +1,64 @@
+// ─────────────────────────────────────────────────────────────────────
+// Subforms — parameterized row shapes for TRFs (R 60-3)
+// ─────────────────────────────────────────────────────────────────────
+
+subform LoadTestRow {
+  parameters {
+    n_runs : integer {
+      description "Number of runs per test_load. Resolved from accuracy_class."
+      mapping {
+        A: 5
+        B: 5
+        C: 3
+        D: 3
+      }
+    }
+  }
+
+  type object
+  description "One row of a load-test table: applied load + N runs of (indication, time) + computed aggregates."
+
+  field test_load : number {
+    label "Test load"
+    unit "g, kg, or t"
+    measurement_method direct
+    required true
+  }
+
+  field runs : array {
+    label "Runs"
+    min_items "${{ n_runs }}"
+    max_items "${{ n_runs }}"
+    items {
+      type object
+      fields {
+        field indication : number {
+          label "Indication"
+          unit "counts"
+          measurement_method direct
+          required true
+        }
+        field time : string {
+          label "Time"
+          measurement_method direct
+          description "Time of the reading (HH:MM:SS)"
+        }
+      }
+    }
+  }
+
+  field average_indication : number {
+    label "Average"
+    unit "counts"
+    measurement_method derived
+    derivation "ocl{runs.indication->mean()}"
+  }
+
+  field repeatability_error : number {
+    label "Repeatability error"
+    unit "counts"
+    measurement_method derived
+    derivation "ocl{runs.indication->max() - runs.indication->min()}"
+  }
+}
+

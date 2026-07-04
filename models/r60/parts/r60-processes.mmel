@@ -1,0 +1,209 @@
+// ─────────────────────────────────────────────────────────────────────
+// Processes — R 60-2 conformance tests
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Examinations (R 60-2 §2.5–2.9) ──────────────────────────────────
+
+process ExamineDocumentation {
+  name "Documentation review"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Software }
+  validate_measurement { "[documentation_completeness] = true" }
+  output { FormInstanceRegistry }
+  reference { R60-2-2-5 }
+}
+
+process ExamineMarkings {
+  name "Marking examination"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision {
+    MandatoryMarkings
+    MandatoryAdditionalInfo
+    ClassDesignation
+    LoadTypeDesignation
+    TemperatureDesignation
+    HumidityDesignation
+    NLCDdesignation
+  }
+  output { FormInstanceRegistry }
+  reference { R60-2-2-5 }
+}
+
+process ExamineSuitability {
+  name "Suitability for testing examination"
+  actor TestLaboratory
+  modality SHALL
+  output { FormInstanceRegistry }
+  reference { R60-2-2-3 }
+}
+
+process ExamineSoftware {
+  name "Software examination"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Software }
+  output { FormInstanceRegistry }
+  reference { R60-2-2-5 }
+}
+
+// ── Performance tests — metrological (R 60-2 §2.10.1–2.10.6) ────────
+
+process DetermineMeasurementError {
+  name "Determination of measurement error, repeatability error, and temperature effect on MDLO"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision {
+    MeasuringRangeMin
+    MeasuringRangeMax
+    MPETypeEvaluation
+    RepeatabilityError
+    TemperatureEffectMDLO
+  }
+  validate_measurement {
+    "[EL] <= [MPE]"
+    "[ER] <= [MPE]"
+  }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference_data_registry { TestRequestRegistry }
+  reference { R60-2-2-10-1 R60-3-2-1-2-2 }
+}
+
+process DetermineCreep {
+  name "Determination of creep error"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Creep30Min Creep20To30Min }
+  validate_measurement {
+    "[CC] <= 0.7 * [MPE]"
+    "abs([CC_30min] - [CC_20min]) <= 0.15 * [MPE]"
+  }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-2 }
+}
+
+process DetermineDR {
+  name "Determination of minimum dead load output return (DR)"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { DRHalfV }
+  validate_measurement { "[CDR] <= 0.5" }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-3 }
+}
+
+process DetermineBarometricPressure {
+  name "Determination of barometric pressure effects"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { BarometricPressure }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-4 }
+}
+
+process DetermineHumidityCH {
+  name "Determination of humidity effects for CH/unmarked load cells"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { HumidityCH }
+  validate_measurement {
+    "[CHmin] <= 0.04 * [nLC]"
+    "[CHmax] <= [MPE]"
+  }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-5 R60-3-2-1-7 }
+}
+
+process DetermineHumiditySH {
+  name "Determination of humidity effects for SH marked load cells"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { HumiditySH }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-6 }
+}
+
+// ── Performance tests — electronic (R 60-2 §2.10.7–2.10.8) ──────────
+
+process TestWarmUpTime {
+  name "Warm-up time test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { WarmUpTime }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-1 }
+}
+
+process TestPowerVoltage {
+  name "Power voltage variation test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { PowerVoltageVariation }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-2 }
+}
+
+process TestShortTimePowerReductions {
+  name "Short-time power reductions test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { ShortTimePowerReductions }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-3 }
+}
+
+process TestBursts {
+  name "Bursts (electrical fast transients) test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Bursts }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-4 }
+}
+
+process TestSurge {
+  name "Surge test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { Surge }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-5 }
+}
+
+process TestESD {
+  name "Electrostatic discharge test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { ESD }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-6 }
+}
+
+process TestEMCSusceptibility {
+  name "Radiated RF electromagnetic field susceptibility test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { EMCSusceptibility }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-7 }
+}
+
+process TestConductedEMC {
+  name "Conducted (common mode) RF electromagnetic field test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { ConductedEMC }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-7-8 }
+}
+
+process TestSpanStability {
+  name "Span stability test"
+  actor TestLaboratory
+  modality SHALL
+  validate_provision { SpanStability }
+  output { TestReportRegistry FormInstanceRegistry }
+  reference { R60-2-2-10-8 }
+}
+

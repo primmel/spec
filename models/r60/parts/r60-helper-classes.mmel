@@ -1,0 +1,37 @@
+// ─────────────────────────────────────────────────────────────────────
+// Helper classes (value objects)
+// ─────────────────────────────────────────────────────────────────────
+
+class Address {
+  street { definition "Street" modality SHALL }
+  city { definition "City" modality SHALL }
+  country { definition "Country" modality SHALL }
+  postal_code { definition "Postal code" modality SHALL }
+}
+
+class Contact {
+  person { definition "Contact person" modality SHALL }
+  email { definition "Email" modality SHALL }
+  phone { definition "Phone" modality SHALL }
+}
+
+class Accreditation {
+  body { definition "Accreditation body" modality SHALL }
+  number { definition "Accreditation number" modality SHALL }
+  expiry_date : date { definition "Accreditation expiry date" modality SHALL }
+  scopes { definition "Accreditation scopes" cardinality "[0..*]" modality MAY }
+}
+
+class DocumentRef {
+  ref : string { definition "Document reference (URN or URL)" modality SHALL }
+  description { definition "Document description" modality MAY }
+}
+
+class CustodyEvent {
+  timestamp : datetime { definition "When the custody event occurred" modality SHALL }
+  from_party { definition "From party ID" modality SHALL }
+  to_party { definition "To party ID" modality SHALL }
+  condition { definition "Sample condition at handover" modality MAY }
+  notes { definition "Notes about the handover" modality MAY }
+}
+

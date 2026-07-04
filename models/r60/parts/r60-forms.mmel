@@ -1,0 +1,524 @@
+// ─────────────────────────────────────────────────────────────────────
+// Forms — declarative TRF schemas (R 60-3)
+//
+// A representative sample of the 40+ forms in data/oiml-r60/forms/.
+// The full form set is in the YAML; these demonstrate the Primmel
+// `form` construct with subform composition and OCL evaluation rules.
+// ─────────────────────────────────────────────────────────────────────
+
+form LoadCellInfo {
+  name "Load cell information (R 60-3 §4.5)"
+  description "Identification and parameters of the load cell under test."
+  data_class FormInstance#data
+  header FormHeaderA
+
+  field manufacturer {
+    label "Manufacturer"
+    measurement_method declared
+    required true
+  }
+
+  field type_designation {
+    label "Type designation"
+    measurement_method declared
+    required true
+  }
+
+  field emax {
+    label "Maximum capacity (Emax)"
+    unit "kg"
+    measurement_method declared
+    required true
+  }
+
+  field emin {
+    label "Minimum dead load (Emin)"
+    unit "kg"
+    measurement_method declared
+    required true
+  }
+
+  field accuracy_class {
+    label "Accuracy class"
+    type enum
+    values [A, B, C, D]
+    measurement_method declared
+    required true
+  }
+
+  field n_lc {
+    label "Maximum number of verification intervals (nLC)"
+    type integer
+    measurement_method declared
+    required true
+  }
+
+  field y {
+    label "Y (Emax / vmin)"
+    type integer
+    measurement_method declared
+  }
+
+  field z {
+    label "Z (DR ratio)"
+    type integer
+    measurement_method declared
+  }
+
+  field p_lc {
+    label "Apportioning factor (pLC)"
+    type number
+    default 0.7
+    measurement_method declared
+  }
+}
+
+form LoadTest {
+  name "Load test data (R 60-3 Tables 6.3 + 6.4 — parameterized)"
+  description "Per-load-point measurements. N is 3 for classes C/D, 5 for classes A/B per R 60-2 §2.10.1."
+  data_class FormInstance#data
+  header FormHeaderA
+  conformance_process DetermineMeasurementError
+  applicability {
+    accuracy_class: [A, B, C, D]
+    n_runs: { A: 5 B: 5 C: 3 D: 3 }
+  }
+
+  field electronics_power_voltage {
+    label "Power supply voltage"
+    measurement_method direct
+  }
+
+  field test_loads {
+    label "Test load measurements"
+    type array
+    subform_ref LoadTestRow {
+      parameters { n_runs: 3 }
+    }
+  }
+
+  pass_fail {
+    criteria "All |E_L| <= |MPE| at every test load"
+    pass_if "ocl{test_loads->forAll(t | t.within_mpe = 'yes')"
+  }
+}
+
+form LoadCellErrors {
+  name "Load cell errors (R 60-3 Table 6.5)"
+  description "E_L calculation across four test temperatures (20°C, T_high, T_low, 20°C return)."
+  data_class FormInstance#data
+  header FormHeaderA
+  conformance_process DetermineMeasurementError
+
+  field conversion_factor_f {
+    label "Conversion factor (f)"
+    type number
+    unit "counts/v"
+    measurement_method computed
+    calculation conversionFactor
+  }
+
+  field indication_at_dmin {
+    label "Indication at D_min"
+    type number
+    unit "counts"
+    measurement_method direct
+  }
+
+  field reference_indication_75pct {
+    label "Reference indication at 75%"
+    type number
+    unit "counts"
+    measurement_method direct
+  }
+
+  field n_lc {
+    label "Number of verification intervals (nLC)"
+    type integer
+    measurement_method declared
+  }
+
+  field dmin {
+    label "Minimum test load (D_min)"
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field dmax {
+    label "Maximum test load (D_max)"
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field plc {
+    label "Apportioning factor (pLC)"
+    type number
+    default 0.7
+    measurement_method declared
+  }
+
+  field temperature_series {
+    label "Temperature test series"
+    type array
+    min_items 4
+    max_items 4
+    items {
+      type object
+      fields {
+        field temperature : number { label "Temperature" unit "degC" measurement_method direct }
+        field test_loads {
+          label "Test load measurements"
+          type array
+          items {
+            type object
+            fields {
+              field test_load : number { label "Test load" unit "g, kg, or t" measurement_method direct }
+              field indication : number { label "Indication" unit "counts" measurement_method direct }
+              field reference_indication : number {
+                label "Reference indication (R_i)"
+                type number
+                unit "indication units"
+                measurement_method computed
+                calculation referenceIndication
+                calculation_bindings {
+                  testLoad: test_load
+                  dMin: dmin
+                  dMax: dmax
+                  n: n_lc
+                  f: conversion_factor_f
+                }
+              }
+              field error_EL : number {
+                label "Error (E_L)"
+                unit "v"
+                measurement_method derived
+                calculation loadCellError
+                calculation_bindings {
+                  avgIndication: indication
+                  referenceIndication: reference_indication
+                  conversionFactor: conversion_factor_f
+                }
+              }
+              field mpe : number {
+                label "MPE"
+                unit "v"
+                measurement_method lookup
+              }
+              field within_mpe {
+                label "Within MPE"
+                type enum
+                values [yes, no]
+                measurement_method evaluated
+                evaluation {
+                  rule "ocl{abs(error_EL) <= abs(mpe)}"
+                  condition "|E_L| <= |MPE|"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  field overall_result {
+    label "Overall result"
+    type enum
+    values [pass, fail]
+    measurement_method evaluated
+    evaluation {
+      rule "ocl{temperature_series->forAll(t | t.test_loads->forAll(l | l.within_mpe = 'yes'))}"
+      condition "All |E_L| <= |MPE| at every test load at every temperature"
+    }
+  }
+
+  pass_fail {
+    criteria "All |E_L| <= |MPE| for every test load at every temperature"
+    pass_if "ocl{every(within_mpe) = yes}"
+  }
+}
+
+form CreepDR {
+  name "Creep (C_C) and minimum dead load output return (C_DR) — R 60-3 Table 6.8"
+  data_class FormInstance#data
+  header FormHeaderA
+  conformance_process DetermineCreep
+
+  field conversion_factor_f {
+    label "Conversion factor (f)"
+    type number
+    unit "counts/v"
+    measurement_method computed
+    calculation conversionFactor
+  }
+
+  field n_lc {
+    label "Number of verification intervals (nLC)"
+    type integer
+    measurement_method declared
+  }
+
+  field dmin {
+    label "D_min (minimum test load)"
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field dmax {
+    label "D_max (maximum test load)"
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field initial_dmin_indication {
+    label "Initial D_min indication"
+    type number
+    unit "counts"
+    measurement_method direct
+  }
+
+  field initial_dmax_indication {
+    label "Initial D_max indication"
+    type number
+    unit "counts"
+    measurement_method direct
+  }
+
+  field creep_readings {
+    label "Creep readings (time series at D_max)"
+    type array
+    items {
+      type object
+      fields {
+        field test_load : string { measurement_method declared }
+        field indication_counts : number { label "Indication" unit "counts" measurement_method direct }
+        field indication_time : string { label "Time" measurement_method direct }
+        field change_v : number {
+          label "Creep change"
+          unit "v"
+          measurement_method derived
+          calculation creep
+          calculation_bindings {
+            indicationAtTime: indication_counts
+            initialIndication: initial_dmax_indication
+            conversionFactor: conversion_factor_f
+          }
+        }
+      }
+    }
+  }
+
+  field dr_readings {
+    label "DR readings"
+    type array
+    items {
+      type object
+      fields {
+        field indication_counts : number { unit "counts" measurement_method direct }
+        field indication_time : string { measurement_method direct }
+        field change_v : number {
+          unit "v"
+          measurement_method derived
+          calculation deadLoadOutputReturn
+          calculation_bindings {
+            minLoadIndication2: indication_counts
+            minLoadIndication1: initial_dmin_indication
+            conversionFactor: conversion_factor_f
+          }
+        }
+      }
+    }
+  }
+
+  field max_creep_change_v {
+    label "Maximum creep change"
+    unit "v"
+    measurement_method derived
+    derivation "ocl{creep_readings->collect(r | r.change_v)->max()}"
+  }
+
+  field creep_30min {
+    label "Creep at 30 min"
+    unit "v"
+    measurement_method derived
+    derivation "ocl{creep_readings->select(r | r.test_load = 'D_max')->first().change_v}"
+  }
+
+  field creep_20min {
+    label "Creep at 20 min"
+    unit "v"
+    measurement_method derived
+    derivation "ocl{creep_readings->select(r | r.elapsed_time = '20:00')->first().change_v}"
+  }
+
+  field creep_30min_result {
+    label "30-min creep result"
+    type enum
+    values [pass, fail]
+    measurement_method evaluated
+    evaluation {
+      rule "ocl{abs(max_creep_change_v) <= 0.7 * abs(mpe_at_dmax)}"
+      condition "|C_C(30 min)| <= 0.7 × |MPE|"
+    }
+  }
+
+  field dr_value {
+    label "DR value"
+    unit "v"
+    measurement_method derived
+    derivation "ocl{dr_readings->collect(r | r.change_v)->last()}"
+  }
+
+  field dr_half_v_result {
+    label "DR <= 0.5 v result"
+    type enum
+    values [pass, fail]
+    measurement_method evaluated
+    evaluation {
+      rule "ocl{abs(dr_value) <= 0.5}"
+      condition "|C_DR| <= 0.5 v"
+    }
+  }
+
+  pass_fail {
+    criteria "30-min creep C_C(t) <= 0.7 × |MPE|; C_DR <= 0.5 v"
+    pass_if "ocl{creep_30min_result = 'pass' and dr_half_v_result = 'pass'}"
+  }
+}
+
+form HumidityCH {
+  name "Humidity effects for CH or unmarked load cells (R 60-3 Table 6.10.1)"
+  data_class FormInstance#data
+  header FormHeaderB
+  conformance_process DetermineHumidityCH
+  applicability { humidity_class: [CH] }
+
+  field conversion_factor_f {
+    type number
+    unit "counts/v"
+    measurement_method computed
+    calculation conversionFactor
+  }
+
+  field nlc {
+    type integer
+    measurement_method declared
+  }
+
+  field dmin {
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field dmax {
+    type number
+    unit "g, kg, or t"
+    measurement_method declared
+  }
+
+  field summary {
+    label "Humidity effects summary"
+    type object
+    fields {
+      field test_loads {
+        label "Per-load-point readings"
+        type array
+        items {
+          type object
+          fields {
+            field test_load : number { unit "g, kg, or t" measurement_method direct }
+            field indication_before : number { unit "counts" measurement_method direct }
+            field indication_after : number { unit "counts" measurement_method direct }
+            field change_v : number {
+              unit "v"
+              measurement_method derived
+              derivation "ocl{(indication_after - indication_before) / conversion_factor_f}"
+            }
+          }
+        }
+      }
+
+      field chmin {
+        label "C_Hmin"
+        unit "v"
+        measurement_method derived
+        calculation humidityCHmin
+      }
+
+      field chmin_limit {
+        label "C_Hmin limit (4% n_LC)"
+        unit "v"
+        measurement_method derived
+        derivation "ocl{0.04 * nlc}"
+      }
+
+      field chmin_result {
+        type enum
+        values [pass, fail]
+        measurement_method evaluated
+        evaluation {
+          rule "ocl{abs(chmin) <= chmin_limit}"
+          condition "|C_Hmin| <= 4% × n_LC"
+        }
+      }
+
+      field chmax {
+        label "C_Hmax"
+        unit "v"
+        measurement_method derived
+        calculation humidityCHmax
+      }
+
+      field chmax_result {
+        type enum
+        values [pass, fail]
+        measurement_method evaluated
+        evaluation {
+          rule "ocl{abs(chmax) <= abs(mpe)}"
+          condition "|C_Hmax| <= |MPE|"
+        }
+      }
+    }
+  }
+
+  // Load test before humidity (parameterized subform composition)
+  field load_test_before {
+    label "Load test before humidity exposure"
+    type array
+    applicability { phase: before }
+    subform_ref LoadTestRow {
+      parameters { n_runs: 3 }
+    }
+  }
+
+  field load_test_after {
+    label "Load test after humidity exposure"
+    type array
+    applicability { phase: after }
+    subform_ref LoadTestRow {
+      parameters { n_runs: 3 }
+    }
+  }
+
+  field overall_result {
+    label "Overall result"
+    type enum
+    values [pass, fail]
+    measurement_method evaluated
+    evaluation {
+      rule "ocl{summary.chmin_result = 'pass' and summary.chmax_result = 'pass'}"
+      condition "C_Hmin <= 4% × n_LC AND C_Hmax <= |MPE|"
+    }
+  }
+
+  pass_fail {
+    criteria "C_Hmin <= 4% × n_LC; C_Hmax <= |MPE|"
+    pass_if "ocl{summary.chmin_result = 'pass' and summary.chmax_result = 'pass'}"
+  }
+}
+

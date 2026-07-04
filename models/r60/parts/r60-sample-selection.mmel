@@ -1,0 +1,12 @@
+// ─────────────────────────────────────────────────────────────────────
+// Sample selection (Annex A-D)
+// ─────────────────────────────────────────────────────────────────────
+
+process SelectSamplesPerR60AnnexD {
+  name "Sample selection per R 60 Annex D practical example"
+  actor IssuingAuthority
+  modality SHALL
+  reference_data_registry { MeasuringInstrumentRegistry InstrumentModelGroupRegistry InstrumentSampleRegistry }
+  reference { R60-A-D }
+}
+
