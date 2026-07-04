@@ -1,0 +1,78 @@
+[[include-directive]]
+== Include directive
+
+=== General
+
+Large models can be split across multiple files using the `include`
+directive. The directive is resolved by a preprocessor *before*
+tokenization — the parser sees a single concatenated string.
+
+=== Syntax
+
+[source,mmel]
+----
+include "path/to/file.mmel"
+----
+
+The path is resolved relative to the directory of the file that
+contains the `include` directive. Absolute paths are also supported.
+
+The `.mmel` extension is optional; if omitted, it is appended
+automatically.
+
+=== Example
+
+Given a project structure:
+
+----
+models/r60/
+├── r60.mmel                    ← root file
+└── parts/
+    ├── r60-roles.mmel
+    ├── r60-data-classes.mmel
+    └── r60-forms.mmel
+----
+
+The root file `r60.mmel`:
+
+[source,mmel]
+----
+include "parts/r60-roles.mmel"
+include "parts/r60-data-classes.mmel"
+include "parts/r60-forms.mmel"
+----
+
+Each included file contains top-level declarations (roles, classes,
+forms, etc.) as if they were written directly in the root file.
+
+=== Nesting
+
+Includes can be nested: file A includes B, B includes C. The
+preprocessor resolves them recursively.
+
+=== Cycle detection
+
+Circular includes are detected and rejected:
+
+```
+Error: Include cycle detected: a.mmel → b.mmel → a.mmel
+```
+
+=== Resolution order
+
+The preprocessor resolves includes in the order they appear in the
+file. Later declarations override earlier ones if they conflict
+(last-wins semantics).
+
+=== Placement
+
+`include` directives can appear anywhere in the file — before or
+after other declarations. Conventionally, they are placed at the top
+of the file, after the `root` and `version` declarations.
+
+=== Relationship to single-file models
+
+The `include` directive is optional. A single-file `.mmel` model
+that doesn't use `include` is equally valid. The directive exists
+for maintainability of large models (e.g., OIML R 60 with 3800+ lines
+of declarations).
