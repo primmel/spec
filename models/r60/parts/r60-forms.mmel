@@ -26,14 +26,14 @@ form LoadCellInfo {
 
   field emax {
     label "Maximum capacity (Emax)"
-    unit "kg"
+    unit "g|kg|t"
     measurement_method declared
     required true
   }
 
   field emin {
     label "Minimum dead load (Emin)"
-    unit "kg"
+    unit "g|kg|t"
     measurement_method declared
     required true
   }
@@ -65,10 +65,38 @@ form LoadCellInfo {
     measurement_method declared
   }
 
+  field vmin {
+    label "Minimum load cell verification interval (vmin)"
+    unit "g|kg|t"
+    type number
+    measurement_method declared
+  }
+
+  field dr {
+    label "Minimum dead load output return (DR)"
+    unit "g|kg|t"
+    type number
+    measurement_method declared
+  }
+
   field p_lc {
     label "Apportioning factor (pLC)"
     type number
     default 0.7
+    measurement_method declared
+  }
+
+  field rated_output {
+    label "Rated output"
+    unit "mV/V"
+    type number
+    measurement_method declared
+  }
+
+  field input_impedance {
+    label "Input impedance"
+    unit "Ohm"
+    type number
     measurement_method declared
   }
 }

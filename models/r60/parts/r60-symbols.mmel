@@ -22,7 +22,7 @@ symbol nLC {
 symbol Emax {
   name "Maximum capacity"
   type number
-  unit "kg"
+  unit "mass"
   latex "E_{max}"
   reference { R60-1-3-3 }
 }
@@ -30,7 +30,7 @@ symbol Emax {
 symbol Emin {
   name "Minimum dead load"
   type number
-  unit "kg"
+  unit "mass"
   latex "E_{min}"
 }
 
@@ -45,7 +45,7 @@ symbol pLC {
 symbol vmin {
   name "Minimum verification interval"
   type number
-  unit "kg"
+  unit "mass"
   latex "v_{min}"
 }
 
@@ -66,8 +66,9 @@ symbol Z {
 symbol DR {
   name "Dead load output return"
   type number
-  unit "% RO"
+  unit "mass"
   latex "DR"
+  reference { R60-1-3-5-10 }
 }
 
 symbol MPE {
@@ -137,14 +138,14 @@ symbol CHmax {
 symbol Dmax {
   name "Maximum test load"
   type number
-  unit "kg"
+  unit "mass"
   latex "D_{max}"
 }
 
 symbol Dmin {
   name "Minimum test load"
   type number
-  unit "kg"
+  unit "mass"
   latex "D_{min}"
 }
 
