@@ -101,6 +101,173 @@ form LoadCellInfo {
   }
 }
 
+// ─── R 60-A Annex B: OIML certificate page 1 (normative) ──────────
+// Source: sources/r060/a/sections/ab-oiml-certificate.adoc
+// The certificate face page. Mandatory fields per R 60-1 §3.4.2 + §5.1.5.
+form CertificateAnnexB {
+  name "OIML certificate (R 60-A Annex B — page 1)"
+  description "Mandatory load cell identification on the OIML certificate face."
+  data_class FormInstance#data
+  header FormHeaderA
+
+  field model_designation {
+    label "Model designation"
+    measurement_method declared
+    required true
+  }
+
+  field maximum_capacity {
+    label "Maximum capacity (Emax)"
+    unit "g|kg|t"
+    type number
+    measurement_method declared
+    required true
+  }
+
+  field accuracy_class {
+    label "Accuracy class"
+    type enum
+    values [A, B, C, D]
+    measurement_method declared
+    required true
+  }
+
+  field n_lc {
+    label "Maximum number of load cell verification intervals (nLC)"
+    type integer
+    measurement_method declared
+    required true
+  }
+
+  field vmin {
+    label "Minimum load cell verification interval (vmin)"
+    unit "g|kg|t"
+    type number
+    measurement_method declared
+    required true
+  }
+
+  field p_lc {
+    label "Apportioning factor (pLC)"
+    type number
+    default 0.7
+    measurement_method declared
+    required true
+  }
+
+  field additional_characteristics {
+    label "Additional characteristics (R 60-1 §3.4.2, §5.1.5)"
+    type text
+    measurement_method declared
+  }
+
+  field special_conditions {
+    label "Special conditions of use"
+    type text
+    measurement_method declared
+  }
+}
+
+// ─── R 60-A Annex B §B.2: Technical data (table B.1) ──────────────
+// Informative extended technical data that may appear on additional
+// certificate pages when the face page lacks space.
+form CertificateTechnicalData {
+  name "Certificate technical data (R 60-A Annex B Table B.1)"
+  description "Extended technical data for the OIML certificate (Annex B §B.2)."
+  data_class FormInstance#data
+  header FormHeaderA
+
+  field classification {
+    label "Classification"
+    type text
+    measurement_method declared
+  }
+
+  field additional_markings {
+    label "Additional markings"
+    type text
+    measurement_method declared
+  }
+
+  field rated_output {
+    label "Rated output"
+    unit "mV/V"
+    type number
+    measurement_method declared
+  }
+
+  field max_excitation_voltage {
+    label "Maximum excitation voltage"
+    unit "V"
+    type number
+    measurement_method declared
+  }
+
+  field input_impedance {
+    label "Input impedance (RLC)"
+    unit "Ohm"
+    type number
+    measurement_method declared
+  }
+
+  field temperature_rating_min {
+    label "Temperature rating (minimum)"
+    unit "degC"
+    type number
+    measurement_method declared
+  }
+
+  field temperature_rating_max {
+    label "Temperature rating (maximum)"
+    unit "degC"
+    type number
+    measurement_method declared
+  }
+
+  field safe_overload_relative {
+    label "Safe overload (Elim / Emax)"
+    unit "%"
+    type number
+    measurement_method declared
+  }
+
+  field cable_length {
+    label "Cable length"
+    unit "m"
+    type number
+    measurement_method declared
+  }
+}
+
+// ─── R 60-A Annex C: certificate page 2 (informative example) ─────
+// Source: sources/r060/a/sections/ac-oiml-load-cells.adoc
+// Demonstrative page that may accompany the certificate — certificate
+// history + essential data summary.
+form CertificateAnnexC {
+  name "OIML certificate supplementary page (R 60-A Annex C)"
+  description "Optional supplementary page: certificate history + essential data summary."
+  data_class FormInstance#data
+  header FormHeaderA
+
+  field certificate_history {
+    label "Certificate history"
+    type array
+    measurement_method declared
+  }
+
+  field essential_data_summary {
+    label "Essential data summary"
+    type text
+    measurement_method declared
+  }
+
+  field data_sheet_reference {
+    label "Data sheet reference (manufacturer)"
+    type text
+    measurement_method declared
+  }
+}
+
 form LoadTest {
   name "Load test data (R 60-3 Tables 6.3 + 6.4 — parameterized)"
   description "Per-load-point measurements. N is 3 for classes C/D, 5 for classes A/B per R 60-2 §2.10.1."
