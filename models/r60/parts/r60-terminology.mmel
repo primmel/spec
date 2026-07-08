@@ -1,11 +1,255 @@
 // ─────────────────────────────────────────────────────────────────────
-// Terminology — R 60-1 §3 (terms & definitions, condensed)
+// Terms — formal definitions from R 60-1 §3 (Terminology)
+//
+// Each term captures the natural-language definition, optionally
+// cross-referenced to a declared `symbol` (for terms with a quantitative
+// representation) and to the source clause.
+//
+// Source: OIML R 60-1 (2025 edition), section 3.
 // ─────────────────────────────────────────────────────────────────────
 
-// A subset of the ~30 terms defined in R 60-1 §3. Full terminology
-// lives in the OIML SMART YAML at data/oiml-r60/terminology/.
+// ── 3.1 General terms ─────────────────────────────────────────────────
 
-// (Primmel's terminology construct is part of the spec's terminology
-// part; the symbol registry above carries the formal symbols that
-// would appear in the terminology section.)
+term load-cell {
+  label "load cell"
+  definition "measuring transducer that will produce an output in response to an applied load. This output may be converted by another device into measurement units such as mass"
+  reference { R60-1-3-1 }
+}
+
+term analogue-passive-load-cell {
+  label "analogue-passive load cell"
+  definition "load cell having no amplifying element and no analogue-to-digital converting element"
+  reference { R60-1-3-1-3-1 }
+}
+
+term analogue-active-load-cell {
+  label "analogue-active load cell"
+  definition "load cell having an amplifying element but no analogue-to-digital converting element"
+  reference { R60-1-3-1-3-2 }
+}
+
+term digital-load-cell {
+  label "digital load cell"
+  definition "load cell having an analogue-to-digital converting element that supplies a digital output signal"
+  reference { R60-1-3-1-3-3 }
+}
+
+// ── 3.5 Metrological concepts ─────────────────────────────────────────
+
+term maximum-capacity {
+  label "Maximum capacity"
+  definition "largest value of a quantity expressed in units of mass, which may be applied to a load cell"
+  symbol Emax
+  reference { R60-1-3-5-5 }
+}
+
+term minimum-dead-load {
+  label "Minimum dead load"
+  definition "smallest value of a quantity (expressed in mass units) that may be applied to a load cell"
+  symbol Emin
+  reference { R60-1-3-5-9 }
+}
+
+term maximum-load-of-the-measuring-range {
+  label "Maximum load of the measuring range"
+  definition "largest value of a quantity expressed in units of mass, applied to a load cell under test"
+  symbol Dmax
+  reference { R60-1-3-5-13 }
+}
+
+term minimum-load-of-the-measuring-range {
+  label "Minimum load of the measuring range"
+  definition "smallest value of a quantity expressed in units of mass, applied to a load cell under test"
+  symbol Dmin
+  reference { R60-1-3-5-12 }
+}
+
+term maximum-measuring-range {
+  label "Maximum measuring range"
+  definition "difference between the maximum capacity and the minimum dead load of a load cell (Emax - Emin)"
+  reference { R60-1-3-5-6 }
+}
+
+term load-cell-measuring-range {
+  label "Load cell measuring range (for verification)"
+  definition "range over which a load cell is intended to be used for measurement"
+  reference { R60-1-3-5-4 }
+}
+
+term load-cell-output {
+  label "Load cell output"
+  definition "output signal of a load cell as a function of the load applied to it"
+  reference { R60-1-3-5-1 }
+}
+
+term safe-load-limit {
+  label "Safe load limit"
+  definition "maximum load that can be applied to a load cell without it permanently changing its metrological performance"
+  symbol Elim
+  reference { R60-1-3-5-7 }
+}
+
+// ── 3.5.8 / 3.5.11 / 3.5.15 — Verification intervals & ratios ────────
+
+term load-cell-verification-interval {
+  label "Load cell verification interval"
+  definition "quantity (in units of mass) expressing the smallest distinguishable measurement increment used for type evaluation"
+  symbol v
+  reference { R60-1-3-5-2 }
+}
+
+term number-of-load-cell-verification-intervals {
+  label "Number of load cell verification intervals"
+  definition "quotient of the maximum measuring range and the load cell verification interval"
+  symbol n
+  reference { R60-1-3-5-3 }
+}
+
+term maximum-number-of-load-cell-verification-intervals {
+  label "Maximum number of load cell verification intervals"
+  definition "maximum number of load cell verification intervals into which the maximum measuring range may be divided"
+  symbol nLC
+  reference { R60-1-3-5-8 }
+}
+
+term minimum-load-cell-verification-interval {
+  label "Minimum load cell verification interval"
+  definition "smallest load cell verification interval in units of mass into which the maximum measuring range (Emax - Emin) can be divided"
+  symbol vmin
+  reference { R60-1-3-5-11 }
+}
+
+term relative-minimum-load-cell-verification-interval {
+  label "Relative minimum load cell verification interval (Y)"
+  definition "ratio of the maximum capacity (Emax) to the minimum verification interval (vmin): Y = Emax / vmin"
+  symbol Y
+  reference { R60-1-3-5-15 }
+}
+
+term relative-minimum-dead-load-output-return {
+  label "Relative minimum dead load output return (Z)"
+  definition "ratio of the maximum measuring range, to two times the minimum dead load output return, DR"
+  symbol Z
+  reference { R60-1-3-5-14 }
+}
+
+term minimum-dead-load-output-return {
+  label "Minimum dead load output return (DR)"
+  definition "difference of load cell output, expressed in units of mass at the minimum dead load (Dmin), measured before and after application of a load of Dmax"
+  symbol DR
+  reference { R60-1-3-5-10 }
+}
+
+// ── 3.5.16 / 3.7.10 — Apportioning & accuracy ────────────────────────
+
+term apportioning-factor {
+  label "Apportioning factor"
+  definition "factor by which the MPE of a load cell is multiplied when it is part of a weighing module, recognising that errors of the load cell may be partially corrected by other components"
+  symbol pLC
+  reference { R60-1-3-7-10 }
+}
+
+term maximum-permissible-error {
+  label "Maximum permissible error"
+  definition "largest value of error of indication permitted by regulations for a given performance characteristic"
+  symbol MPE
+  reference { R60-1-3-5-16 }
+}
+
+// ── 3.6 Technical / environmental ────────────────────────────────────
+
+term load-cell-family {
+  label "Load cell family"
+  definition "group of load cells of the same type having common metrological characteristics, differing only in their capacity-related parameters (Emax, Emin)"
+  reference { R60-1-3-2 }
+}
+
+term creep {
+  label "Creep"
+  definition "change in load cell output occurring with time while under load, with all environmental conditions and other variables on the load cell being held constant"
+  symbol CC
+  reference { R60-1-3-6-2 }
+}
+
+term warm-up-time {
+  label "Warm-up time"
+  definition "period of time required from the moment a load cell is switched on until it is capable of performing its measuring task in accordance with the requirements"
+  reference { R60-1-3-6-3 }
+}
+
+term humidity-symbol {
+  label "Humidity symbol"
+  definition "classification indicating the humidity conditions under which a load cell type may be operated: CH, SH or NH"
+  reference { R60-1-3-6-1 }
+}
+
+// ── 3.7 Other definitions ────────────────────────────────────────────
+
+term strain-gauge {
+  label "Strain gauge"
+  definition "device consisting of a fine wire or foil arranged in a pattern, whose electrical resistance changes when subjected to strain, used for measuring deformation of an elastic element"
+  reference { R60-1-3-7-1 }
+}
+
+// ── 3.4 / 3.8 — Lifecycle & compliance ───────────────────────────────
+
+term type-evaluation {
+  label "Type (pattern) evaluation"
+  definition "process whereby the type of a measuring instrument is examined and tested in order to verify whether it complies with the statutory requirements"
+  reference { R60-1-3-4-3 }
+}
+
+term type-approval {
+  label "Type approval"
+  definition "decision of legal relevance, granted by the legal metrology authority, on the basis of type evaluation, that the type of a measuring instrument complies with the statutory requirements"
+  reference { R60-1-3-4-4 }
+}
+
+term performance-test {
+  label "Performance test"
+  definition "test undertaken to verify the capability of an instrument to perform according to a given specification, in the presence of influences or disturbances"
+  reference { R60-1-3-4-5 }
+}
+
+term metrological-supervision {
+  label "Metrological supervision"
+  definition "activities undertaken by a legal metrology authority to ensure that measuring instruments comply with statutory requirements"
+  reference { R60-1-3-4-1 }
+}
+
+term rated-operating-condition {
+  label "Rated operating condition"
+  definition "condition of use in which the rated values of the influence quantities are within prescribed limits"
+  reference { R60-1-3-4-2 }
+}
+
+term marking {
+  label "Marking"
+  definition "information, in the form of inscriptions on a measuring instrument or its packaging, indicating its compliance with the regulations"
+  reference { R60-1-3-3-1 }
+}
+
+term sealing {
+  label "Sealing"
+  definition "means of preventing any change, by unauthorised persons, of any feature of a measuring instrument that has been legally set or sealed by an authorised person"
+  reference { R60-1-3-3-2 }
+}
+
+term durability {
+  label "Durability"
+  definition "ability of an instrument to maintain its metrological performance characteristics over a period of use"
+  reference { R60-1-3-4-6 }
+}
+
+term legal-metrology {
+  label "Legal metrology"
+  definition "practice and process of applying statutory and regulatory control to measuring instruments and measurements, including type evaluation, type approval, verification, and metrological supervision"
+  reference { R60-1-3-4 }
+}
+
+term measuring-transducer {
+  label "Measuring transducer"
+  definition "device that provides an output quantity having a specified relationship to the input quantity, used to convert one form of signal into another (e.g., force into electrical voltage in a load cell)"
+  reference { R60-1-3-1-1 }
+}
 
