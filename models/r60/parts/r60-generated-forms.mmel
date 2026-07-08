@@ -171,7 +171,7 @@ form AuthorityInfo {
 form BarometricPressure {
   name "BarometricPressure (r60-3/table-6.9)"
   description "Barometric pressure effects (C_P)"
-  conformance_process conf_metrological_tests_barometric_pressure
+  conformance_process DetermineBarometricPressure
   field conversion_factor_f : number { label "Conversion factor (f)" unit "counts/v" required true measurement_method computed calculation conversionFactor }
   field reference_indication_75pct : number { label "Reference indication at 75%" unit "counts" required true measurement_method direct }
   field indication_at_dmin : number { label "Indication at D_min" unit "counts" required true measurement_method direct }
@@ -201,7 +201,7 @@ form BarometricPressure {
 form Bursts {
   name "Bursts (r60-3/form-6.14)"
   description "Bursts (electrical fast transients) test - power supply lines and I/O circuits"
-  conformance_process conf_electronic_tests_bursts
+  conformance_process TestBursts
   field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
   field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
   field power_supply_lines : array {
@@ -244,7 +244,7 @@ form Bursts {
 form ConductedEMC {
   name "ConductedEMC (r60-3/form-6.18)"
   description "Immunity to conducted electromagnetic fields test"
-  conformance_process conf_electronic_tests_conducted_emc
+  conformance_process TestConductedEMC
   field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
   field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
   field rate_of_sweep : string { label "Rate Of Sweep" }
@@ -282,7 +282,7 @@ form ConductedEMC {
 form DocumentationExamination {
   name "DocumentationExamination (r60-3/sec-5.4)"
   description "Documentation for type approval examination"
-  conformance_process conf_examinations_documentation
+  conformance_process ExamineDocumentation
   field documentation_items : array {
     items {
       type object
@@ -306,7 +306,7 @@ form DocumentationExamination {
 form EMCSusceptibility {
   name "EMCSusceptibility (r60-3/form-6.17)"
   description "Electromagnetic susceptibility test"
-  conformance_process conf_electronic_tests_emc_susceptibility
+  conformance_process TestEMCSusceptibility
   field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
   field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
   field rate_of_sweep : string { label "Rate Of Sweep" }
@@ -478,7 +478,7 @@ form EquipmentInfo {
 form ESD {
   name "ESD (r60-3/form-6.16)"
   description "Electrostatic discharge test - direct and indirect application"
-  conformance_process conf_electronic_tests_esd
+  conformance_process TestESD
   field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
   field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
   field discharge_types : object {
@@ -548,7 +548,7 @@ form ESD {
 form HumiditySH {
   name "HumiditySH (r60-3/table-6.10.2)"
   description "Humidity effects for SH marked load cells"
-  conformance_process conf_metrological_tests_humidity_sh
+  conformance_process DetermineHumiditySH
   field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true measurement_method computed calculation conversionFactor }
   field reference_indication_75pct : number { label "Reference indication at 75%" unit "counts" required true measurement_method direct }
   field indication_at_dmin : number { label "Indication at D_min" unit "counts" required true measurement_method direct }
@@ -706,7 +706,7 @@ form ManufacturerInfo {
 form MarkingExamination {
   name "MarkingExamination (r60-3/sec-5.1)"
   description "Marking requirements examination (R 60-1, 6.2)"
-  conformance_process conf_examinations_inscriptions
+  conformance_process ExamineMarkings
   field mandatory_markings_on_load_cell : array {
     items {
       type object
@@ -836,7 +836,7 @@ form PhotographsInfo {
 form PowerVoltage {
   name "PowerVoltage (r60-3/form-6.12)"
   description "Power voltage variation test"
-  conformance_process conf_electronic_tests_power_voltage
+  conformance_process TestPowerVoltage
   field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
   field main_voltage : string { label "Main Voltage" required true }
   field supply_type : enum { label "Supply Type" required true values [AC, DC] }
@@ -883,7 +883,7 @@ form PowerVoltage {
 form Repeatability {
   name "Repeatability (r60-3/table-6.6)"
   description "Repeatability errors (E_R) calculation across four test temperatures"
-  conformance_process conf_metrological_tests_measurement_error_repeatability_mdlo
+  conformance_process DetermineMeasurementError
   field conversion_factor_f : number { label "Conversion factor (f)" unit "counts/v" required true measurement_method computed calculation conversionFactor }
   field reference_indication_75pct : number { label "Reference indication at 75%" unit "counts" required true measurement_method direct }
   field indication_at_dmin : number { label "Indication at D_min" unit "counts" required true measurement_method direct }
@@ -956,7 +956,7 @@ form SampleSelection {
 form ShortTimePower {
   name "ShortTimePower (r60-3/form-6.13)"
   description "Short-time power reductions test"
-  conformance_process conf_electronic_tests_short_time_power
+  conformance_process TestShortTimePowerReductions
   field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
   field dmin_value : number { label "Dmin Value" unit "g, kg, or t" }
   field reference_voltage_range : number { label "Reference Voltage Range" unit "V" required true }
@@ -989,7 +989,7 @@ form ShortTimePower {
 form SoftwareExamination {
   name "SoftwareExamination (r60-3/sec-5.3)"
   description "Software examination (R 60-1, 6.1)"
-  conformance_process conf_examinations_software
+  conformance_process ExamineSoftware
   field date : date { label "Date of examination" required true }
   field observer : string { label "Observer" }
   field serial_number : string { label "Serial number" required true }
@@ -1009,7 +1009,7 @@ form SoftwareExamination {
 form SpanStability {
   name "SpanStability (r60-3/form-6.19)"
   description "Span stability test measurement data"
-  conformance_process conf_electronic_tests_span_stability
+  conformance_process TestSpanStability
   applicability {
     accuracy_class: [B, C, D]
     runs_per_measurement: { B: 5 C: 3 D: 3 }
@@ -1071,7 +1071,7 @@ form SpanStability {
 form SuitabilityExamination {
   name "SuitabilityExamination (r60-3/sec-5.2)"
   description "Suitability for testing examination"
-  conformance_process conf_examinations_suitability
+  conformance_process ExamineSuitability
   field date : date { label "Date of examination" required true }
   field observer : string { label "Observer" }
   field serial_number : string { label "Serial number" required true }
@@ -1141,7 +1141,7 @@ form SummaryResults {
 form Surge {
   name "Surge (r60-3/form-6.15)"
   description "Surge test"
-  conformance_process conf_electronic_tests_surge
+  conformance_process TestSurge
   field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
   field dmin_value : number { label "Dmin Value" }
   field unit : enum { label "Unit" values [g, kg, t] }
@@ -1199,7 +1199,7 @@ form Synopsis {
 form TemperatureMDLO {
   name "TemperatureMDLO (r60-3/table-6.7)"
   description "Temperature effects on minimum dead load output (C_M)"
-  conformance_process conf_metrological_tests_measurement_error_repeatability_mdlo
+  conformance_process DetermineMeasurementError
   field conversion_factor_f : number { label "Conversion factor (f)" unit "counts/v" required true measurement_method computed calculation conversionFactor }
   field reference_indication_75pct : number { label "Reference indication at 75%" unit "counts" required true measurement_method direct }
   field indication_at_dmin : number { label "Indication at D_min" unit "counts" required true measurement_method direct }
@@ -1248,7 +1248,7 @@ form TestUsageMatrix {
 form WarmUpTime {
   name "WarmUpTime (r60-3/form-6.11)"
   description "Warm-up time test for electronic load cells"
-  conformance_process conf_electronic_tests_warm_up_time
+  conformance_process TestWarmUpTime
   field conversion_factor_f : number { label "Conversion Factor F" unit "counts/v" required true }
   field duration_of_disconnection : string { label "Duration Of Disconnection" required true }
   field readings : object {
