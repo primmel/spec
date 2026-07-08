@@ -268,6 +268,60 @@ form CertificateAnnexC {
   }
 }
 
+// ─── R 60-A Annex E: Load transmission (informative) ──────────────
+// Source: sources/r060/a/sections/ae-load-transmission.adoc
+// Manufacturer declares how load is transmitted to the cell. Annex E
+// defines standard mounting symbols (U1-U4) and notes that some cells
+// work with all standard devices, others only with selected ones, and
+// some require cell-specific hardware.
+form LoadTransmission {
+  name "Load transmission declaration (R 60-A Annex E)"
+  description "Manufacturer's declaration of applicable load transmission devices. Informative — does not affect pass/fail but is recorded for evaluator guidance."
+  data_class FormInstance#data
+  header FormHeaderA
+
+  field loading_type {
+    label "Loading type"
+    type enum
+    values [compression, tension, universal, bending, shear]
+    measurement_method declared
+    required true
+  }
+
+  field works_with_all_standard {
+    label "Works with all standard mounting devices"
+    type enum
+    values [yes, no, partial]
+    measurement_method declared
+    required true
+  }
+
+  field standard_devices_supported {
+    label "Standard mounting devices supported (U1-U4 per WELMEC 2.4)"
+    type array
+    measurement_method declared
+  }
+
+  field requires_custom_device {
+    label "Requires cell-specific mounting device"
+    type enum
+    values [yes, no]
+    measurement_method declared
+  }
+
+  field custom_device_description {
+    label "Custom device description (if applicable)"
+    type text
+    measurement_method declared
+  }
+
+  field evaluator_notes {
+    label "Evaluator notes on load transmission influence"
+    type text
+    measurement_method observed
+  }
+}
+
 form LoadTest {
   name "Load test data (R 60-3 Tables 6.3 + 6.4 — parameterized)"
   description "Per-load-point measurements. N is 3 for classes C/D, 5 for classes A/B per R 60-2 §2.10.1."
