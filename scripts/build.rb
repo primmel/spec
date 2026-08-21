@@ -7,7 +7,7 @@ sources_dir = File.join(repo_dir, 'sources')
 dist_dir = File.join(repo_dir, 'dist')
 
 parts = %w[
-  spec data-model process-model compliance measurement mapping
+  spec language-v3 data-model process-model compliance measurement mapping
   documentation terminology workspace authoring-guide methodology-guide
   forms symbols calculations state-machines
 ]

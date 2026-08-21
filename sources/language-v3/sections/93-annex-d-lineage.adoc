@@ -1,0 +1,69 @@
+[[annex-d-lineage]]
+== Annex D (informative): Lineage and compatibility
+
+=== The lineage
+
+Primmel is the public successor to the Multi-Modal Modelling Language
+(MMEL). The lineage in one table:
+
+[cols="1,2,3"]
+|===
+|Generation |Document |Content
+
+|MMEL 0.1
+|The MMEL schema identifier inside `.mmel` files
+|The four pillars: data, process, compliance, measurement
+
+|Primmel v2
+|MN 113 (this repository, `sources/spec/`) and its parts MN 113-2 to
+113-10
+|The MMEL 0.1 surface plus the extension wave: forms, subforms, symbols,
+calculations, state machines, terminology; the package manifest; the
+requirements and subject-chain constructs
+
+|Primmel v3
+|This document
+|The v2 surface plus the subject anatomy, instantiation, artifacts,
+quantities and duality, the activity taxonomy, the twin interface,
+monitors, passports, the assurance constructs, multilinguality, and the
+checker catalog as a conformance surface
+|===
+
+=== The compatibility contract
+
+v3 is a strict extension of v2 at the parse level:
+
+. every v2 keyword parses under v3 (<<annex-a-constructs,Annex A>>),
+including the alias pairs (`variable` / `measurement`, `canvas` /
+`subprocess`, `view` / `view_profile`, the short and full event
+keywords);
+. the `.mmel` file extension is accepted everywhere `.prl` is
+(<<serialization-file-types,16.1>>);
+. the `MMEL_MAP` type spelling of a `.prm` file is read as an alias of
+`Primmel_MAP`, and v2 files keep their v2 spellings across a load/dump
+cycle (<<prm-format,16.4>>);
+. the legacy citation spellings (`source { doc clause }`,
+`references { <role> { ... } }`, `specification_reference "..."`) keep
+parsing and fold into the same model channels as the canonical `ref`
+forms (<<provenance-forms,14.3>>);
+. the deprecated manifest facet `extends` is read as a one-element
+`uses` (<<package-manifest,9.3>>);
+. the `version` declaration line is accepted
+(<<special-declarations,9.2>>).
+
+The forward-compatibility rule of <<parse-modes,9.5>> runs the other way:
+a v3 document using constructs a v2 parser does not register parses under
+that parser with the unknown material skipped. Authors targeting a mixed
+toolchain estate SHOULD validate in strict mode against the oldest
+intended generation.
+
+=== Migration guidance
+
+A v2 model becomes a v3 model by declaration, not by rewrite: nothing in
+a v2 package needs to change. The v3 additions are available when the
+model earns them: the subject anatomy when aspects need the IS/HAS/DOES
+split, instances when samples and units enter the model, `ref` relations
+when the predicate registry is declared, and the checker catalog as the
+conformance surface throughout. The canonical migration of the legacy
+citation spellings to `ref` is mechanical, and the serializer performs it
+on every dump (<<provenance-forms,14.3>>).

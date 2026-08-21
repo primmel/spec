@@ -1,0 +1,197 @@
+[[processes]]
+== Processes
+
+[[process-subject]]
+=== The process as a recursive subject
+
+A process is a subject (<<subject-construct,10.2>>): it IS its signature
+and provenance, it HAS state and registers, it DOES its steps, and the
+recursion bottoms out in atomic steps. Two definition forms exist: the
+*abstract* form (a signature with no body; always valid) and the
+*executable* form (a `does` body of steps and flow).
+
+[source,prl]
+----
+process creep_test {
+  name "Creep test method"
+  actor lab
+  modality SHALL
+  signature {
+    in  { applied_load : mass duration : time }
+    out { indication_series : mass_series }
+  }
+  invariants { "ocl{self.applied_load <= self.e_max}" }
+  preconditions {
+    precondition warmed-up {
+      check "ocl{self.state = #ready}"
+      description "An unwarmed run is invalid, never a fail."
+      on_violation invalid
+    }
+  }
+  executor lab
+  registers { conditions_log : text indication_series : mass_series }
+  state OperationalStates
+  instances {
+    by accuracy_class
+    values { A { n_runs: 5 } C { n_runs: 3 } }
+  }
+  does {
+    start_event s
+    action stabilize  { executor actor role lab_technician capture stab_form write { conditions_log } }
+    action apply_load { executor actor role lab_technician read { applied_load } }
+    action hold       { executor machine wait duration }
+    action record     { executor machine read { applied_load } write { indication_series } }
+    end_event e
+    flow {
+      s -> stabilize -> apply_load -> hold -> record -> e
+    }
+  }
+}
+----
+
+The v2 process facets remain: `name`, `actor`, `modality`,
+`reference_data_registry { ... }` (registries read), `output { ... }`
+(registries written), `validate_provision { ... }`,
+`validate_measurement { ... }`, `subprocess` (the canvas page), `links`,
+`note`, `table`, and `figure`. The v3 facets add:
+`signature { in { ... } out { ... } }`, `invariants { ... }`,
+`preconditions { ... }`, `executor`, `registers { ... }`, `state` (the
+bound operational state machine), `instances { by <dimension>
+values { ... } }`, `does { ... }`, `child_composition` (`all` or
+`gateway`, parse-enforced; how children combine for the coverage
+calculus), `activity_kind { ... }` (<<activity-taxonomy,12.5>>), and
+`segregation { constraint <id> { ... } }` (<<activity-taxonomy,12.5>>).
+
+[[steps-and-flow]]
+=== Steps and flow
+
+A `does` body holds step declarations and a `flow { ... }` block. The step
+kinds are `action`, `approval`, `gateway`, `parallel_gateway`,
+`start_event`, `end_event`, `timer_event`, and `signal_event`. A step may
+carry:
+
+* `executor machine` or `executor actor` (a closed vocabulary,
+parse-enforced), with `role <id>` for actor steps;
+* `read { ... }` / `write { ... }` register access, `capture <form>`,
+`wait <duration>`;
+* `fires <transition>`: on completion the step takes the named transition
+of the process's bound state machine (C37, C40);
+* `calls <process> { with { in { ... } out { ... } } }`: the step invokes
+a sub-process, binding every callee input to a caller register and every
+callee output back to a caller register; resolution, completeness, and
+kind compatibility are checker-enforced (C76), as are input/output type
+coherence and flow coverage (C74, C75).
+
+Flow edges chain: `a -> b -> c`. An optional `{ when "ocl{...}" }` body
+conditions the last hop of a chain; at a gateway the first matching edge
+in document order wins, and the unconditioned edge is the default.
+
+[[events-and-gateways]]
+=== Events and gateways
+
+The event constructs are `start_event` (alias `start`), `end_event`
+(alias `end`), `timer_event` (alias `timer`), and `signal_catch_event`
+(alias `signalcatch`). A timer event carries `type` and `para`; the
+documented timer-type vocabulary is `WAIT`, `REPEAT`, and `DURATION`
+(MN 113), and the checker validates recurrence presence and period
+format (C14, C15). A signal catch event carries `catch`. An
+`exclusive_gateway` carries `label`. The process-integrity rules are
+checker-enforced: one start per process (C10), a terminal end (C11), flow
+names that resolve (C12), a realized signature (C13), and unique step ids
+(C16).
+
+[[canvases]]
+=== Canvases
+
+A `canvas` (alias `subprocess`, the v2 spelling) is a diagram container: a
+page of process components and edges with layout. A process names its page
+with the `subprocess` facet. The canvas is the visual projection of the
+process graph; the graph is the model.
+
+[[activity-taxonomy]]
+=== Activity archetypes and segregation
+
+An `activity_archetype` register classifies processes against an activity
+taxonomy (facets `label`, `definition`, `parent`, `clause`), and a process
+declares its kinds with `activity_kind { ... }`; multi-kind is deliberate,
+classification not inheritance, and the identifiers resolve against the
+register (C58). A `segregation { constraint <id> { ... } }` block declares
+role-segregation constraints as first-class structure (the constraint
+kinds, for example `case_personnel_disjoint`, are the program's
+vocabulary); membership resolution is checker-enforced (C59).
+
+[[state-machines]]
+=== State machines
+
+A `state_machine` declares the lifecycle of an entity or the operational
+states of a subject:
+
+[source,prl]
+----
+state_machine Application {
+  kind lifecycle
+  initial DRAFT
+  states { DRAFT SUBMITTED UNDER_REVIEW ACCEPTED REJECTED }
+  transition submit {
+    from { DRAFT }
+    to SUBMITTED
+    guard "ocl{self.is_complete}"
+    cascade {
+      set status "under_review"
+      create ReviewTask { with { application : self.id } }
+      notify ia_officer via email
+    }
+  }
+}
+----
+
+The `kind` facet is a closed vocabulary, parse-enforced: `lifecycle`
+(workflow entities; the default) or `operational` (a subject's HAS state).
+The two families are kept separate (C38). A transition carries `from`,
+`to`, `action`, an optional `guard` expression, and an optional `cascade`
+of side effects: `set`, `where`, `create`, `via`, and the semantic cascade
+actions `lock`, `submit`, `notify`, `record` (a closed vocabulary,
+parse-enforced). Cascade transition resolution is checker-enforced (C95),
+and every referenced state must exist (C39).
+
+[[roles-and-approvals]]
+=== Roles and approvals
+
+A `role` declares an organizational actor (`name`, plus optional `label`
+and `description`). An `approval` binds a workflow step to an approver
+role and an approval record registry: facets `name`, `actor`, `modality`,
+`approve_by`, `approval_record { ... }`, and `reference { ... }`.
+
+[[map-profiles]]
+=== Map profiles
+
+A `map_profile` declares an in-model mapping to a target namespace:
+
+[source,prl]
+----
+map_profile OCS {
+  description "Mappings into the reference model"
+  mapping {
+    SourceBeans -> OCS#SourceBeans
+    TestBatchMoisture -> OCS#VerifyQuality {
+      description "Batch moisture verification fulfils the quality clause."
+      justification "The lab runs the moisture test per batch."
+      coverage full
+    }
+  }
+  coverage { OCS#SourceBeans full }
+}
+----
+
+The facets are `description`, a `mapping { ... }` block of
+`source -> target` pairs (spaces around the arrow are optional) with an
+optional per-pair metadata block (`description`, `justification`,
+`coverage`), and a profile-level `coverage { ... }` block of assertions
+about reference components. The standalone `.prm`
+serialization (<<prm-format,16.4>>) is equivalent; the checker verifies
+that mappings resolve (C21), run implementation-to-reference (C22), and
+agree with the computed coverage calculus (C23), and that a mapping
+without a description is documented at audit level (C25). A `view_profile`
+(alias `view`) declares a read-only projection of a model for a set of
+roles (facets `against`, `roles`, `visible`, `description`); views never
+write (C26).

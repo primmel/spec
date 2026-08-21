@@ -1,0 +1,40 @@
+[[foreword]]
+== Foreword
+
+This document is the language specification for *Primmel version 3*, the
+executable modelling language for SMART standards. It is the first edition of
+the specification of Primmel v3, and it supersedes MN 113 (the Multi-Modal
+Modelling Language specification) as the complete language reference. MN 113
+remains the record of the v2 surface, every construct of which Primmel v3
+continues to accept (Annex D).
+
+Document identity:
+
+[cols="1,3"]
+|===
+|Document |MN 114, Primmel Language Specification
+|Language version specified |Primmel version 3 (v3)
+|Edition |1
+|Date |2026-08-20
+|Status |Draft, published for comment
+|Reference implementation |`@primmel/primmel` (primmel-ts) 1.6.1
+|===
+
+This document is published as a *draft for comment*. Comments are invited by
+issue on the public source repository,
+`https://github.com/primmel/spec/issues`, which is the named contact for this
+draft. The draft status will be lifted after the comment window closes and
+the received comments have been dispositioned.
+
+Verification statement. Every normative statement in this document describes
+behavior that the reference implementation, the `primmel-ts` toolchain at the
+version named above, exhibits today. No construct, rule, or format is
+specified here aspirationally. Where a clause can be checked mechanically,
+the clause says how: the construct registry of Annex A is derived from the
+parser configuration of the toolchain
+(`packages/primmel/src/ser-des/config/index.ts`), and the checker rule
+catalog of Annex B reproduces the machine-readable registry that
+`primmel check --rules` prints (`packages/primmel/src/check-rules.ts`). A
+reviewer can verify either annex against the toolchain source within one
+command. Content that is planned but not implemented is marked *roadmap*
+with its tracking reference and makes no normative claim.

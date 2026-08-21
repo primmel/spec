@@ -1,0 +1,36 @@
+= MN 114: Primmel Language Specification
+:docnumber: 114
+:edition: 1
+:revdate: 2026-08-20
+:copyright-year: 2026
+:language: en
+:title-main-en: Primmel Language Specification
+:doctype: standard
+:status: draft
+:mn-document-class: ribose
+:mn-output-extensions: xml,html,pdf,rxl
+:local-cache-only:
+
+include::sections/00-foreword.adoc[]
+include::sections/01-introduction.adoc[]
+include::sections/02-scope.adoc[]
+include::sections/03-normative-references.adoc[]
+include::sections/04-terms-and-definitions.adoc[]
+include::sections/05-conformance.adoc[]
+include::sections/06-language-overview.adoc[]
+include::sections/07-lexical-structure.adoc[]
+include::sections/08-model-structure.adoc[]
+include::sections/09-subject-model.adoc[]
+include::sections/10-requirements-and-conformance.adoc[]
+include::sections/11-processes.adoc[]
+include::sections/12-data-quantities-time.adoc[]
+include::sections/13-references-and-relations.adoc[]
+include::sections/14-multilinguality.adoc[]
+include::sections/15-serialization.adoc[]
+include::sections/16-checker.adoc[]
+include::sections/17-formal-grammar.adoc[]
+include::sections/90-annex-a-constructs.adoc[]
+include::sections/91-annex-b-rule-catalog.adoc[]
+include::sections/92-annex-c-comparison.adoc[]
+include::sections/93-annex-d-lineage.adoc[]
+include::sections/99-bibliography.adoc[]

@@ -1,0 +1,24 @@
+[[normative-references]]
+== Normative references
+
+The following documents are referred to in the text in such a way that some
+or all of their content constitutes requirements of this document. For dated
+references, only the edition cited applies. For undated references, the
+latest edition of the referenced document (including any amendments)
+applies.
+
+* <<RFC2119>>, _Key words for use in RFCs to Indicate Requirement Levels_,
+BCP 14, RFC 2119, March 1997.
+* <<RFC8174>>, _Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words_,
+BCP 14, RFC 8174, May 2017.
+* <<ISO8601-1>>, ISO 8601-1, _Date and time — Representations for
+information interchange — Part 1: Basic rules_. The `date`, `datetime`, and
+`duration` value types of this specification use the ISO 8601 calendar date,
+local or UTC-offset time of day, and duration designators
+(<<value-forms,8.5>>, <<time-primitives,13.6>>).
+* <<ISO24229>>, ISO 24229, _Information and documentation — Codes for
+written language conversion systems_. The spelling system codes and
+conversion system codes of the multilinguality constructs
+(<<multilinguality,clause 15>>) follow the code structure of ISO 24229,
+built on ISO 639-3 language codes, ISO 15924 script codes, and ISO 3166-1
+country codes.

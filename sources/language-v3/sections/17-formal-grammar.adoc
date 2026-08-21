@@ -1,0 +1,91 @@
+[[formal-grammar]]
+== Formal grammar (EBNF)
+
+This clause states the grammar of the language at its load-bearing levels:
+the lexical structure, the top level, and the shared sub-structures that
+recur across constructs. The per-construct facet grammars are specified in
+<<subject-model,clauses 10>> to <<multilinguality,15>>, and the construct
+registry in <<annex-a-constructs,Annex A>> states every
+keyword, its aliases, and its payload shape. The grammar notation is EBNF:
+`[ x ]` is optional, `{ x }` repeats zero or more times, and `|`
+separates alternatives.
+
+=== Lexical grammar
+
+[source,ebnf]
+----
+Text        ::= { Whitespace | Comment | Token }
+Whitespace  ::= ? any Unicode whitespace character ?
+Comment     ::= ( '#' | '//' ) { ? any character except line feed ? } LineEnd
+              (* recognized only at a token boundary *)
+Token       ::= QuotedString | Block | BareToken
+BareToken   ::= NonSpace { NonSpace }
+            (* where the first character is neither '"' nor '{' *)
+QuotedString::= '"' { EscapedChar | ? any character except unescaped '"' ? } '"'
+EscapedChar ::= '\' ? any character ?
+Block       ::= '{' Text '}'
+            (* balanced; a quoted string inside a block is scanned as a
+               string, so braces inside it do not nest *)
+LineEnd     ::= ? line feed or end of input ?
+----
+
+=== Top-level grammar
+
+[source,ebnf]
+----
+Model          ::= { Declaration }
+Declaration    ::= SpecialDecl | ConstructDecl
+SpecialDecl    ::= 'root' BareToken
+                 | 'version' QuotedString
+                 | 'metadata' Block
+                 | 'package' Block
+ConstructDecl  ::= Keyword Identifier Block
+Keyword        ::= ? a keyword of Annex A, or an alias ?
+Identifier     ::= BareToken
+----
+
+Within a block, the facet grammar of each construct is a sequence of
+facet entries:
+
+[source,ebnf]
+----
+FacetEntry   ::= FacetKeyword FacetValue
+FacetKeyword ::= ? a facet keyword of the construct ?
+FacetValue   ::= QuotedString | Block | BareToken | Expression | BracketList
+Expression   ::= ? a token starting with 'ocl{', re-accumulated until the
+                   braces balance ?
+BracketList  ::= ? a token starting with '[', re-accumulated until the
+                   accumulated text contains ']' ?
+----
+
+=== Shared sub-structures
+
+The provenance block, the typed relation, the key-value entry, and the
+quantity block recur across constructs:
+
+[source,ebnf]
+----
+SourceBlock    ::= 'source' '{' 'doc' Value 'clause' Value [ 'fragment' Value ] '}'
+RefEntry       ::= 'ref' Predicate Value [ '{' 'note' QuotedString '}' ]
+Predicate      ::= BareToken   (* declared in a predicate registry; C103 *)
+KeyValueEntry  ::= Key ':' Value [ Unit ]
+                 | Key ':' QuantityBlock
+QuantityBlock  ::= '{' 'value' Value 'unit' Value
+                     [ 'kind' Value ] [ 'uncertainty' Value ]
+                     [ 'tolerance' Value ] '}'
+Applicability  ::= 'applicability' '{' ApplicabilityEntry { ApplicabilityEntry } '}'
+ApplicabilityEntry ::= DimensionKey ':' Value
+----
+
+=== What the grammar does not decide
+
+Three judgments are deliberately not grammar:
+
+. *closed vocabularies.* Where a facet's value set is closed, the clause
+that specifies the facet says so, and says whether the set is
+parse-enforced (a violation is a parse error) or checker-enforced (a rule
+of Annex B);
+. *reference resolution.* Whether an identifier resolves is a checker
+matter (Annex B), never a parse matter;
+. *scope discipline.* Which slot a value may occupy at which chain level
+is a checker matter (C17), never a parse matter.

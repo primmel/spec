@@ -1,0 +1,34 @@
+[[scope]]
+== Scope
+
+This document specifies the Primmel modelling language, version 3. It
+specifies:
+
+. the lexical structure and the syntax of the Primmel model text (the `.prl`
+file), including every top-level construct and its facets;
+. the semantic model: the tier system, the subject anatomy (IS / HAS / DOES),
+requirements and conformance tests bound to subjects, processes as recursive
+subjects, data and quantity modelling, references and relations, and
+multilinguality;
+. the serialization rules: the file types (`.prl`, `.prm`), the package
+directory format, the include directive, and the canonical emission rules
+that make parse and serialize a round trip;
+. conformance requirements: what a conforming Primmel document, parser,
+serializer, checker, and package shall, should, and may do.
+
+This document does not specify:
+
+* the expression language carried inside `ocl{ ... }` payloads; expressions
+are opaque text to this specification, bound to a dialect by the consuming
+program (see <<embedded-expressions,8.6>>; <<OCL>> is the informative base
+notation of the dialects in use);
+* the `.prd` clause-extract payloads and the `.pws` workspace directories of
+runtime records; both are consumer-side artifacts referenced informatively
+in <<artifact-kinds,7.4>>;
+* the ReqIF and RDF projection mappings produced by `primmel export`; the
+projections are toolchain behaviors referenced informatively in
+<<checker,clause 17>>;
+* user interfaces, editors, and rendering pipelines.
+
+This document is platform-independent and tool-agnostic: it defines a text
+language and the behavior of tools that read and write it, not any one tool.

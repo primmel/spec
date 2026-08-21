@@ -1,0 +1,331 @@
+[[subject-model]]
+== The subject model
+
+[[five-entity-kinds]]
+=== The five entity kinds
+
+The primary tier is the *subject chain*: five entity kinds that together
+state what a conforming subject is, has, and does. All five are registered
+constructs of the language (<<annex-a-constructs,Annex A>>), and all five
+are specified here.
+
+==== instrument: the subject type
+
+One instrument declaration defines the subject type of a Recommendation:
+its variants, its classification dimensions, its family criteria, and its
+model groups.
+
+[source,prl]
+----
+instrument LoadCell {
+  extends MeasuringInstrumentModel
+  definition "Device that converts a load into an electrical signal."
+  variant AnaloguePassiveLoadCell { definition "..." }
+  dimension accuracy_class {
+    label "Accuracy class"
+    scope group
+    description "Classification by maximum permissible error."
+    values {
+      A { description "..." payload { n_lc_limits: "..." } }
+      B
+      C
+      D
+    }
+  }
+  family_criteria { "same material" "same design" }
+  family_defaults { dimensions { construction technology } parameters { rated_output } }
+  model_group {
+    definition "..."
+    identical_characteristics { metrological_class n_lc }
+    identical_attributes { accuracy_class n_lc }
+  }
+}
+----
+
+The facets are: `extends` (parent subject type), `definition`,
+`variant <id> { ... }` (repeatable), `dimension <id> { ... }` (repeatable;
+facets `label`, `scope`, `description`, `cardinality`, `label_separator`,
+`reference`, `term_ref`, and `values { ... }` whose values may carry
+`description`, a `payload { ... }` map, and `implies` subsumption links),
+`family_criteria { ... }`, `family_defaults { dimensions { ... }
+parameters { ... } }`, and `model_group { ... }` with
+`identical_characteristics` and `identical_attributes`. Typed relations
+(`ref`, <<references-and-relations,clause 14>>) are accepted.
+
+A dimension value's `implies` declares category subsumption inside one
+dimension; the applicability engine walks the implication closure, and the
+graph must be acyclic. A dimension's `cardinality` is `single` (default) or
+`set` (the subject holds a value set; `label_separator` joins the rendered
+labels).
+
+==== attribute_definition: the schema of a property
+
+[source,prl]
+----
+attribute_definition e_max {
+  symbol "E_max"
+  name "Maximum capacity"
+  definition "Largest load the instrument is designed to measure."
+  quantity_kind mass
+  unit kg
+  value_type QuantityValue
+  origin design-fixed
+  scope model
+  category metrological
+  is_dimension false
+  enum humidity_class
+  irdi "0172-a/123"
+  derived "ocl{...}"
+  source { doc "urn:oiml:pub:r:60-1:2021" clause "3.5.5" }
+}
+----
+
+The facets are: `symbol`, `name`, `definition`, `quantity_kind`, `unit`,
+`value_type`, `origin`, `scope`, `category`, `is_dimension`, `enum` (bind
+to an enumeration), `irdi` (the internationally registrable data
+identifier), `derived` (a derivation expression), `source` / `ref`
+provenance, and `note`. The `origin`, `scope`, and `category` values are
+program registers: the parser stores them as texts, and their closed
+vocabularies (for example `design-fixed` versus `declared` for the IS/HAS
+duality of <<is-has-duality,10.4>>) are enforced by the consuming
+program's linker, not by this specification.
+
+==== capability: a composable mixin
+
+[source,prl]
+----
+capability digital {
+  label "Digital"
+  description "Digital signal processing capability."
+  abstract false
+  extends analogue-active
+  requires strain-gauge
+  has_parameters { output_signal software_identification }
+  satisfies_requirements { /req/electronic/software }
+  verified_by_tests { /conf/electronic-tests/software }
+}
+----
+
+Capabilities compose: `extends` inherits, `requires` declares
+prerequisites, `has_parameters` names the parameters the capability
+contributes, and `satisfies_requirements` / `verified_by_tests` anchor it
+to the secondary tier. An `abstract true` capability is a contract, never
+applied directly.
+
+==== behavior: a stimulus-response definition
+
+[source,prl]
+----
+behavior creep {
+  kind temporal
+  stimulus force
+  response "Indication drift under constant load."
+  source { doc "urn:oiml:pub:r:60-1:2021" clause "3.7.1" }
+  verified_by { /conf/metrological-tests/creep-test }
+}
+----
+
+The facets are `kind`, `stimulus`, `response`, `source` / `ref`
+provenance, and `verified_by`. A behavior is a process in the semantic
+model (<<process-subject,12.1>>): the declaration names it and states its
+stimulus-response contract, and the process anatomy carries the executable
+detail.
+
+==== condition_set: an operating envelope
+
+[source,prl]
+----
+condition_set load-cell-reference {
+  role reference
+  entries {
+    temperature { value 20 unit degC tolerance 1 }
+  }
+}
+----
+
+The `role` facet states the condition tier. The documented tier vocabulary
+is `reference`, `rated`, `limiting`, and `actual` (the designed tiers are
+IS content; the actual tier is HAS content, <<is-has-duality,10.4>>); the
+parser stores the role as text and the tier discipline is program-side.
+Each entry of `entries { ... }` names a quantity with `value`, `unit`, and
+`tolerance`.
+
+[[subject-construct]]
+=== The subject construct and the IS/HAS/DOES anatomy
+
+The `subject` construct is the general form of the primary tier: it
+organizes the aspect catalog by the three families *is*, *has*, and
+*does*. The discriminator of the families is the level of being:
+
+[cols="1,2,3"]
+|===
+|Family |Level |Discriminator
+
+|`is`
+|identity and design
+|Change it and the model describes a different subject; it exists without
+any test being run.
+
+|`has`
+|observation and instance
+|It varies across units and time without changing identity; it can be
+measured, logged, or stated per instance.
+
+|`does`
+|function and process
+|It has inputs, steps, and outputs; it can be executed or simulated.
+|===
+
+[source,prl]
+----
+subject LoadCell {
+  extends MeasuringInstrumentModel
+  is {
+    metadata { name "Load cell" }
+    provenance { manufacturer "ACME" }
+    design_parameters { e_max : mass by design }
+    designed_conditions { reference ref-conds rated rated-conds }
+    promises {
+      c6-envelope {
+        target accuracy-class
+        level symbolic C6
+        conditions ocl{self.temperature >= rated.t_min}
+        statement "Holds accuracy class C6 across the rated range."
+        verified_by { /req/metrological/mpe /conf/metrological-tests/mpe-test }
+      }
+    }
+    endpoint lc500_api {
+      operation get_indication {
+        kind query
+        serves indication
+        payload { quantity_kind mass unit kg timestamp true }
+      }
+      access { public { get_indication } }
+      profile rest_json
+    }
+  }
+  has {
+    attributes { d_min : mass test_dependent }
+    dimensions { accuracy_class in {A,B,C,D} }
+    state OperationalStates
+    characteristics { creep }
+    environmental_context { "logged 23.4 degC during run 7" }
+    artifact_instances { evf-001 }
+    serve indication via get_indication { fresh_within 5s }
+  }
+  does {
+    behavior measure
+    behavior creep
+  }
+}
+----
+
+The IS family carries eight aspect kinds: `metadata`, `provenance`,
+`structure`, `design_parameters`, `designed_conditions`, `promises`,
+`artifacts`, and `endpoint` (the declared API surface of a served subject,
+<<twin-era-constructs,13.11>>). The HAS family carries six aspect kinds
+plus the serve bindings: `attributes`, `dimensions`, `state` (the
+operational state machine, <<state-machines,12.6>>), `characteristics`,
+`environmental_context`, `artifact_instances`, and
+`serve <aspect> via <operation> [{ fresh_within <duration> }]`. The DOES
+family carries one aspect kind, recursively defined: `behavior`, and a
+behavior is a process (<<process-subject,12.1>>).
+
+A *promise* is a manufacturer claim on a characteristic or a behavior,
+possibly envelope-shaped or conditional: facets `target`, `level`,
+`conditions`, `statement`, `verified_by`, and provenance. A promise cites
+no regulator; the manufacturer binds itself, and evaluation verifies. A
+bare statement-only promise parses but is unverifiable, and the checker
+flags it (C43); a promise stated as one bare parameter value is an error
+(C44).
+
+`extends` merges a subject with its parent at load resolution: maps merge
+by key with the child winning, lists append with parent entries first, and
+scalars override with the child's non-empty value. An aspect block placed
+under the wrong family, or an undeclared aspect kind, does not fail the
+parse; it is recorded and reported by the checker (C6, anatomy-family).
+
+[[instance-construct]]
+=== The instance construct
+
+An instance declares one member of a subject chain, with its own exhibited
+values and its upward links:
+
+[source,prl]
+----
+instance smp-001 {
+  of LoadCellSample
+  level sample
+  model mod-500-2t-c3
+  definition_versions { LoadCellSample : "2021" attributes : "1.0.0" }
+  has {
+    attributes { e_max : 2.2 t }
+    dimensions { accuracy_class : C }
+    test_context { d_min : 0 kg }
+  }
+}
+----
+
+The facets are: `of` (the subject reference), `level` (the chain level),
+the upward chain links (`model`, `family`, `group`, `reference`),
+`definition_versions { ... }` (the edition pins, resolved against the
+manifest's edition register by C80), and `has { ... }` with `attributes`,
+`dimensions`, and `test_context` value maps. A value entry is
+`key : value [unit]`, or the quantity block form carrying the full value
+contract:
+
+[source,prl]
+----
+e_max : { value 2.2 unit t kind mass uncertainty 0.001 tolerance 0.5 }
+----
+
+Instance scope discipline (which values a sample-level instance may carry)
+is a checker matter (C17), not a parse matter.
+
+[[is-has-duality]]
+=== The IS/HAS value duality
+
+One quantity may exist at both levels of being: a designed rating (IS,
+carrying a tolerance) and an exhibited reading (HAS, carrying an
+uncertainty). The language keeps the levels apart so that a test can say
+"hold the environmental context within the designed envelope" without
+confusing which is which. The `dual` construct (<<dual-construct,13.5>>)
+declares the relation explicitly; the checker verifies kind coherence
+between the two sides (C34).
+
+[[artifact-constructs]]
+=== Artifact definitions and instances
+
+An `artifact_definition` declares an output a subject must produce, with
+its content contract and its production rule (the IS `artifacts` aspect
+references these):
+
+[source,prl]
+----
+artifact_definition enforcement-evidence-file {
+  name "Enforcement evidence file"
+  description "Electronic record the instrument produces per enforcement measurement."
+  content_contract {
+    fields {
+      measured_speed : speed
+      measurement_timestamp : datetime
+      image_evidence : media optional
+    }
+    structure "one record per enforcement measurement; images embedded"
+    media {
+      image_evidence { kinds { jpeg png } role "vehicle identification" }
+    }
+  }
+  produced_when per_measurement
+  retention "approx. three months (secure storage)"
+  ref derives-from "urn:oiml:pub:r:91-1:2025#clause-6.6"
+}
+----
+
+An `artifact_instance` records one produced output (the HAS
+`artifact_instances` aspect references these), with `of` (the definition),
+`produced_at` (a datetime, <<time-primitives,13.6>>), `by` (the producing
+instance), and `content { ... }` (the recorded values, in the
+`key : value [unit]` entry form of <<instance-construct,10.3>>). The
+checker enforces the contract (C45), instance resolution (C46), and the
+separation of evidence from judgment (C47).

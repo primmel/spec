@@ -19,7 +19,8 @@ programme, and an audit target.
 [cols="1,3", options="header"]
 |===
 |Part |Covers
-|link:spec/[Specification] |Core language reference: identifiers, file types, syntax, formal grammar
+|link:language-v3/[Language specification (v3)] |The current language edition: subjects (IS/HAS/DOES), requirements and conformance, packages, serialization, the conformance clauses, the checker rule catalog
+|link:spec/[Specification] |Core language reference: identifiers, file types, syntax, formal grammar (the v2 edition, MN 113)
 |link:data-model/[Data model] |Classes, enumerations, data registries, field types, cardinality
 |link:process-model/[Process model] |Processes, events, gateways, subprocesses, approvals
 |link:compliance/[Compliance] |Provisions, modality keywords, references, notes

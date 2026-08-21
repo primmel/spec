@@ -1,0 +1,67 @@
+[[introduction]]
+== Introduction
+
+Primmel is a domain-specific language for representing SMART standards in an
+executable form. A Primmel-modelled standard is a structured artifact whose
+subjects, requirements, processes, data requirements, and evidential
+requirements are defined precisely enough that a computer can validate them,
+query them, execute them, and reason about them.
+
+Primmel v2, formerly MMEL and specified in MN 113, established the four
+pillars of the language: *data* (records, enumerations, registries),
+*process* (events, gateways, canvases), *compliance* (provisions with
+RFC 2119 modality, traceable to source clauses), and *measurement* (typed
+values with validation expressions), together with the cross-cutting
+artifacts (mappings, references, approvals). Primmel v3 keeps all of it and
+adds the layer the compliance use case always needed: the *subject*. The
+delta, stated once:
+
+[cols="1,2"]
+|===
+|Primmel v2 (MN 113) |Primmel v3 (this document)
+
+|Provisions as text plus modality
+|Subjects with a full anatomy (IS / HAS / DOES); requirements as constraints
+bound to subject aspects
+
+|Processes as canvas nodes
+|Processes as recursive subjects: abstract or executable, with signature,
+state, registers, and executors
+
+|One model kind
+|Reference and implementation model kinds, related by mapping; packages with
+`uses` composition, five package kinds, and editions
+
+|Mapping coverage (full / minimal / partial)
+|The same calculus, machine-checked against typed anchor sets
+
+|Data classes and registries
+|The same, plus quantities and units, the IS/HAS value duality, series, and
+time primitives
+
+|References to clauses
+|Clause and fragment provenance as typed relations (`ref`), sentence-level
+text-coverage audit, and multilinguality (ISO 24229 spelling codes)
+|===
+
+The design center of v3 is a single claim: a requirement is a *constraint
+bound to a subject model*, a test is an *operation on that subject*, evidence
+is *recorded exhibition*, and a verdict is a *re-executable judgment*. The
+document of the standard is reconstructed from the model as a view; the model
+is the source of truth for the machine, and the published text remains the
+source of truth for the committee.
+
+The conceptual foundations of the language (the IS–HAS–DOES modelling
+system, its closure, completeness, and extensibility proofs, and the
+kernel/surface architecture) are published separately in the Primmel
+documentation volume (`primmel/primmel-smart-docs`, volumes 0 and I). This
+specification is self-contained: it normatively specifies the syntax, the
+semantic model, the serialization, and the conformance requirements, and it
+cites the foundations informatively where a design rationale aids the
+reader.
+
+The reference usage of Primmel v3 is the OIML SMART program, which authors
+its Recommendation models (R 60, R 91, R 129, R 144) and scheme framework as
+Primmel v3 packages and runs its certification workflows from them. The
+language itself is program-agnostic: nothing in this document is specific to
+one standards program.

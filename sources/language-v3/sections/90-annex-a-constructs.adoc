@@ -1,0 +1,114 @@
+[[annex-a-constructs]]
+== Annex A (normative): The construct registry
+
+This annex is the registry of every top-level construct of the language.
+It reproduces the parser configuration of the reference implementation
+(`packages/primmel/src/ser-des/config/index.ts` of primmel-ts); the two
+are verified together, and a discrepancy is a defect in one of them.
+
+Every construct declaration has the shape `KEYWORD IDENTIFIER { ... }`:
+one keyword, one identifier, one block payload
+(<<top-level-shape,9.1>>). The four special declarations of the first
+table are the exceptions. The "since" column states the language
+generation that introduced the construct: v2 (the MN 113 generation,
+including its extension wave) or v3 (this document's generation); v3
+accepts every v2 construct (<<annex-d-lineage,Annex D>>).
+
+=== Special declarations
+
+[cols="1,2,3"]
+|===
+|Declaration |Payload |Meaning
+
+|`root` |one bare token |The top-level model identity
+(<<special-declarations,9.2>>).
+|`version` |one string |The model version text; accepted, not recorded
+(<<special-declarations,9.2>>).
+|`metadata` |block |The singleton metadata block
+(<<special-declarations,9.2>>).
+|`package` |block |The package manifest, singleton
+(<<package-manifest,9.3>>).
+|===
+
+=== The construct registry
+
+[cols="2,2,2,1,1", options="header"]
+|===
+|Keyword |Aliases |Collection |Since |Clause
+
+|`role` | |roles |v2 |12
+|`provision` | |provisions |v2 |11
+|`process` | |processes |v2 |12
+|`approval` | |approvals |v2 |12
+|`class` | |data classes |v2 |13
+|`enum` | |enums |v2 |13
+|`data_registry` | |registries |v2 |13
+|`variable` | |variables |v2 |13
+|`measurement` | |variables |v2 |13
+|`exclusive_gateway` | |gateways |v2 |12
+|`start` |`start_event` |events |v2 |12
+|`end` |`end_event` |events |v2 |12
+|`signalcatch` |`signal_catch_event` |events |v2 |12
+|`timer` |`timer_event` |events |v2 |12
+|`reference` | |references |v2 |14
+|`canvas` |`subprocess` |pages |v2 |12
+|`note` | |notes |v2 |13
+|`table` | |tables |v2 |13
+|`figure` | |figures |v2 |13
+|`link` | |links |v2 |13
+|`comment` | |comments |v2 |13
+|`map_profile` | |map profiles |v2 |12
+|`view_profile` |`view` |view profiles |v2 |12
+|`term` | |terms |v2 |13
+|`form` | |forms |v2 |11
+|`subform` | |subforms |v2 |11
+|`symbol` | |symbols |v2 |13
+|`calculation` | |calculations |v2 |13
+|`verdict` | |verdicts |v2 |11
+|`reference_material` | |reference materials |v2 |13
+|`test_point_set` | |test point sets |v2 |13
+|`competence_kind` | |competence kinds |v2 |11
+|`predicate` | |predicates |v2 |14
+|`constraint` | |constraints |v2 |11
+|`discrepancy_record` | |discrepancy records |v2 |14
+|`state_machine` | |state machines |v2 |12
+|`requirement` | |requirements |v2 |11
+|`requirement_class` | |requirement classes |v2 |11
+|`instrument` | |instruments |v2 |10
+|`attribute_definition` | |attribute definitions |v2 |10
+|`capability` | |capabilities |v2 |10
+|`behavior` | |behaviors |v2 |10
+|`condition_set` | |condition sets |v2 |10
+|`conformance_class` | |conformance classes |v2 |11
+|`conformance_test` | |conformance tests |v2 |11
+|`subject` | |subjects |v3 |10
+|`instance` | |instances |v3 |10
+|`artifact_definition` | |artifact definitions |v3 |10
+|`artifact_instance` | |artifact instances |v3 |10
+|`quantity_register` | |quantity registers |v3 |13
+|`dual` | |duals |v3 |13
+|`activity_archetype` | |activity archetypes |v3 |12
+|`connector_profile` | |connector profiles |v3 |13
+|`monitor` | |monitors |v3 |13
+|`passport` | |passports |v3 |13
+|`invariant` | |invariants |v3 |13
+|`test_sequence` | |test sequences |v3 |13
+|`formulas_used` | |formulas-used registers |v3 |13
+|`text` | |texts |v3 |15
+|===
+
+=== Registry notes
+
+. `variable` and `measurement` feed the same collection; `measurement` is
+the canonical keyword of the MN 113 text and `variable` the legacy
+spelling. Both remain registered.
+. The event constructs register under both the short and the full keyword
+forms; the two forms of one event kind share one parser.
+. `canvas` is the diagram container; `subprocess` is its v2 spelling. A
+process's `subprocess` facet (<<process-subject,12.1>>) names the page it
+renders on; the two uses of the word are one reference.
+. `view` is the legacy spelling of `view_profile`.
+. The include directive (<<include-directive,16.2>>) is a preprocessor
+directive, not a construct; it never reaches the parser.
+. The checker allowlist file `.primmel-allowlist.prl` is package metadata
+(<<allowlist,17.4>>), not content; it is excluded from the package merge.

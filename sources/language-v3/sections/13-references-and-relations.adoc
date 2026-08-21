@@ -1,0 +1,114 @@
+[[references-and-relations]]
+== References and relations
+
+=== The problem this clause solves
+
+Every model element of a modelled standard traces to its source: the
+clause it interprets, the documents it cites, the other elements it
+implements or supersedes. Primmel v3 expresses all of these as one
+construct, the typed relation, with the predicate vocabulary declared as
+data.
+
+[[ref-construct]]
+=== The ref construct
+
+A `ref` is one typed triple with the enclosing element as subject:
+
+[source,prl]
+----
+ref <predicate> "<target>"
+ref <predicate> "<target>" { note "..." }
+----
+
+The target is a URI: a document anchor (a clause or annex URN, optionally
+with a fragment) or a model element identifier. A `ref` facet is accepted
+on every construct. The predicates are not keywords: they are data,
+declared in a predicate registry (<<predicate-registry,14.4>>), and an
+undeclared predicate is a checker error (C103, declared-predicate), so a
+typo is an error, not a silent new relation.
+
+[[provenance-forms]]
+=== Provenance: the canonical form and the legacy forms
+
+The citation kinds fold into the legacy channels at parse, so consumers
+read one model regardless of spelling:
+
+* `ref derives-from "<urn>#clause-<c>[/<fragment>]"` is the canonical
+provenance form; it maps onto the element's provenance channel (its
+`source` record with `doc`, `clause`, and optional `fragment`);
+* `ref cites "<target>"` maps onto the element's citation channel;
+* the citation roles (`requirement`, `test-procedure`, `calculation`,
+`report-format`, `method`) map onto the role-references channel of forms
+and fields;
+* every other predicate stays in the element's `ref` list as a semantic
+relation.
+
+The legacy spellings keep parsing during the transition: `source { doc
+"..." clause "..." [fragment "..."] }`, `references { <role> { ... } }`,
+and `specification_reference "..."`. A conforming serializer emits the
+canonical `ref derives-from` line for a URN-anchored provenance record and
+keeps the legacy `source` block for a free-text one
+(<<conforming-serializer,6.5>>). The dedicated hot edges of the model
+(`targets`, `dependencies`, `inherits_from`, `extends`, `maps_to`,
+`structure`) are facets of their constructs, never `ref` triples.
+
+The v2 `reference` construct remains the registry of citable external
+clauses:
+
+[source,prl]
+----
+reference BFS-4-2 {
+  document "Bean Freshness Standard (fictional)"
+  clause "4.2"
+  title "Moisture content"
+}
+----
+
+A `reference` declares one external document clause (facets `document`,
+`clause`, `title`); provisions and other elements cite it by identifier
+through their `reference { ... }` blocks. New modelling SHOULD cite
+document anchors directly with `ref derives-from` / `ref cites` and SHOULD
+register a `reference` construct only where a named, reusable citation
+target earns its keep.
+
+[[predicate-registry]]
+=== The predicate registry
+
+A `predicate` construct declares one relation kind:
+
+[source,prl]
+----
+predicate derives-from {
+  kind citation
+  description "The element is the model's interpretation of the target clause."
+  subject_kinds { requirement conformance_test form field calculation symbol term package }
+  target_kinds { document-anchor }
+  resolution must-resolve
+  inverse interpreted-by
+  transitive false
+  symmetric false
+}
+----
+
+The facets are `kind`, `description`, `subject_kinds { ... }`,
+`target_kinds { ... }`, `resolution`, `inverse`, `transitive`, and
+`symmetric`. A program declares its predicate vocabulary in its foundation
+or core package, and the registry composes through the package includes
+like any other content.
+
+[[discrepancy-records]]
+=== Discrepancy records
+
+Modelling a published text sometimes surfaces a difference between the
+text and the model: a clause the model deliberately does not follow, or a
+defect the model annotates. Two constructs record this honestly rather
+than silently:
+
+* the `source_discrepancy { ... }` facet, carried by requirements,
+requirements' limit accepts, tables, and notes, with `summary`,
+`sources { ... }`, `resolution`, and `rationale`; the `resolution`
+vocabulary is closed and parse-enforced: `follows_clause_x` or
+`annotated_only`;
+* the `discrepancy_record` construct, the corpus-level form, with
+`summary`, `sources { ... }`, `resolution`, `rationale`, and `status`;
+the status vocabulary is closed and parse-enforced: `open` or `resolved`.

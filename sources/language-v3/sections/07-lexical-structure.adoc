@@ -1,0 +1,105 @@
+[[lexical-structure]]
+== Lexical structure
+
+[[characters-and-whitespace]]
+=== Characters and whitespace
+
+A Primmel model text is a UTF-8 character sequence. The grammar is
+whitespace-insensitive: any run of whitespace characters (space, tab,
+carriage return, line feed, and the other Unicode whitespace) separates
+tokens and carries no meaning. There are no statement terminators; a
+construct ends where its block closes.
+
+[[comments]]
+=== Comments
+
+Two comment openers exist, each running to the end of the line:
+
+[source,prl]
+----
+# a hash comment
+// a solidus comment
+----
+
+A comment opener is recognized only at a token boundary. A `#` or `//`
+inside a token is literal text: the identifier `StdS#Process5` is one
+token, not a token followed by a comment. This is why the emission rule of
+<<canonical-form,16.5>> quotes any value that *begins* with a comment
+opener but emits a value that merely *contains* one bare.
+
+[[tokens]]
+=== Tokens
+
+Three token forms exist:
+
+bare token:: a maximal run of non-whitespace characters, unless the first
+character is `"` or `{`. Bare tokens carry identifiers, keywords, numbers,
+and unquoted values.
+
+quoted string:: begins with `"` and ends at the next unescaped `"`. A
+quoted string is one token even when it contains whitespace or newlines.
+The token's value is the text between the quotes with escapes resolved
+(<<escapes,8.4>>).
+
+block:: begins with `{` at a token boundary and ends at its balancing `}`,
+nesting to any depth. Blocks are quote-aware: a quoted string inside a
+block is scanned as a string, so a `}` or `{` inside a string does not
+change the nesting depth. A block token's value is the text between the
+outer braces. A `{` that does not begin a token is an ordinary character
+(see <<embedded-expressions,8.6>> for the consequence).
+
+[[escapes]]
+=== Escape sequences
+
+Inside a quoted string, a backslash followed by any character denotes that
+character. The canonical emitter produces exactly two escapes: `\"` for a
+quotation mark and `\\` for a backslash. A parser MUST resolve `\` + _c_ to
+_c_ for every character _c_; a serializer MUST NOT emit any other escape
+(<<conforming-serializer,6.5>>), because no other escape round-trips to a
+distinct meaning.
+
+[[value-forms]]
+=== Value forms
+
+A facet value is written in one of four forms:
+
+. a *bare value*: one bare token (`C3`, `2.2`, `design-fixed`);
+. a *quoted value*: one string token (`"Holds class C6 over the rated
+range."`); a quoted numeric text stays text (`"2.1"` is not the number
+2.1);
+. an *embedded expression* (<<embedded-expressions,8.6>>);
+. a *balanced bracket list* (<<bracket-lists,8.7>>).
+
+Certain constructs coerce an unquoted numeric value to a number at parse
+(table cells, instance values); a quoted numeric spelling never coerces.
+The time value types `date`, `datetime`, `duration`, and `period` are
+texts in the ISO 8601 formats specified in <<time-primitives,13.6>>.
+
+[[embedded-expressions]]
+=== Embedded expressions
+
+An expression payload is written with the `ocl{ ... }` marker:
+
+[source,prl]
+----
+expression "ocl{abs(c_m * t_f / delta_t)}"
+conditions ocl{self.temperature >= rated.t_min}
+----
+
+The marker attaches to a brace group that is *not* at a token boundary, so
+the tokenizer splits the payload at interior whitespace. A parser
+recognizes a token starting with `ocl{` and re-accumulates tokens until the
+braces balance; the accumulated text, single-spaced, is the expression.
+Both the quoted spelling and the inline spelling parse to the same value.
+The expression language inside the payload is not specified in this
+document; it is bound to a dialect by the consuming program, and the
+payload is opaque text to a conforming parser.
+
+[[bracket-lists]]
+=== Balanced bracket lists
+
+Certain facets (applicability entries, value enumerations) accept a list
+spelled with square brackets, `[A, B, C]`. Brackets are not lexical
+delimiters; a reader accumulates tokens from a token starting with `[`
+until the accumulated text contains `]`. The comma is an ordinary
+character of the list text.

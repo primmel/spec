@@ -1,0 +1,117 @@
+[[annex-c-comparison]]
+== Annex C (informative): Why not an existing notation
+
+This annex answers, once, the question every standards modeller asks:
+why a new language at all. Each candidate notation is named with what it
+carries well, the semantic class it lacks (the class Primmel exists to
+carry), and the disposition this program adopted. The dispositions follow
+the program's standing rule: every external standard this work touches is
+named, with used, extended, or deliberately not used, and the reason. The
+deeper comparative analysis, including OPM, EXPRESS, and RDF/OWL, is
+published in the foundations volume (`primmel/primmel-smart-docs`,
+`docs/foundation/08-comparative-analysis.md`).
+
+=== ReqIF (with the DIN DKE SPEC 99200 profile)
+
+What it is. The OMG Requirements Interchange Format, and its profile for
+standards documents, model a standard as rows in a requirements database:
+a small set of spec-object types (document, heading, provision), one
+relation (cross-reference), XHTML text with a modality tag. It is an
+*interchange* convention between requirements-management tools, and as
+interchange it is sound.
+
+The missing semantic class: *the subject, and everything anchored to
+it*. A ReqIF row cannot say what a requirement constrains (it carries a
+tagged paragraph, not a constraint bound to subject aspect paths),
+whether something conforms (there are no values, no quantities, no
+tests), or how conformity is established and judged (there are no
+operations, no evidence records, no verdicts). Evaluation semantics are
+outside the format's scope by design.
+
+Disposition: *used* as an export projection (`primmel export reqif`,
+<<projections,17.7>>), so requirements-management tools can consume a
+package; and *deliberately not used* as the authoring model, because the
+authoring model needs exactly the semantic classes the interchange scope
+excludes.
+
+=== UML and SysML
+
+What they are. UML is the general-purpose structure and behavior
+modelling language; SysML extends it toward systems engineering with
+requirements and parametrics, and SysML v2 (on KerML) rebuilds the stack
+on a formal kernel. The kernel/surface architecture of SysML v2 and the
+one this language rests on are the same architectural move, arrived at
+independently (foundations volume, chapter 5).
+
+The missing semantic class: *the compliance spine*. Neither notation
+carries modality-tagged obligations with clause-level provenance to a
+published normative text, a sentence-level text-coverage audit against
+that text, evidence records as a permanent fact tier, or verdicts as
+re-executable judgments, and neither states the fact/judgment firewall.
+UML's action semantics stop at the escape hatch (the action body is
+opaque text); SysML requirements trace model elements to model elements,
+not model elements to published clauses. Conformity assessment (tests as
+operations, acceptance decisions with guard bands, verdict chains) is not
+in either metamodel's scope.
+
+Disposition: *deliberately not used* as the modelling base. The
+correspondences are acknowledged (the data pillar plays the role of a
+class diagram; the kernel/surface split is shared with KerML); the reason
+against adoption is that retrofitting the compliance spine onto a
+general-purpose metamodel costs more semantics than it reuses, and the
+target of this work is a text language with a checker, not a diagramming
+metamodel.
+
+=== BPMN and DMN
+
+What they are. BPMN is the process-flow notation (tasks, events,
+gateways, token semantics) with wide engine adoption; DMN is the decision
+notation (decision tables, FEEL expressions).
+
+The missing semantic class: *the subject and its quantities*. A BPMN task
+is a labeled shape: it has no typed signature bound to a subject's
+aspects, no registers, no bound state machine, no quantities with units
+and uncertainties, and no evidence records. BPMN conformance means
+behaving like the major engines, not satisfying a rule catalog over
+models. DMN decides over input data, but its decisions bind nothing to a
+subject: no measured-value semantics, no acceptance decision with guard
+bands, no verdict chain. The pair models work and decisions, not
+conformity.
+
+Disposition: *extended*. The Primmel process surface (events, gateways,
+flows, canvases) is the BPMN-shaped subset, extended with signatures,
+registers, state binding, transition firing, sub-process signature
+binding, and the process-integrity rules (C10 to C16, C74 to C76).
+DMN's decision tables correspond to the table and profile lookups of
+<<tables-symbols-calculations,13.7>> plus the acceptance decisions of
+<<acceptance-decisions,11.5>>; the notation was not adopted because a
+decision in this language must bind to subject quantities and verdicts.
+
+=== SBVR
+
+What it is. The Semantics of Business Vocabulary and Business Rules: a
+formal logic over noun concepts and fact types, with alethic and deontic
+modalities, for stating business vocabulary and rules precisely.
+
+The missing semantic class: *dynamics and measurement*. SBVR has no
+transitions (nothing executes), no exhibited values (nothing is
+measured), no tests, and no evidence: a rule states what must be true,
+never how conformity is established or judged. Its deontic obligation is
+a modality on a proposition, not an operation on a subject.
+
+Disposition: *deliberately not used*. The vocabulary role is served by
+the `term` construct and the predicate registry
+(<<terminology-construct,13.10>>, <<predicate-registry,14.4>>), which
+carry terminology with clause provenance; the rule role is served by
+requirements and constraints with embedded expressions
+(<<requirement-construct,11.1>>, <<constraint-construct,11.7>>). The
+reason against adoption is the one this whole annex states: the language
+exists to carry the classes SBVR excludes by design.
+
+=== The standing answer
+
+Every candidate stops at the document's text or the model's shape. The
+classes they lack (the subject, measured values, operations, evidence,
+verdicts, provenance to the published clause) are the classes a SMART
+standard must carry to be executable. That is the whole answer, and it is
+given once, here.

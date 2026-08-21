@@ -1,0 +1,133 @@
+[[model-structure]]
+== Model structure
+
+[[top-level-shape]]
+=== Top-level shape
+
+A model text is a sequence of *declarations*. A declaration is either a
+special declaration (<<special-declarations,9.2>>) or a *construct
+declaration*:
+
+[source,ebnf]
+----
+Model          ::= Declaration*
+Declaration    ::= SpecialDecl | ConstructDecl
+ConstructDecl  ::= KEYWORD IDENTIFIER Block
+SpecialDecl    ::= RootDecl | VersionDecl | MetadataDecl | PackageDecl
+RootDecl       ::= 'root' BareToken
+VersionDecl    ::= 'version' STRING
+MetadataDecl   ::= 'metadata' Block
+PackageDecl    ::= 'package' Block
+----
+
+Every construct declaration names a keyword registered in
+<<annex-a-constructs,Annex A>>, an identifier, and one block payload. The
+keywords, their aliases, and the collections they populate are stated
+normatively in <<annex-a-constructs,Annex A>>;
+<<subject-model,clauses 10>> to <<multilinguality,15>> specify the facet
+grammar of each construct family.
+
+Declaration order is free. Conventionally a file opens with `root`,
+`version`, and `metadata`, and a package's manifest is parsed first
+(<<package-layout,16.3>>); neither convention is a conformance
+requirement.
+
+[[special-declarations]]
+=== Special declarations
+
+`root <id>`:: declares the top-level model identity. At most one is
+meaningful; a later `root` replaces the earlier.
+
+`version "<text>"`:: declares the model version. The declaration is
+accepted and not recorded in the model; it carries no conformance force.
+Packages carry their version in the manifest (<<package-manifest,9.3>>).
+
+`metadata { ... }`:: the singleton metadata block. Facets: `title`,
+`shortname`, `author`, `schema`, `namespace`, `edition`, each a single
+value.
+
+`package { ... }`:: the package manifest, a singleton block specified in
+<<package-manifest,9.3>>.
+
+[[package-manifest]]
+=== The package manifest
+
+The manifest is the identity and composition head of a package. Its facets:
+
+[cols="1,1,3"]
+|===
+|Facet |Arity |Meaning
+
+|`id` |1 |The package identifier.
+|`title` |0..1 |The display title.
+|`version` |0..1 |The package version text.
+|`editions { ... }` |0..1 |The edition register, newest first.
+|`baseUrn` |0..1 |The base URN of the package's document namespace
+(the `base_urn` spelling is accepted; C85 checks the shape).
+|`extends` |0..1 |Deprecated single import; read as a one-element `uses`.
+|`uses { ... }` |0..1 |Imported packages; an entry is a bare package id or
+a pinned abstract import `<id>@<edition>` (<<composition-rules,7.6>>). A
+malformed pin is a parse error.
+|`kind` |0..1 |One of the five package kinds (<<package-kinds,7.3>>); any
+other token is a parse error.
+|`manufacturer`, `product` |0..1 each |The supply-chain identity of a
+product reference package (C81).
+|`maps_to { ... }` |0..1 |The standards-reference packages this model maps
+to (product reference and certification program packages).
+|`scheme_type` |0..1 |The ISO/IEC 17067 self-classification of a
+certification program (the `schemeType` spelling is accepted; C98 reads
+it).
+|`provides { ... }`, `requires { ... }`, `waives { ... }` |0..1 each
+|Capability tokens for composition matching (C30, C31).
+|`status` |0..1 |The edition lifecycle status: `current`, `preview`,
+`superseded`, or `withdrawn`; any other token is a parse error (C77).
+|`supersedes { ... }`, `replaces { ... }` |0..1 each |The edition lineage
+URNs (C79).
+|`validity { from ... to ... }` |0..1 |The validity window of the edition
+(C78).
+|`default_spelling` |0..1 |The ISO 24229 spelling code every inline prose
+string is authored in (<<multilinguality,clause 15>>; the `defaultSpelling`
+spelling is accepted).
+|`spellings { ... }` |0..1 |The declared spelling-coverage set.
+|`description` |0..1 |Free text.
+|`source { collection ... parts { ... } }` |0..1 |The source-extract
+register of the package (the `.prd` payload reference,
+<<coverage-audits,17.5>>).
+|`ref` |0..* |Typed relations of the package itself
+(<<references-and-relations,clause 14>>).
+|===
+
+Unknown manifest facets are skipped under the forward-compatibility rule
+(<<parse-modes,9.5>>).
+
+[[identifiers]]
+=== Identifiers and duplicate detection
+
+An identifier is a bare token. Identifiers are unique within their
+construct collection across the whole merged input: when a package's files
+are parsed as one token stream (<<package-layout,16.3>>), a duplicate
+identifier in one collection is detected at parse time, wherever it
+appears. The parse records the issue; the model keeps the later
+declaration.
+
+[[parse-modes]]
+=== Parse modes and forward compatibility
+
+Two parse modes exist:
+
+lenient (default):: an unrecognized top-level keyword is skipped; an
+unrecognized facet inside a known construct is skipped together with its
+value token. The one structural exception is the `ref` construct, whose
+skip consumes its predicate, its target, and its optional note block
+(<<ref-construct,14.2>>), because a one-token skip would desynchronize
+the facet walk.
+
+strict:: an unrecognized top-level keyword is an error naming the keyword
+and its source position.
+
+The lenient mode is the forward-compatibility contract: a document written
+against a later language revision, using constructs or facets this document
+does not register, parses under an older conforming parser with the unknown
+material absent and the known material intact. Authors of documents meant
+for one language version SHOULD validate in strict mode, so that a
+misspelt keyword is caught rather than skipped.

@@ -1,0 +1,155 @@
+[[checker]]
+== The checker
+
+=== primmel check
+
+The checker is the semantic layer of the toolchain: the rules that a
+syntactically conforming package is judged against. The full rule catalog,
+C1 to C103 with family, default severity, and level, is normative in
+<<annex-b-rule-catalog,Annex B>>; this clause specifies the checker's
+operating semantics.
+
+[[check-levels]]
+=== Levels
+
+Three invocation levels exist:
+
+default:: the normal-level rules run at their catalogued severities;
+errors fail, warnings print.
+
+strict:: every warning promotes to an error, except findings marked KNOWN
+by the package allowlist (<<allowlist,17.4>>) and budget-covered coverage
+findings (<<coverage-audits,17.5>>).
+
+audit:: additionally runs the audit-level rules (the coverage audits and
+the mapping-description rule) and enforces the per-package coverage
+budgets.
+
+The levels combine: `--strict --audit` is the strongest discipline. The
+checker exits non-zero when any error-severity finding survives.
+
+[[rule-families]]
+=== Rule families
+
+The catalog organizes by family, and each family answers one review
+question:
+
+[cols="1,3"]
+|===
+|Family |The question it answers
+
+|base
+|Do references resolve, do dimensions use declared enums, are stores
+unique, and is the allowlist itself honest?
+
+|anatomy
+|Is every aspect under its correct family, and do subject extensions
+resolve?
+
+|process
+|Is every process well-formed: one start, a terminal end, resolving flow,
+a realized signature, bound subprocess calls?
+
+|instantiation
+|Are instance scopes, version pins, and chain links coherent and acyclic?
+
+|mapping
+|Do mappings resolve, run the right direction, agree with the coverage
+calculus, and stay disjoint from imports?
+
+|composition
+|Do package imports resolve without redefinition or cycles, and do
+capability tokens match?
+
+|quantities
+|Does every quantity carry its unit contract, and do duals and maps stay
+coherent?
+
+|state
+|Do fired transitions and referenced states exist, and do the lifecycle
+and operational families stay separate?
+
+|promises
+|Do promises resolve, verify, and stay off bare parameter values?
+
+|artifacts
+|Do artifact definitions carry contracts, instances resolve, and evidence
+stays separate from judgment?
+
+|characteristics
+|Does every characteristic have one home, a behavior link, and declared
+derivation inputs?
+
+|twins
+|Do serve bindings, endpoints, monitors, and composition declarations
+resolve and stay fresh?
+
+|coverage
+|Is every requirement tested, every test evidenced, every form judged,
+and the normative text covered?
+
+|edition
+|Are statuses, validity windows, supersedes chains, and edition pins
+well-formed?
+
+|supply-chain
+|Do product mappings resolve, stay pinned, and keep passport access
+classes leak-free?
+|===
+
+[[allowlist]]
+=== The allowlist discipline
+
+A package carries its known debt explicitly in `.primmel-allowlist.prl`.
+An entry is KNOWN or STALE:
+
+* a KNOWN entry matches a current finding: the finding prints and never
+fails, even at the strict level;
+* a STALE entry matches nothing: it is an error (C57), because the data
+was fixed and the entry must die;
+* a malformed entry is an error (C56).
+
+Two budgets cap the audit-level coverage warnings: `coverage_budget` for
+the test-evidence and form-judgment audits (C51, C52, enforced by C55) and
+`text_coverage_budget` for the uncovered-normative-sentence audit (C71,
+enforced by C72). A budget carries an integer and a recorded reason, and
+it only shrinks: a package at full coverage declares zero, and any
+regression fails.
+
+[[coverage-audits]]
+=== The coverage audits
+
+At the audit level the checker weighs what the package covers: a
+requirement with no test, a test with no evidence view, an aspect with no
+constraint (C51, C52, C5), and, for packages that ship `.prd` sentence
+payloads, the normative text itself: every normative sentence of the
+source document is either covered by a model element or carried as a
+pinned, reasoned allowance, with duplicate sentences adjudicated (C71,
+C72, C73). The coverage report prints with `--coverage`.
+
+[[diff-and-exports]]
+=== Diff and exports
+
+Two further toolchain operations are specified here informatively, because
+they consume but do not change the language:
+
+* `primmel diff <a> <b>` computes the structural model diff between two
+package states: id-keyed, tier-annotated, classified as added, removed,
+changed, or moved, with the mapping diff (pairs and the computed coverage
+delta) and the clause-drift table. With `--exit-code` the diff is the
+change-audit gate; with `--compare-texts` it additionally classifies
+renumbered clauses as same-text or differed.
+* `primmel export reqif` and `primmel export rdf` project a package into
+the interchange formats (<<projections,17.7>>). The projections are lossy
+by design: they export what the target format can say.
+
+[[projections]]
+=== Projections
+
+The ReqIF projection exports the package's requirements as ReqIF XML for
+requirements-management tools. The RDF projection exports the model graph
+as RDF (Turtle by default, JSON-LD on request) for linked-data consumers.
+Both are one-way views over the model; neither is an authoring format, and
+neither round-trips. Their presence answers the interop question without
+giving the interchange formats the authoring role
+(<<annex-c-comparison,Annex C>>).
