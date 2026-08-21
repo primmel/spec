@@ -156,5 +156,8 @@ implementation's public test suite, which exercises every construct of
 <<annex-a-constructs,Annex A>> and every rule of
 <<annex-b-rule-catalog,Annex B>> (`packages/primmel/test/` of the
 primmel-ts repository). A standalone conformance test suite, runnable
-against third-party implementations, is roadmap (the standards program,
-item 10) and makes no appearance as a requirement of this edition.
+against third-party implementations, ships with the reference toolchain
+(the `conformance/` directory of primmel-ts, version 1.0.1, with a
+clause-tagged corpus and a third-party adapter contract); the suite is
+the execution form of this clause, and adopting it as a conformance
+requirement is roadmap for a later edition of this document.
