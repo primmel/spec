@@ -1,0 +1,255 @@
+[[annex-b-rule-catalog]]
+== Annex B (normative): The checker rule catalog
+
+This annex is the catalog of every rule the checker runs. It reproduces,
+without paraphrase, the machine-readable registry of the reference
+implementation (`packages/primmel/src/check-rules.ts` of primmel-ts at
+version 1.6.1), which `primmel check --rules` prints. The toolchain
+registry is the operative form; this annex is its publication. A
+discrepancy between this annex and the toolchain registry is a defect in
+one of them, and the verification is one command:
+
+[source,sh]
+----
+primmel check --rules
+----
+
+Each rule has an identifier (C1 to C103; the numbering is historical and
+not contiguous by family), a name used in findings, a family, a default
+severity, and a level:
+
+* *severity*: `error` findings fail the package; `warning` findings print.
+At the strict level every warning promotes to an error, except KNOWN
+(allowlisted) findings and budget-covered coverage findings
+(<<check-levels,17.2>>, <<allowlist,17.4>>).
+* *level*: `normal` rules run at every level; `audit` rules additionally
+run at the audit level (<<check-levels,17.2>>).
+
+The detailed semantics of a rule (what exactly it matches) are documented
+with the rule's implementation and its tests; this catalog fixes the
+identifiers, names, families, severities, and levels that conformance
+cites.
+
+=== base
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C1 |`attribute-bind-scope` |error |normal
+|C2 |`reference-targets-resolve` |error |normal
+|C3 |`dimension-enums` |error |normal
+|C4 |`store-uniqueness` |error |normal
+|C5 |`req-test-coverage` |warning |normal
+|C56 |`allowlist-malformed` |error |normal
+|C57 |`allowlist-stale` |error |normal
+|C89 |`spelling-code-wellformed` |error |normal
+|C90 |`invariant-shape` |error |normal
+|C91 |`invariant-enforcement-grammar` |error |normal
+|C92 |`test-sequence-shape` |error |normal
+|C93 |`test-sequence-integrity` |error |normal
+|C94 |`formulas-used-shape` |error |normal
+|C96 |`duplicate-id` |error |normal
+|C97 |`program-maps-resolves` |error |normal
+|C98 |`program-surveillance-required` |warning |normal
+|C103 |`declared-predicate` |error |normal
+|===
+
+=== anatomy
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C6 |`anatomy-family` |error |normal
+|C7 |`anatomy-characteristic-derivation` |error |normal
+|C8 |`anatomy-behavior-resolves` |error |normal
+|C9 |`subject-extends-resolves` |warning |normal
+|C84 |`constraint-shape` |error |normal
+|===
+
+=== process
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C10 |`process-one-start` |error |normal
+|C11 |`process-terminal-end` |error |normal
+|C12 |`process-flow-names-resolve` |error |normal
+|C13 |`process-signature-realized` |error |normal
+|C14 |`process-timer-recurrence` |error |normal
+|C15 |`process-timer-period` |error |normal
+|C16 |`process-step-ids-unique` |error |normal
+|C58 |`activity-kind-resolves` |error |normal
+|C59 |`segregation-members-resolve` |error |normal
+|C74 |`process-io-type-coherence` |error |normal
+|C75 |`process-flow-io-cover` |error |normal
+|C76 |`subprocess-signature-bound` |error |normal
+|===
+
+=== instantiation
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C17 |`instance-scope` |error |normal
+|C18 |`instance-version-pin` |error |normal
+|C19 |`chain-acyclic` |error |normal
+|C20 |`instance-of-resolves` |error |normal
+|===
+
+=== mapping
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C21 |`mapping-resolves` |error |normal
+|C22 |`mapping-direction` |error |normal
+|C23 |`mapping-calculus-consistency` |error |normal
+|C24 |`import-not-mapping` |error |normal
+|C25 |`mapping-description` |warning |audit
+|C26 |`view-read-only` |error |normal
+|===
+
+=== composition
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C27 |`uses-resolves` |error |normal
+|C28 |`uses-no-redefine` |error |normal
+|C29 |`uses-cycle` |error |normal
+|C30 |`provides-consumed-or-waived` |warning |normal
+|C31 |`requires-satisfied` |error |normal
+|===
+
+=== quantities
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C32 |`inv1-no-bare-quantity` |error |normal
+|C33 |`quantity-coherence` |error |normal
+|C34 |`duality-coherence` |error |normal
+|C35 |`time-format` |error |normal
+|C36 |`map-type` |error |normal
+|===
+
+=== state
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C37 |`state-fires-resolve` |error |normal
+|C38 |`state-family-separation` |error |normal
+|C39 |`state-machine-states-referenced` |error |normal
+|C40 |`anatomy-state-resolves` |error |normal
+|C41 |`precondition-on-violation-known` |warning |normal
+|C95 |`cascade-transition-resolve` |error |normal
+|===
+
+=== promises
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C42 |`promise-target-resolves` |error |normal
+|C43 |`promise-verifiable` |warning |normal
+|C44 |`promise-not-bare-value` |error |normal
+|===
+
+=== artifacts
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C45 |`artifact-def-contract` |error |normal
+|C46 |`artifact-instance-resolves` |error |normal
+|C47 |`artifact-evidence-separation` |error |normal
+|===
+
+=== characteristics
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C48 |`characteristic-one-home` |error |normal
+|C49 |`characteristic-behavior-link` |error |normal
+|C50 |`characteristic-derivation-inputs` |error |normal
+|===
+
+=== twins
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C60 |`serve-targets-resolve` |error |normal
+|C61 |`payload-schema-quantity` |error |normal
+|C62 |`access-scope-covers-serves` |error |normal
+|C63 |`freshness-required-on-live-bindings` |error |normal
+|C64 |`endpoint-profile-resolves` |error |normal
+|C65 |`monitor-subject-resolves` |error |normal
+|C66 |`monitor-trigger-wellformed` |error |normal
+|C67 |`monitor-evaluate-resolves` |error |normal
+|C68 |`monitor-fail-escalation` |warning |normal
+|C69 |`monitor-escalation-resolves` |error |normal
+|C70 |`monitor-emit-sinks` |error |normal
+|C99 |`variable-provenance-channel` |error |normal
+|C100 |`composition-components-resolve` |error |normal
+|C101 |`composition-decomposition-covers` |error |normal
+|C102 |`composition-state-rule-closed` |error |normal
+|===
+
+=== coverage
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C51 |`coverage-test-evidence` |warning |audit
+|C52 |`coverage-form-judgment` |warning |audit
+|C53 |`coverage-uses-bound` |error |normal
+|C54 |`coverage-lookup-table-exists` |error |normal
+|C55 |`coverage-budget` |error |audit
+|C71 |`text-coverage-sentence-uncovered` |warning |audit
+|C72 |`text-coverage-budget` |error |audit
+|C73 |`text-coverage-config` |error |normal
+|===
+
+=== edition
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C77 |`edition-status` |error |normal
+|C78 |`edition-validity-window` |error |normal
+|C79 |`edition-supersedes-resolves` |error |normal
+|C80 |`edition-pin-resolves` |error |normal
+|C85 |`baseurn-wellformed` |error |normal
+|===
+
+=== supply chain
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C81 |`product-maps-resolves` |error |normal
+|C82 |`product-unmapped-promises` |warning |normal
+|C83 |`abstract-import-pinned` |error |normal
+|C86 |`passport-content-resolves` |error |normal
+|C87 |`passport-access-leak` |error |normal
+|C88 |`passport-upi-scheme` |error |normal
+|===
+

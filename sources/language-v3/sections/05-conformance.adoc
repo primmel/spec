@@ -1,0 +1,160 @@
+[[conformance]]
+== Conformance
+
+[[normative-keywords]]
+=== Normative keyword convention
+
+The key words *MUST*, *MUST NOT*, *SHOULD*, *SHOULD NOT*, and *MAY* in this
+document are to be interpreted as described in RFC 2119, as clarified by
+RFC 8174, and they appear in small capitals as here only when used in
+that sense. Modality keywords that are part of the modelled content of a
+standard (the `modality` facet values SHALL, SHOULD, MAY, CAN, MUST; see
+<<modality-vocabulary,11.6>>) are data of the language, not conformance
+keywords of this specification.
+
+[[conformance-classes]]
+=== Conformance classes
+
+This document defines five classes of conformance:
+
+. a *conforming document* (a Primmel model text);
+. a *conforming parser*;
+. a *conforming serializer*;
+. a *conforming checker*;
+. a *conforming package*.
+
+[[conforming-document]]
+=== Conforming document
+
+A document is a conforming Primmel v3 document if and only if:
+
+. it is a UTF-8 text whose tokenization under the lexical rules of
+<<lexical-structure,clause 8>> succeeds: every quoted string terminates,
+every block closes, and escapes are used only as defined;
+. its top level is a sequence of declarations each of which is either a
+special declaration (<<special-declarations,9.2>>) or a construct
+declaration whose keyword is registered in <<annex-a-constructs,Annex A>>,
+with an identifier and a block payload as that annex states;
+. within each construct, every facet it uses is one of the facets the
+construct accepts (<<subject-model,clauses 10>> to
+<<multilinguality,15>> and <<annex-a-constructs,Annex A>>); a document
+that relies on an unregistered facet is not a conforming document, even
+though a lenient parser will accept and skip that facet
+(<<parse-modes,9.5>>);
+. it declares no identifier twice within the same construct collection
+(<<identifiers,9.4>>).
+
+NOTE: A conforming document may still carry checker findings
+(<<annex-b-rule-catalog,Annex B>>): dangling cross-references, coverage
+warnings, and similar semantic findings are checker matters, not document
+conformance matters.
+
+[[conforming-parser]]
+=== Conforming parser
+
+A conforming parser:
+
+. MUST implement the lexical rules of <<lexical-structure,clause 8>>
+exactly: both comment openers, quoted strings with the two escape
+sequences, and nestable quote-aware blocks;
+. MUST accept every construct keyword registered in
+<<annex-a-constructs,Annex A>>, with its aliases, and MUST parse every
+facet of every construct as specified in <<subject-model,clauses 10>> to
+<<multilinguality,15>>;
+. MUST accept facet order freely within a construct block and MUST accept
+declaration order freely at the top level;
+. MUST report a duplicate identifier within a construct collection as a
+parse-time issue, and MUST NOT silently discard the earlier declaration
+without reporting;
+. MUST reject a truncated declaration (a keyword expecting an identifier or
+a payload that is absent) with an error;
+. MUST reject an unterminated string or block with an error;
+. in strict parse mode, MUST reject an unrecognized top-level keyword with
+an error; in lenient parse mode (the default), MUST skip an unrecognized
+top-level keyword and continue, and MUST skip an unrecognized facet within
+a known construct together with its value, preserving the parse of the
+remainder (<<parse-modes,9.5>>);
+. when loading from files, MUST implement the include preprocessing of
+<<include-directive,16.2>>, including cycle detection;
+. when reading a `.prm` file, MUST accept both the `MMEL_MAP` and the
+`Primmel_MAP` type spellings and MUST preserve authored spellings
+(<<prm-format,16.4>>).
+
+A conforming parser SHOULD attach source positions (line and column) to its
+errors and issues, as the reference implementation does.
+
+[[conforming-serializer]]
+=== Conforming serializer
+
+A conforming serializer (a `dump` implementation):
+
+. MUST emit the canonical form of <<canonical-form,16.5>> for every model
+element it serializes, including the quoting rule (quote exactly when a
+value contains whitespace, a brace, or a quote, ends in a colon, or begins
+with a comment opener) and the escaping rule (`\"` and `\\`);
+. MUST be a fixed point under load: for every model _m_, loading the
+serialization of _m_ and serializing again MUST yield the identical text
+(_load_ ∘ _dump_ is idempotent on the model, and _dump_ ∘ _load_ ∘ _dump_
+is textually stable);
+. MUST emit a URN-anchored provenance record in the canonical `ref
+derives-from` form and MAY emit a free-text provenance record in the legacy
+`source` block form (<<provenance-forms,14.3>>);
+. MUST NOT emit a construct in a spelling the parser does not accept.
+
+[[conforming-checker]]
+=== Conforming checker
+
+A conforming checker:
+
+. MUST implement every rule of the catalog in <<annex-b-rule-catalog,Annex
+B>> at its catalogued severity, and MUST run the normal-level rules at the
+default level;
+. MUST additionally run the audit-level rules when invoked at audit
+strictness, and MUST enforce the coverage budgets at that level
+(<<check-levels,17.2>>);
+. MUST promote every warning to an error at the strict level, excepting
+only findings marked KNOWN by the package allowlist and budget-covered
+coverage findings (<<check-levels,17.2>>, <<allowlist,17.4>>);
+. MUST treat a STALE allowlist entry (one that matches no current finding)
+as an error, and MUST treat a KNOWN entry as printed but never failing
+(<<allowlist,17.4>>);
+. MUST exit non-zero when any error-severity finding survives.
+
+A conforming checker SHOULD print its findings with rule identifiers from
+<<annex-b-rule-catalog,Annex B>>, so that allowlist entries and audit
+records can cite them.
+
+[[conforming-package]]
+=== Conforming package
+
+A package is a conforming Primmel v3 package if and only if:
+
+. it is a directory laid out per <<package-layout,16.3>>, with a
+`package.primmel` manifest whose declared facets are those of
+<<package-manifest,9.3>>;
+. every model file in it is a conforming document
+(<<conforming-document,6.3>>);
+. its manifest declares a package kind from the five kinds of
+<<package-kinds,7.3>> when it declares one;
+. its composition declarations (`uses`, `provides`, `requires`, `maps_to`)
+satisfy the composition rules of <<composition-rules,7.6>>: imports
+resolve, nothing imported is redefined, the import graph is acyclic, and no
+namespace is both imported and mapped;
+. it passes the checker at the default level with zero error-severity
+findings.
+
+NOTE: A conforming package may carry warning-severity findings; programs
+that require zero warnings run the checker at the strict level
+(<<check-levels,17.2>>).
+
+[[verification-method]]
+=== Verification method
+
+Conformance of a parser, serializer, or checker is demonstrated by
+executing the behaviors this clause requires against the reference
+implementation's public test suite, which exercises every construct of
+<<annex-a-constructs,Annex A>> and every rule of
+<<annex-b-rule-catalog,Annex B>> (`packages/primmel/test/` of the
+primmel-ts repository). A standalone conformance test suite, runnable
+against third-party implementations, is roadmap (the standards program,
+item 10) and makes no appearance as a requirement of this edition.

@@ -1,0 +1,138 @@
+[[serialization]]
+== Serialization
+
+[[serialization-file-types]]
+=== File types
+
+A Primmel model text is a UTF-8 file with the extension `.prl`. The
+extension `.mmel` is the legacy spelling; a conforming tool accepts both
+everywhere a file extension matters, and prefers `.prl` when both exist
+(<<include-directive,16.2>>). A mapping file is a JSON text with the
+extension `.prm` (<<prm-format,16.4>>). A package is a directory
+(<<package-layout,16.3>>).
+
+[[include-directive]]
+=== The include directive
+
+A model text may be split across files with the include directive:
+
+[source,prl]
+----
+include "parts/load-cell"
+----
+
+The directive is resolved by a preprocessor before tokenization, so the
+parser sees one concatenated text. The rules:
+
+. the path resolves relative to the directory of the including file;
+absolute paths are accepted;
+. the extension may be omitted; `.prl` is preferred over `.mmel` when the
+omitted form matches neither literally;
+. includes nest; a cycle is an error naming the chain;
+. a directive inside a comment line is not expanded (the preprocessor's
+comment recognition matches the tokenizer's, <<comments,8.2>>);
+. a missing include file is an error.
+
+[[package-layout]]
+=== The package directory
+
+A package is one directory:
+
+[source,text]
+----
+oiml-r60/
+  package.primmel          the manifest (the only required file)
+  model/**/*.prl           the subject chain
+  entities/**/*.prl        storable classes
+  specification/**/*.prl   requirements, conformance, tables, symbols, calculations
+  execution/**/*.prl       forms, subforms, the test report skeleton
+  evaluation/**/*.prl      workflow, state machines, processes, roles
+  *.prl                    root-level content (terminology, references, notes)
+  .primmel-allowlist.prl   the checker allowlist (package metadata, not content)
+----
+
+The load order is deterministic: the manifest first, then the content
+files of the five convention directories, then the root-level files, each
+sorted by path. All files of a package are preprocessed and parsed
+together as one token stream, so cross-file references resolve and
+duplicate identifiers are detected across files (<<identifiers,9.4>>).
+The `.primmel-allowlist.prl` file is package metadata for the checker
+(<<allowlist,17.4>>) and is not content. When the manifest declares
+`uses` and a package locator is available, the whole dependency closure
+composes per <<composition-rules,7.6>>; otherwise the directory loads
+alone.
+
+[[prm-format]]
+=== The .prm mapping file
+
+A `.prm` file is the standalone serialization of the mapping primitive
+(<<reference-implementation-models,7.5>>): a JSON object, versioned
+independently of the models it links.
+
+[source,json]
+----
+{
+  "@context": "https://example.org/smart",
+  "@type": "Primmel_MAP",
+  "id": "OrgO-to-StandardS",
+  "mapSet": {
+    "StdS": {
+      "id": "StdS",
+      "mappings": {
+        "OpA": {
+          "StdS#Process5": {
+            "description": "Batch logging fulfils the record requirement.",
+            "justification": "The roaster writes the record on completion.",
+            "coverage": "full"
+          }
+        }
+      },
+      "coverage": { "StdS#Process5": "full" }
+    }
+  }
+}
+----
+
+The rules:
+
+. the `@type` is `Primmel_MAP` (v3) or `MMEL_MAP` (the v2 spelling, read
+as an alias); any other value is an error;
+. `mapSet` is keyed by the target (reference) namespace: one
+implementation may map to many reference models, with coverage computed
+per target;
+. a mapping pair carries `description`, `justification`, and an optional
+`coverage` assertion; the coverage levels are closed and parse-enforced:
+`full`, `minimal`, `partial`, `none`;
+. authored coverage assertions about reference components ride the
+namespace's `coverage` object and are checked against the computed
+calculus (C23);
+. authored spellings (the `@type`, bare or `Namespace#ElementID` targets)
+round-trip verbatim: loading and re-serializing a `.prm` file is a fixed
+point on the normalized model;
+. `@context` is emitted only when present; key order is the model's
+insertion order.
+
+[[canonical-form]]
+=== The canonical form and the round trip
+
+A conforming serializer emits the canonical form: one construct per block,
+facets in the construct's canonical order, and values spelled by the
+emission rules:
+
+. a value is emitted bare exactly when it contains no whitespace, brace,
+or quote, does not end in a colon, and does not begin with a comment
+opener (`#` or `//`); every other value is quoted (the reasons: a bare
+trailing-colon token re-parses as a key head, and a leading comment
+opener re-parses as a comment, so both must never emit bare);
+. inside quotes, `"` and `\` escape as `\"` and `\\`
+(<<escapes,8.4>>), and no other escape is produced;
+. a URN-anchored provenance record emits as `ref derives-from`; a
+free-text one keeps the legacy `source` block
+(<<provenance-forms,14.3>>);
+. the dump of a parsed model, re-parsed, yields the same model, and
+re-serialized, yields the identical text: _dump_ ∘ _load_ ∘ _dump_ is a
+textual fixed point.
+
+The fixed-point property is not an aspiration: the reference
+implementation's test suite proves it on the shipped packages, and the
+round-trip gates of the reference usage fail on any drift.

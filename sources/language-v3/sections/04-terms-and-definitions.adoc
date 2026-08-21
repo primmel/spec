@@ -1,0 +1,112 @@
+[[terms-and-definitions]]
+== Terms and definitions
+
+For the purposes of this document, the following terms and definitions
+apply.
+
+[[term-subject]]
+=== subject
+model element that answers the three questions of the subject anatomy: what
+it is (IS), what it exhibits (HAS), and what it does (DOES)
+
+Note 1 to entry: The subject is the central model kind of the primary tier
+(<<tier-system,7.2>>). A subject may be a physical or logical object type
+(an instrument), a process, or any other bearer of claims.
+
+[[term-aspect]]
+=== aspect
+named, typed slot of a subject, belonging to exactly one aspect family (IS,
+HAS, or DOES)
+
+[[term-entity-kind]]
+=== entity kind
+one of the five subject-chain construct kinds of the primary tier:
+`instrument`, `attribute_definition`, `capability`, `behavior`,
+`condition_set`
+
+Note 1 to entry: The `subject` construct is the general form of which
+`instrument` is the measuring-instrument specialization
+(<<five-entity-kinds,10.1>>, <<subject-construct,10.2>>).
+
+[[term-package]]
+=== package
+one directory holding a Primmel model: a `package.primmel` manifest plus
+content files merged by convention (<<package-layout,16.3>>)
+
+[[term-package-kind]]
+=== package kind
+classification of a package declared in its manifest: `core`, `module`,
+`rec`, `product_reference`, or `certification_program`
+
+[[term-reference-model]]
+=== reference model
+model published by a standards publisher that states what a conforming
+subject is, has, and does
+
+[[term-implementation-model]]
+=== implementation model
+model published by an adopting organization, related to a reference model by
+a declared mapping
+
+[[term-mapping]]
+=== mapping
+element-by-element declared alignment of an implementation model to a
+reference model, with a coverage calculus
+
+[[term-requirement]]
+=== requirement
+constraint over the aspect paths of a subject, carrying a statement, an
+optional formal limit, modality, and provenance
+
+[[term-conformance-test]]
+=== conformance test
+operation on a subject that constrains inputs, environmental context, and
+state, and observes outcomes against acceptance criteria
+
+[[term-verdict]]
+=== verdict
+named, reusable derivation of a judged quantity from test inputs, referenced
+by requirements, tests, and forms instead of restated
+
+[[term-instance]]
+=== instance
+model element declaring one member of a subject chain, with its own
+exhibited values and its upward chain links
+
+[[term-predicate]]
+=== predicate
+declared relation kind usable in a `ref` triple; the predicate registry of a
+package is data, and an undeclared predicate is an error (C103)
+
+[[term-provenance]]
+=== provenance
+the recorded derivation of a model element from a source document clause or
+fragment, expressed as a `derives-from` reference or a legacy `source`
+block
+
+[[term-tier]]
+=== tier
+one of the five dependency levels of the language: foundations, primary,
+secondary, tertiary, cross-cutting (<<tier-system,7.2>>)
+
+[[term-edition]]
+=== edition
+a dated state of a package in its lifecycle, with a status and a validity
+window, registered in the package manifest
+
+[[term-allowlist]]
+=== allowlist
+the per-package `.primmel-allowlist.prl` file that marks known checker
+findings as KNOWN debt and fails on STALE entries (<<allowlist,17.4>>)
+
+[[term-strict-mode]]
+=== strict parse mode
+parser mode in which an unrecognized top-level keyword is an error;
+contrast with the default lenient mode, which skips unknown keywords for
+forward compatibility (<<parse-modes,9.5>>)
+
+[[term-canonical-form]]
+=== canonical form
+the single emission spelling a conforming serializer produces for a model,
+such that loading and re-serializing is a fixed point
+(<<canonical-form,16.5>>)

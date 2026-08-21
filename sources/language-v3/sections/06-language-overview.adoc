@@ -1,0 +1,176 @@
+[[language-overview]]
+== Language overview
+
+=== The modelling claim
+
+A Primmel model expresses what a standard says (reference content), what a
+conforming subject is, has, and does (subject content), how conformity is
+checked (operations and evidence), and how conformity is established and
+judged (workflow and verdicts), in one language. Four consequences
+organize everything else:
+
+* secondary models anchor to the subject and own no subject facts (a
+requirement binds aspect paths; it never restates them);
+* facts and judgments are separate tiers (a test report contains no
+verdicts; a verdict is a re-runnable function over definitions and facts);
+* growth happens inside the semantic sorts (new kinds, properties, values,
+transitions), never beside them;
+* the document of the standard is a reconstruction from the model, not the
+source of it.
+
+[[tier-system]]
+=== The tier system
+
+Every model element lives on exactly one tier, and dependencies point only
+upward:
+
+[cols="1,2,2"]
+|===
+|Tier |What lives there |Examples
+
+|Foundations
+|What everything references; anchored to nothing in the subject
+|Vocabulary registers, parties and roles, units and value types, time
+primitives
+
+|Primary
+|The subject and its aspects
+|The instrument chain, attribute definitions, behaviors, condition sets,
+state
+
+|Secondary
+|Models anchored to primary aspect paths
+|Requirements (constraints), conformance tests (operations), forms
+(evidence views)
+
+|Tertiary
+|Execution and judgment over secondary × primary instances
+|Runs and evidence records, verdicts, evaluations, decisions,
+certificates, workflow processes, monitors
+
+|Cross-cutting
+|Properties of every element on every tier
+|Provenance, time and versioning, the traceability spine, multilinguality
+|===
+
+A downward reference is a modelling error, and the checker reports one
+where the dependency is machine-visible (<<annex-b-rule-catalog,Annex
+B>>). The tier law has two named consequences: the *anchoring rule*
+(secondary models bind subject facts, they never restate them) and the
+*fact/judgment firewall* (evidence contains no verdicts).
+
+[[package-kinds]]
+=== Packages and the five package kinds
+
+The unit of publication and reuse is the *package*: one directory holding a
+manifest and content files (<<package-layout,16.3>>). A manifest declares
+exactly one package kind when it declares one:
+
+[cols="1,3"]
+|===
+|Kind |Meaning
+
+|`core`
+|The shared kernel: vocabulary, parties, units, value types; composed into
+other packages, anchored to no Recommendation
+
+|`module`
+|A shared capability package consumed by two or more Recommendation
+packages
+
+|`rec`
+|A publishable Recommendation: the reference model of one standard
+
+|`product_reference`
+|A manufacturer's product model, related to a Recommendation by mapping
+only (never a refinement of the standard); carries `manufacturer`,
+`product`, and `maps_to` facets, and is imported by pinned abstract import
+(`uses { acme-lc500@2021 }`, C81–C83)
+
+|`certification_program`
+|A scheme operator's certification program: a fourth publisher with the
+product-reference shape, related to Recommendations (`maps_to`) and to
+product packages (pinned abstract imports) by mapping only, composed into
+nothing (C97, C98)
+|===
+
+NOTE: The kind facet is optional in the grammar; a manifest without one is
+an ordinary (rec) package. The five kinds are the closed enumeration the
+parser accepts (`PackageKind` in `packages/primmel/src/types/Package.ts`).
+
+[[artifact-kinds]]
+=== Artifact kinds
+
+A Primmel workspace is made of the following artifact kinds:
+
+[cols="1,1,3"]
+|===
+|Extension |Kind |Purpose
+
+|`.prl`
+|file
+|A model text: the core artifact. Plain text, UTF-8. The `.mmel`
+extension is the legacy spelling, accepted everywhere `.prl` is
+(<<annex-d-lineage,Annex D>>).
+
+|`package.primmel`
+|file
+|The package manifest: the only required file of a package
+(<<package-manifest,9.3>>).
+
+|`.prm`
+|file
+|A Primmel Map: a JSON mapping between two models, versioned independently
+of the models it links (<<prm-format,16.4>>).
+
+|`.prd`
+|payload
+|Clause-level extracts of a source standard, consumed by the text-coverage
+audit as sentence payloads (<<coverage-audits,17.5>>). Consumer-side
+format; informative here.
+
+|`.pws/`
+|directory
+|A Primmel Workspace: runtime records produced when a model runs.
+Consumer-side format; informative here.
+|===
+
+[[reference-implementation-models]]
+=== Reference models, implementation models, and mapping
+
+A standards publisher publishes a reference model. An adopting organization
+publishes an implementation model. A *mapping* connects the two, element by
+element, expressed either in-model (`map_profile`,
+<<map-profiles,12.8>>) or as a standalone `.prm` file
+(<<prm-format,16.4>>); the two serializations are equivalent and bridge
+into one model form. The mapping coverage calculus (full, minimal, partial,
+none) is computed per target namespace, and authored coverage assertions
+are checked against the computed calculus (C23). A namespace that is
+imported into a package (`uses`) MUST NOT also be the target of a mapping
+from that package (C24, import-not-mapping): import is structural
+inclusion, mapping is the compliance relation, and the two are disjoint.
+
+[[composition-rules]]
+=== Package composition
+
+A package composes other packages structurally with `uses` (the deprecated
+single `extends` is read as a one-element `uses`). Composition semantics:
+
+. the dependency closure is merged in topological order, dependencies
+first, the root package last;
+. a downstream package may reference upstream identifiers but MUST NOT
+redefine them (C28, no-redefine);
+. the import graph MUST be acyclic (C29);
+. every import MUST resolve through the package locator in use (C27);
+. capability tokens (`provides`, `requires`) are matched across the
+closure: an unsatisfied `requires` is an error (C31); a `provides` that
+nothing consumes is a warning unless waived (C30);
+. a version-pinned entry `id@edition` is an abstract import of a product
+reference package: located and checked (C83), never content-merged.
+
+Editions are the package lifecycle: a manifest registers its `editions`,
+the lifecycle `status` (`current`, `preview`, `superseded`, `withdrawn`),
+the `validity` window, and the `supersedes`/`replaces` chains, all checked
+by the edition rules (C77–C80, C85). The structural model diff between two
+package states is a toolchain operation (`primmel diff`,
+<<diff-and-exports,17.6>>), not a language construct.

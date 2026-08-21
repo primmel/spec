@@ -1,0 +1,49 @@
+[[multilinguality]]
+== Multilinguality
+
+=== Spelling codes
+
+Primmel tags every human-readable string with a spelling system code
+following ISO 24229: an ISO 639-3 alpha-3 language code, an ISO 15924
+script code (mandatory; a bare language code is an error), an optional
+ISO 3166-1 alpha-2 country code, and an optional orthography extension:
+`eng-Latn`, `uzb-Arab-AF`, `ind-Latn-pre1972`. A conversion system code
+names a titular conversion between scripts, for example
+`BGN-PCGN:zho-Hans:Latn:1979`. The code syntax is checker-enforced (C89,
+spelling-code-wellformed); resolution of a code against the ISO 24229
+register is the consuming program's discipline against a pinned register
+snapshot, and the reference toolchain stays register-free.
+
+=== The default spelling and the text construct
+
+A package manifest declares `default_spelling` (the spelling every inline
+prose string is authored in; a `name "..."` facet IS the default
+spelling's value) and may declare `spellings { ... }` (the coverage set).
+Alternate spellings never touch the inline source value; they are authored
+in `text` blocks:
+
+[source,prl]
+----
+text /req/metrological/measuring-range-max.statement {
+  spell fra-Latn "La valeur de la plus grande charge ..."
+  spell zho-Latn via BGN-PCGN:zho-Hans:Latn:1979 "..."
+}
+----
+
+A `text` block carries `spell` facets only; any other facet is a parse
+error. Each `spell` facet is `spell <code> [via <system-code>] "<value>"`,
+and the value MUST be quoted. The block identifier addresses the prose it
+translates:
+
+* `<element-id>.<field>` addresses a prose field of an element;
+* `<element-id>.<path...>.<field>` addresses nested prose: an intermediate
+segment names a nested structure, a list item is keyed by its declared key
+(a field or parameter name, a step's order, a subject's slot), never by a
+positional index, and the terminal segment is the prose field.
+
+The address grammar is checker-enforced (C89): the element is the longest
+dot-boundary prefix registered in the package, every path segment
+resolves, and the terminal prose is authored. Alternate spellings of one
+field may be split across files; the parser merges the blocks of one
+address into one content set. Translation files (conventionally
+`l10n/<code>.prl`) therefore never modify the normative source spelling.

@@ -1,0 +1,326 @@
+[[requirements-and-conformance]]
+== Requirements and conformance
+
+[[requirement-construct]]
+=== Requirement classes and requirements
+
+A `requirement_class` groups the requirements of one domain area; its
+identifier convention is a path (`/req/metrological`), and its facets are
+`name`, `subject`, `guidance`, and provenance.
+
+A `requirement` is a constraint over the aspect paths of a subject:
+
+[source,prl]
+----
+requirement /req/metrological/mpe {
+  name "Maximum permissible error"
+  statement "The error of indication shall not exceed the mpe."
+  guidance "..."
+  binds_to { model.parameters.mpe model.classification.accuracy_class }
+  subjects {
+    subject 1 { entity_id "dimensions.p_LC" label "Apportioning factor" }
+  }
+  parameters {
+    param n_runs: integer { description "..." default 20 range { min 0 max 100 } }
+  }
+  limit {
+    expression "ocl{...}"
+    uses { mpe accuracy_class p_lc }
+    modality should
+    relative_to reference_speed
+    notes "..."
+    accepts { verdict mdlo_normalized op lte limit "ocl{p_lc}" }
+    acceptance { rule guarded guard_band { kind NSFa value 0.5 } }
+  }
+  applicability { accuracy_class: [A, B, C, D] }
+  channel measurand_components
+  obligation should
+  acceptance_criteria { threshold { operator "<=" value "ocl{...}" } }
+  verification { method testing }
+  dependencies { /req/other }
+  ref derives-from "urn:oiml:pub:r:60-1:2021#clause-5.3.2"
+}
+----
+
+The principal facets:
+
+[cols="1,3"]
+|===
+|Facet |Meaning
+
+|`statement`
+|The normative sentence (the text the committee owns).
+
+|`binds_to { ... }`
+|The aspect paths the requirement constrains. The anchoring rule
+(<<tier-system,7.2>>): a requirement binds subject facts, it never
+restates them.
+
+|`subjects { subject <n> { ... } }`
+|The per-subject apportioning of the constraint.
+
+|`parameters { param <name>: <type> { ... } }`
+|Typed parameters with `description`, `default`, and `range { min max }`.
+
+|`limit { ... }`
+|The formal limit: `expression` (an embedded expression,
+<<embedded-expressions,8.6>>), `uses` (the free variables), `modality`,
+`relative_to`, `notes`, `accepts` (the verdict binding: `verdict`, `op`,
+`limit`, an optional `source_discrepancy`), and `acceptance`
+(<<acceptance-decisions,11.5>>).
+
+|`applicability { ... }`
+|Dimension-keyed applicability entries; a value is a bare id, a quoted
+text, or a bracket list (<<bracket-lists,8.7>>). A `match` mode of `any`,
+`all`, or `exact` is a closed vocabulary, parse-enforced.
+
+|`channel`, `obligation`
+|The evidence channel and the obligation level
+(<<modality-vocabulary,11.6>>).
+
+|`acceptance_criteria { ... }`
+|The threshold form of the decision rule.
+
+|`verification { method ... }`
+|The verification method of the requirement.
+
+|`dependencies { ... }`
+|Other requirements this one depends on.
+
+|`source_discrepancy { ... }`
+|The named-difference record against the source text
+(<<discrepancy-records,14.5>>).
+|===
+
+[[conformance-test-construct]]
+=== Conformance classes and conformance tests
+
+A `conformance_class` scopes a family of tests to a requirement class:
+
+[source,prl]
+----
+conformance_class /conf/metrological-tests {
+  title "Metrological tests"
+  target /req/metrological
+  subject "LoadCell"
+  applicability { accuracy_class: [A, B, C, D] }
+  guidance "..."
+}
+----
+
+A `conformance_test` is an operation on the subject:
+
+[source,prl]
+----
+conformance_test /conf/metrological-tests/mpe-test {
+  type Testing
+  targets { /req/metrological/mpe }
+  test_subject { kind model }
+  variables {
+    variable applied_load { type mass unit kg source measured
+      provenance { channel reference_instrument ref eq-013 observed_at t_log } }
+    variable e_l { type mass unit kg source derived
+      derivation "ocl{indication - applied_load}" }
+  }
+  observables { observable indication_series { quantity_kind mass unit kg } }
+  preconditions {
+    precondition warmed-up {
+      check "ocl{self.state = #ready}"
+      description "An unwarmed run is invalid, never a fail."
+      on_violation invalid
+    }
+  }
+  design {
+    selection { ... }
+    test_points { count 5 }
+  }
+  instances {
+    by accuracy_class
+    values { A { n_runs: 5 } C { n_runs: 3 } }
+  }
+  acceptance_criteria { criterion mpe-check { expression "ocl{...}" } }
+  pass_if "ocl{...}"
+  acceptance { rule guarded guard_band { kind NSFa value 0.5 } }
+  result_forms { mpe-report }
+  produces_artifacts { evidence-file }
+}
+----
+
+The principal facet groups: `type` (the test kind), `targets` (the
+requirements under test), `test_subject`, `variables` (typed test
+variables; the `source` vocabulary is `declared`, `measured`, `derived`,
+`computed`, `lookup`, and a measured reference variable carries a
+`provenance` probe channel, <<probe-channels,11.4>>), `observables`,
+`preconditions` (a gate with `check`, `description`, and `on_violation`),
+`design` (the test design: selection rules, counts, phases, specimens,
+test points, and the validation facets), `instances` (per-classification
+parameter values), `acceptance_criteria` and `pass_if` (the decision),
+`acceptance` (<<acceptance-decisions,11.5>>), and the output anchors
+(`result_forms`, `produces_artifacts`, `report_rows`,
+`reference_materials`, `required_competence`). `inherits_from` reuses
+another test's definition; `dependencies` orders.
+
+[[verdict-construct]]
+=== Verdicts
+
+A `verdict` is a named, reusable derivation of a judged quantity: derive
+once, reference everywhere.
+
+[source,prl]
+----
+verdict drift_error {
+  quantity { kind volume-fraction unit "ppm" }
+  derive "ocl{indication - cgm_certified_value}"
+  inputs { indication cgm_certified_value }
+  series_reduction max_abs_over_window
+  ref derives-from "urn:oiml:pub:r:144-2:2013#clause-4.8"
+}
+----
+
+The facets are `symbol`, `behavior` (the behavior the quantity derives
+from), `quantity { kind unit }`, `derive` (the expression), `inputs`,
+`series_reduction` (a closed vocabulary, parse-enforced: `none`, `max`,
+`mean`, `worst_case`, `max_abs_over_window`), `acceptance`
+(<<acceptance-decisions,11.5>>), and provenance. Requirement limits,
+conformance tests, and form fields reference the verdict identifier
+instead of restating the derivation.
+
+[[probe-channels]]
+=== Probe channels
+
+A measured test variable may declare the physical channel its reference
+reading arrives by. The channel vocabulary is closed and checker-enforced
+(C99): `reference_instrument` (a traceable reference, cited by equipment
+register id), `observer_attestation` (a verification officer reads the
+physical display into the evidence form), and `sim_ground_truth` (the
+acceptance environment only, never a production channel). An
+`observer_attestation` channel MUST carry its declared traceability
+`limitation` text (C99).
+
+[[acceptance-decisions]]
+=== Acceptance decisions
+
+An `acceptance { ... }` block states how a limit comparison decides
+conformity. It attaches to requirement limits, conformance tests, and
+verdicts. Its vocabularies are closed and parse-enforced:
+
+* `rule`: `shared_risk` or `guarded`;
+* `guard_band { kind value }`: kind is `NSFa`, `NSFd`, `absolute`, or
+`ratio`;
+* `criterion`: `I/MPE`, `D/NSFa`, `D/NSFd`, or `n/a`;
+* `uncertainty { max_ratio_to_mpe ... }` and
+`statistics { method on_basis_of permits }` carry the uncertainty and
+sampling facets.
+
+[[modality-vocabulary]]
+=== The modality vocabulary
+
+Modality facets carry the RFC 2119 vocabulary, extended with `CAN`:
+`SHALL`, `SHOULD`, `MAY`, `CAN`, `MUST`. These tokens are *model content*:
+they state the obligation of a provision, process, field, or approval of
+the modelled standard, and they are not conformance keywords of this
+specification (<<normative-keywords,6.1>>). The `obligation` facet of
+requirements and tests carries the same vocabulary in lower case
+(`shall`, `should`, `may`) as data; the value is stored as text and
+program linkers check it.
+
+[[constraint-construct]]
+=== Constraints
+
+A `constraint` declares a subject-intrinsic rule (an invariant of the
+subject, distinct from a requirement, which is an external obligation):
+
+[source,prl]
+----
+constraint e-max-bound {
+  name "Applied load within capacity"
+  stereotype inv
+  check "ocl{self.applied_load <= self.e_max}"
+  on_violation invalid
+  violation_meaning "A run above capacity is not a test result."
+  source { doc "urn:oiml:pub:r:60-2:2021" clause "2.3" }
+}
+----
+
+The facets are `name`, `stereotype` (the constraint kind; `inv` is the
+intrinsic-rule stereotype), `check` (the embedded expression),
+`on_violation`, `violation_meaning`, and provenance. The constraint shape
+is checker-enforced (C84).
+
+[[form-constructs]]
+=== Forms and subforms
+
+A `form` is the evidence view of the secondary tier: a declarative
+data-capture schema that projects the subject graph into a record.
+
+[source,prl]
+----
+form mpe-report {
+  name "MPE test report"
+  data_class MpeReport#data
+  conformance_process creep_test
+  section "E"
+  field e_max: number {
+    label "Maximum capacity"
+    bind "model.parameters.e_max"
+    unit kg
+    required true
+  }
+  field runs {
+    label "Runs"
+    subform_ref run_row { parameters { n: n_runs } }
+    min_items 3
+  }
+  pass_if "ocl{...}"
+  calculation_context { mpe_eval }
+  applicability { accuracy_class: [A, B, C, D] }
+}
+----
+
+The principal facets: `name`, `data_class` (the record the form fills),
+`conformance_process`, `header` (a shared header form), `section`,
+`scope`, `dimensions`, `requirements { ... }` (the requirements the form
+serves), `references`, `applicability`, `instances`, `constraints`,
+`criteria`, `tables`, `calculation_context { ... }` (the calculations in
+scope), `pass_if` / `pass_fail` / `derivation` (the form-level judgment
+derivations), and `report_rows { ... }`. A
+`field <name>[: <type>] { ... }` entry carries `label`, `definition`,
+`bind` (the aspect path the field records), `unit`, `symbol`, `verdict`
+(the verdict the field derives, <<verdict-construct,11.3>>), `targets`,
+`dimension`, `enum`, `pattern`, `required` or `required_when` (a
+conditional-requiredness expression), `default`, `values` /
+`enum_values`, `evaluation`, `calculation_bindings`,
+`measurement_method`, `items` / `fields` (nested structure), `min_items` /
+`max_items`, `subform_ref`, and provenance.
+
+A `subform` declares a reusable parameterized row shape:
+`parameters { ... }`, `type`, `default`, `mapping`, and the same `field`
+entries. The field grammar of forms and subforms is one grammar, shared.
+
+[[provision-construct]]
+=== Provisions
+
+The `provision` is the v2 compliance primitive, retained: a statement of
+requirement with RFC 2119 modality, traceable to source clauses.
+
+[source,prl]
+----
+provision MoistureRecorded {
+  condition "Every roast batch shall have its moisture content recorded"
+  modality SHALL
+  reference {
+    BFS-4-2
+  }
+}
+----
+
+The facets are `condition` (the requirement text), `modality`
+(<<modality-vocabulary,11.6>>), and `reference { ... }` (the cited
+reference constructs, <<provenance-forms,14.3>>). Processes bind
+provisions with `validate_provision { ... }`
+(<<process-subject,12.1>>). In a v3 model the `requirement` construct
+(<<requirement-construct,11.1>>) is the binding form: a provision states
+text and modality, while a requirement additionally binds subject aspect
+paths, carries a formal limit, and joins the coverage calculus. New
+modelling SHOULD author requirements; provisions remain for the v2
+surface and for standards whose provisions bind nothing.

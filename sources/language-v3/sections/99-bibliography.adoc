@@ -1,0 +1,56 @@
+[[bibliography]]
+== Bibliography
+
+* [[RFC2119]] Bradner, S., _Key words for use in RFCs to Indicate
+Requirement Levels_, BCP 14, RFC 2119, March 1997.
+
+* [[RFC8174]] Leiba, B., _Ambiguity of Uppercase vs Lowercase in RFC 2119
+Key Words_, BCP 14, RFC 8174, May 2017.
+
+* [[ISO8601-1]] ISO 8601-1, _Date and time — Representations for
+information interchange — Part 1: Basic rules_.
+
+* [[ISO24229]] ISO 24229, _Information and documentation — Codes for
+written language conversion systems_.
+
+* [[MN113]] MN 113, _Multi-Modal Modelling Language (MMEL)
+specification_, edition 1, 2026-05-21. This repository, `sources/spec/`.
+
+* [[OCL]] OMG, _Object Constraint Language_, Version 2.4, February 2014.
+Informative base notation of the embedded expression dialects
+(<<embedded-expressions,8.6>>).
+
+* [[REQIF]] OMG, _Requirements Interchange Format (ReqIF)_. Interchange
+target of the requirements projection (<<projections,17.7>>).
+
+* [[UML]] OMG, _Unified Modeling Language (UML)_.
+
+* [[SYSML]] OMG, _Systems Modeling Language (SysML)_, including SysML v2
+and the Kernel Modeling Language (KerML).
+
+* [[BPMN]] OMG, _Business Process Model and Notation (BPMN)_, Version
+2.0.2.
+
+* [[DMN]] OMG, _Decision Model and Notation (DMN)_.
+
+* [[SBVR]] OMG, _Semantics of Business Vocabulary and Business Rules
+(SBVR)_.
+
+* [[DINDKE]] DIN DKE SPEC 99200, _ReqIF profile for standards documents_.
+
+* [[ISO17000]] ISO/IEC 17000, _Conformity assessment — Vocabulary and
+general principles_. Source vocabulary of the activity taxonomy
+(<<activity-taxonomy,12.5>>).
+
+* [[ISO17067]] ISO/IEC 17067, _Conformity assessment — Fundamentals of
+product certification and guidelines for product certification schemes_.
+Source of the scheme-type register read by C98.
+
+* [[ISO80000-1]] ISO 80000-1, _Quantities and units — Part 1: General_.
+Informative background of the quantity-kind machinery
+(<<quantities,13.4>>).
+
+* [[FOUNDATIONS]] _The Primmel documentation volumes_, volume 0
+(Foundation) and volume I (The Primmel Kernel),
+`primmel/primmel-smart-docs`, `docs/foundation/` and `docs/primmel/`.
+The conceptual foundations this specification cites informatively.

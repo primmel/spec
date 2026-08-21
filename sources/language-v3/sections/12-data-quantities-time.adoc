@@ -1,0 +1,217 @@
+[[data-quantities-time]]
+== Data, quantities, and time
+
+[[data-classes]]
+=== Data classes, enumerations, and registries
+
+A `class` declares a record shape; the `#data` suffix marks a class as
+registerable:
+
+[source,prl]
+----
+class BeanLot#data {
+  lot_id:           string   { definition "Supplier lot identifier" modality SHALL }
+  received_on:      datetime { definition "Date received" modality SHALL }
+  certified_organic: boolean { definition "Certified organic" modality MAY }
+}
+class RoastProfile {
+  target_level: RoastLevel { definition "Target roast level" }
+}
+----
+
+A class without `#data` is a helper class: a reusable complex type that
+lives as a field inside other classes and cannot be registered. A field
+declaration is `<name>[: <type>][<cardinality>] { <properties> }`; field
+properties are `definition` and `modality` (<<modality-vocabulary,11.6>>)
+at minimum. The cardinality form is `[<min>..<max>]` with `*` for
+unbounded. An `enum` declares a closed value set, each value with an
+optional `definition` block. A `data_registry` declares a named store of
+records of one data class (facets `title`, `data_class`); processes read
+and write registries through their `reference_data_registry` and `output`
+facets (<<process-subject,12.1>>).
+
+[[field-types]]
+=== Field types
+
+The primitive field types are `string`, `boolean`, `datetime`, and
+`role`. A field type may also name an enumeration (one of its values), a
+helper class (an embedded complex value), or a typed reference
+`reference(<Target>#data)` (a foreign key to another registry's record).
+A field with no type is free-form.
+
+[[measurements]]
+=== Measurements
+
+A `measurement` (legacy alias `variable`) declares a value that validation
+expressions and gateway conditions evaluate:
+
+[source,prl]
+----
+measurement MoistureReading {
+  type DATALIST
+  description "Per-batch moisture readings in percent by mass"
+}
+measurement MaxMoisture {
+  type DERIVED
+  definition "[MoistureReading].max"
+}
+----
+
+The documented measurement-type vocabulary (MN 113) is `NUMERIC`,
+`DATALIST`, `DERIVED`, `TEXT`, `TABLE_REFERENCE`, `TRUE/FALSE`, and
+`DURATION`; the type is stored as text, and the derivation definition of a
+`DERIVED` measurement is the consumer's expression dialect.
+
+[[quantities]]
+=== Quantities and units
+
+A `quantity_register` upgrades bare unit strings into typed register
+entries: quantity kinds with their dimension vectors and SI coherent
+units, and units with their symbols, kinds, and SI conversions.
+
+[source,prl]
+----
+quantity_register si {
+  kind mass { dimensions { M 1 } si_unit kg description "Mass." }
+  unit kg { symbol "kg" label "kilogram" kind mass factor 1 }
+  unit g { symbol "g" label "gram" kind mass factor 0.001 }
+  unit degC { symbol "°C" label "degree Celsius" kind temperature factor 1 offset 273.15 }
+}
+----
+
+A kind carries `dimensions { <base> <exponent> ... }` and `si_unit`; a
+unit carries `symbol`, `label`, `kind`, the multiplicative `factor`, and
+the affine `offset`. Comparison coherence is judged on kinds, not unit
+strings (C33), and a package extends a register without redefining its
+entries (C32, C33). A `series` declaration on a symbol or variable states
+the axes and cell shape of a reading series.
+
+[[dual-construct]]
+=== The value duality: dual
+
+A `dual` declares the IS/HAS duality (<<is-has-duality,10.4>>) of one
+attribute explicitly:
+
+[source,prl]
+----
+dual e-max-rating {
+  attribute e_max
+  designed  { value 2.2 unit t tolerance 0.5 }
+  exhibited { value 2.1998 unit t uncertainty 0.0002 }
+}
+----
+
+The `designed` side is the IS role (carrying `tolerance`); the
+`exhibited` side is the HAS role (carrying `uncertainty`). At least one
+side is present; when both are stated they must be kind-coherent (C34).
+
+[[time-primitives]]
+=== Time primitives
+
+The time value types are texts in ISO 8601 formats, validated with real
+calendar arithmetic (C35):
+
+* `date`: a calendar date, `2026-08-20`, with leap-year validation;
+* `datetime`: a date with a time of day, `2026-09-15T10:14:00Z`, with an
+optional UTC offset;
+* `duration`: a duration designator, `P2Y`, `PT1H30M`, with the
+designators in order and optional decimal fractions;
+* `period`: a recurrence period, validated as a duration.
+
+[[tables-symbols-calculations]]
+=== Tables, symbols, and calculations
+
+A `table` declares structured tabular data: typed `columns { ... }` with
+optional units, `data { ... }` rows (numeric-looking cells coerce to
+numbers), `profiles { ... }` (named row selections), `dimension` binding,
+`overrides`, and `binding`. A `symbol` declares a typed, unit-aware formal
+symbol: `type` is a closed vocabulary, parse-enforced (`number`,
+`integer`, `string`, `boolean`, `enum`, `collection`, `array`), with
+`unit`, `latex`, `values`, `series`, `kind`, `quantity_kind`, `origin`,
+and the linking facets `attribute`, `calculation`, and `profile`.
+
+A `calculation` declares a named computation: `inputs { ... }`,
+`output { type unit }`, and one of the calculation forms, `expression`
+(an embedded expression), `lookup` (a table lookup with `key`), or
+`profile` (a profile reference), with
+`params { param <name>: <type> { ... } }`, `variable` bindings, and
+provenance.
+
+[[test-point-sets]]
+=== Test point sets and reference materials
+
+A `test_point_set` declares the points at which a test samples its range:
+`anchor`, `points` (or `min_points`), `fraction`, `offset`,
+`repetitions_per_point`, `rule`, `cardinality`, and provenance. A
+`reference_material` declares a certified material used by a test:
+`identity_fields`, `constraints`, `evidence`, `override`, `kind`, `type`,
+`unit`, and `required` facets, with the parse-enforced gate facets
+(`on_violation`, `rule`) where the grammar defines them.
+
+[[registry-assurance]]
+=== Registry and assurance constructs
+
+Four documentation constructs round out the registry: `note` (a typed
+annotation; `type` is a closed vocabulary, parse-enforced: `NOTE`,
+`CAUTION`, `WARNING`, `EXAMPLE`, `COMMENTARY`; facets `message`,
+`reference`, and `source_discrepancy`), `link` (a cross-model or external
+pointer; `kind` is `REPO` or `URL`, parse-enforced, with `target`, `url`,
+`path`, `namespace`), `figure` (`src`, `title`), and `comment` (a review
+comment: `author`, `message`, `on`, `reply_to`, `resolved`, `timestamp`).
+
+Three assurance constructs carry the architecture-level records: an
+`invariant` declares a named platform invariant with `statement`,
+`severity`, `applies_to { ... }`, and `enforcement` (a claims list, or the
+bare marker `aspirational`; the grammar and the marker discipline are
+checker-enforced, C90, C91). A `test_sequence` declares a required test
+ordering: step entries `step <n> { test <ref> role <r> depends_on <m> }`
+with the step role (`baseline` or `follow_up`), `sample_applicability`,
+and provenance (shape and integrity: C92, C93). A `formulas_used` block,
+keyed by a conformance-test reference, lists the evaluation formulas a
+test derives (the `formulas` facet), with provenance (shape: C94).
+
+[[terminology-construct]]
+=== Terminology
+
+A `term` declares one entry of the model's terminology register:
+
+[source,prl]
+----
+term load-cell {
+  label "load cell"
+  definition "Force transducer that converts a load into an electrical signal."
+  symbol "LC"
+  part_of_speech noun
+  alt "weighing cell"
+  abbreviations { "LC" }
+  see_also { force-transducer }
+  scope_note "Used for the R 60 sense only."
+  ref derives-from "urn:oiml:pub:r:60-1:2021#clause-3.1.3"
+}
+----
+
+The facets are `label`, `definition`, `symbol` (the formal symbol of the
+term), `part_of_speech`, `alt` and `abbreviations` (admitted forms),
+`deprecated`, `form_type`, `language`, `note`, `scope_note`, `section`,
+`see_also { ... }`, `vocab_ref` / `vocab_term` (the external vocabulary
+binding), `overlay` (a term-level overlay marker), and provenance. Terms
+are foundations-tier content: every tier references them and they anchor
+to no subject.
+
+[[twin-era-constructs]]
+=== Twin-era constructs
+
+Three constructs serve a live subject: a `connector_profile` declares a
+named protocol profile that endpoints reference (facets `protocol`,
+`description`, `reference`); a `monitor` declares continuous
+compliance over a subject set, with `over { ... }`, `triggers { ... }`
+(`every <period>`, `on signal <s>`, `on change <aspect>`), `evaluate`
+selectors (`all`, `applicable_to(<expr>)`, or an explicit id block),
+`emit` sinks, and `escalate { ... }` actions on fail and on invalid
+(checker rules C65–C70); a `passport` declares a named, access-classed
+projection of a product model, with `upi { pattern level }` (the level is
+`model`, `batch`, or `item`, C88), `carrier { kind payload }`, and the
+access-class content blocks (`public`, `restricted`, `authority`), which
+are fail-closed at parse: an unknown block-valued keyword is a parse
+error, so a misspelt access class never parses into content no class
+serves (C86, C87).
