@@ -108,6 +108,31 @@ requirements and constraints with embedded expressions
 reason against adoption is the one this whole annex states: the language
 exists to carry the classes SBVR excludes by design.
 
+=== ODRL and the dataspace protocol stack
+
+What they are. ODRL 2.2 (the W3C Recommendation) is a policy expression
+language: permissions, prohibitions, and obligations over assets, for the
+wire. The dataspace protocols (the Dataspace Protocol family, the IDS
+reference architecture) define the catalog, contract-negotiation, and
+transfer machinery of a data exchange.
+
+The missing semantic class: *the model*. ODRL expresses a policy as a
+standalone document, but nothing in it says what the policy governs in
+the model's own terms (the artifact classes, their content contracts,
+their provenance), and a dataspace protocol carries the exchange without
+defining the exchange's content. The semantics of "what may move, under
+whose rules, anchored to which trust" belong to the scheme's model;
+encoding them in a wire format's terms would invert the dependency.
+
+Disposition: *used* as codec outputs, never imported. The policy
+construct of <<policy-construct,19.2>> is Primmel's own policy grammar,
+self-contained; an ODRL document is its projection for the wire
+(<<expression-layer,19.5>>). The dataspace definition of
+<<dataspace-construct,19.1>> is model content; a protocol catalog entry
+is its expression. Correspondence to external concepts is declared as
+maps-to annotations (<<correspondence-annotations,19.4>>), and a
+correspondence never carries the target's semantics into the model.
+
 === The standing answer
 
 Every candidate stops at the document's text or the model's shape. The

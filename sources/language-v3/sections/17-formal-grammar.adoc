@@ -58,10 +58,12 @@ BracketList  ::= ? a token starting with '[', re-accumulated until the
                    accumulated text contains ']' ?
 ----
 
+[[shared-sub-structures]]
 === Shared sub-structures
 
-The provenance block, the typed relation, the key-value entry, and the
-quantity block recur across constructs:
+The provenance block, the typed relation, the key-value entry, the
+quantity block, the trust reference, and the correspondence entry recur
+across constructs:
 
 [source,ebnf]
 ----
@@ -75,6 +77,12 @@ QuantityBlock  ::= '{' 'value' Value 'unit' Value
                      [ 'tolerance' Value ] '}'
 Applicability  ::= 'applicability' '{' ApplicabilityEntry { ApplicabilityEntry } '}'
 ApplicabilityEntry ::= DimensionKey ':' Value
+TrustRef       ::= 'trust_ref' BareToken [ 'key' BareToken ]
+            (* the organization identifier, optionally one published key *)
+CorrespondsEntry ::= 'corresponds' BareToken QuotedString [ CorrespondsBlock ]
+CorrespondsBlock ::= '{' { 'projection' BareToken ProjectionPayload } '}'
+ProjectionPayload ::= '{' { BareToken Value } '}'
+            (* the codec's steering input, stored untyped *)
 ----
 
 === What the grammar does not decide

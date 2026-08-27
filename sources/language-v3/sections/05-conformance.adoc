@@ -37,7 +37,8 @@ declaration whose keyword is registered in <<annex-a-constructs,Annex A>>,
 with an identifier and a block payload as that annex states;
 . within each construct, every facet it uses is one of the facets the
 construct accepts (<<subject-model,clauses 10>> to
-<<multilinguality,15>> and <<annex-a-constructs,Annex A>>); a document
+<<multilinguality,15>>, <<dataspaces-policies-trust,clause 19>>, and
+<<annex-a-constructs,Annex A>>); a document
 that relies on an unregistered facet is not a conforming document, even
 though a lenient parser will accept and skip that facet
 (<<parse-modes,9.5>>);
@@ -60,7 +61,7 @@ sequences, and nestable quote-aware blocks;
 . MUST accept every construct keyword registered in
 <<annex-a-constructs,Annex A>>, with its aliases, and MUST parse every
 facet of every construct as specified in <<subject-model,clauses 10>> to
-<<multilinguality,15>>;
+<<multilinguality,15>> and <<dataspaces-policies-trust,clause 19>>;
 . MUST accept facet order freely within a construct block and MUST accept
 declaration order freely at the top level;
 . MUST report a duplicate identifier within a construct collection as a
@@ -157,7 +158,7 @@ implementation's public test suite, which exercises every construct of
 <<annex-b-rule-catalog,Annex B>> (`packages/primmel/test/` of the
 primmel-ts repository). A standalone conformance test suite, runnable
 against third-party implementations, ships with the reference toolchain
-(the `conformance/` directory of primmel-ts, version 1.0.1, with a
+(the `conformance/` directory of primmel-ts, version 1.1.0, with a
 clause-tagged corpus and a third-party adapter contract); the suite is
 the execution form of this clause, and adopting it as a conformance
 requirement is roadmap for a later edition of this document.

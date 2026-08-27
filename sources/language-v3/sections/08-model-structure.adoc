@@ -24,7 +24,8 @@ Every construct declaration names a keyword registered in
 <<annex-a-constructs,Annex A>>, an identifier, and one block payload. The
 keywords, their aliases, and the collections they populate are stated
 normatively in <<annex-a-constructs,Annex A>>;
-<<subject-model,clauses 10>> to <<multilinguality,15>> specify the facet
+<<subject-model,clauses 10>> to <<multilinguality,15>> and
+<<dataspaces-policies-trust,clause 19>> specify the facet
 grammar of each construct family.
 
 Declaration order is free. Conventionally a file opens with `root`,
@@ -117,10 +118,14 @@ Two parse modes exist:
 
 lenient (default):: an unrecognized top-level keyword is skipped; an
 unrecognized facet inside a known construct is skipped together with its
-value token. The one structural exception is the `ref` construct, whose
-skip consumes its predicate, its target, and its optional note block
-(<<ref-construct,14.2>>), because a one-token skip would desynchronize
-the facet walk.
+value token. The structural exceptions are the multi-token facets: the
+`ref` construct, whose skip consumes its predicate, its target, and its
+optional note block (<<ref-construct,14.2>>); the `corresponds` facet,
+whose skip consumes its scheme, its concept, and its optional projection
+block (<<correspondence-annotations,19.4>>); and the `trust_ref` form,
+whose skip consumes the organization identifier and an optional `key`
+pair (<<trust-references,19.3>>). In each case a one-token skip would
+desynchronize the facet walk.
 
 strict:: an unrecognized top-level keyword is an error naming the keyword
 and its source position.

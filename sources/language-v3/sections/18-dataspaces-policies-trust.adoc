@@ -1,0 +1,348 @@
+[[dataspaces-policies-trust]]
+== Dataspaces, policies, trust, and correspondence
+
+[[dataspace-layer]]
+=== The layer this clause adds
+
+Primmel v3.1 adds the dataspace to the language as model content. Four
+constructs carry it:
+
+* the `dataspace` construct: the dataspace definition as a model object
+(<<dataspace-construct,19.1>>);
+* the `policy` construct: a usage-policy set in Primmel's own policy
+grammar (<<policy-construct,19.2>>);
+* the `trust_ref` reference form: a model-level reference to the trust
+plane (<<trust-references,19.3>>);
+* the `corresponds` annotation: the generalized per-node correspondence
+declaration and the projection-steering declarations of the expression
+codecs (<<correspondence-annotations,19.4>>).
+
+Two doctrines bound every construct of this clause.
+
+The first is self-containment. The semantics of these constructs are
+Primmel's own: a reader understands a dataspace, a policy, a trust
+reference, or a correspondence completely, with zero external standards
+open. Third-party standards (the dataspace protocols, the policy
+expression languages, the concept registers) live in the expression
+layer only: a Primmel policy can be exported as an ODRL document, a
+dataspace's catalog surface can be expressed over a dataspace protocol,
+a node can be referenced to an external concept register, and each of
+those is a projection codec or a correspondence claim, the same shape as
+the ReqIF and RDF exports of <<projections,17.7>>. The third-party
+standard is an output format, never an input dependency; correspondence
+(maps-to) is not import (is-defined-by), and a correspondence
+declaration never carries the semantics' source
+(<<expression-layer,19.5>>).
+
+The second is the concern boundary. The language is data definition and
+workflow definition: every construct of this clause is a declaration. A
+dataspace declares its participant classes, artifact classes, policy
+sets, trust anchors, and governance citations; a policy declares its
+rules; a trust reference declares addressing. The permission system's
+realization (roles, grants, tokens, the enforcement machinery) belongs
+to the runtime platform alone, and no construct of this clause is a
+permission mechanism. This is the same boundary the workflow layer
+already holds: a transition declares that an act requires a privilege
+(its `requires`), and the language never realizes the privilege.
+
+[[dataspace-construct]]
+=== The dataspace construct
+
+A `dataspace` declares one dataspace as a model object: the participant
+classes (the kinds of organization that may join), the artifact classes
+(the kinds of model-defined content the dataspace exchanges), the policy
+sets that govern the exchanges (by reference, <<policy-construct,19.2>>),
+the trust anchors the exchanges root in (<<trust-references,19.3>>), and
+the governance citations (the scheme documents' clauses, in the
+provenance machinery of <<references-and-relations,clause 14>>).
+
+[source,prl]
+----
+dataspace bfs-exchange {
+  name "Bean freshness exchange"
+  description "The scheme-operated dataspace for freshness-evaluation evidence."
+
+  participant_class certification-body {
+    label "Certification body"
+    description "A body operating a freshness certification program."
+  }
+  participant_class test-laboratory {
+    label "Test laboratory"
+    description "A laboratory performing freshness measurements."
+  }
+
+  artifact_class evaluation-report {
+    label "Evaluation report"
+    description "The laboratory's evaluation report on a lot."
+    element /art/evaluation-report
+    policy restricted-exchange
+  }
+  artifact_class registry-extract {
+    label "Registry extract"
+    description "A public extract of the certified-lot registry."
+    element LotRegistryEntry
+  }
+
+  policies { public-access restricted-exchange }
+  default_policy restricted-exchange
+
+  trust_anchor scheme-registry {
+    trust_ref bfs-scheme-op key bfs-2026-root
+    role registry
+    description "The scheme operator's participant registry and root key."
+  }
+
+  compatible_with { allied-scheme-exchange }
+
+  ref derives-from "urn:example:bfs:2026#clause-5.1"
+}
+----
+
+The facets:
+
+[cols="1,1,3"]
+|===
+|Facet |Arity |Meaning
+
+|`name` |0..1 |The display name.
+|`description` |0..1 |Free text.
+|`participant_class <id> { ... }` |0..* |One participant class: a kind of
+organization the dataspace admits. Facets: `label`, `description`. The
+class is declared here, in the dataspace, not referenced.
+|`artifact_class <id> { ... }` |0..* |One artifact class: a kind of
+content the dataspace exchanges. Facets: `label`, `description`,
+`element` (0..1, the model element that defines the class's content: an
+artifact definition, a form, or a data class), and `policy` (0..1, the
+per-class policy override).
+|`policies { ... }` |0..1 |The dataspace's policy register: the policy
+sets (<<policy-construct,19.2>>) the dataspace carries, by identifier.
+|`default_policy` |0..1 |The standing policy every artifact class
+inherits. An artifact class's own `policy` facet overrides the default
+for that class; the negotiation machinery of the platform never widens
+past the default without the holder's explicit act.
+|`trust_anchor <id> { ... }` |0..* |One trust anchor: the trust-plane
+identity the dataspace's exchanges root in. Facets: `trust_ref`
+(exactly one, <<trust-references,19.3>>), `role` (0..1, the anchor's
+function, a program register), `description` (0..1).
+|`compatible_with { ... }` |0..1 |The declared compatibility register:
+the identifiers of other dataspaces this one declares compatibility
+with. Compatibility is always explicit; it is never inferred from
+shared content.
+|`ref`, `source` |0..* |The governance citations: the scheme documents'
+clauses the dataspace's definition interprets, in the canonical
+provenance form (<<provenance-forms,14.3>>).
+|`corresponds` |0..* |Correspondence annotations
+(<<correspondence-annotations,19.4>>).
+|===
+
+A dataspace is published, versioned, and composed as part of its package
+(<<package-layout,16.3>>, <<composition-rules,7.6>>): the package is the
+unit of publication, and the dataspace definition rides it. Another
+scheme's dataspace declares compatibility with this one through its own
+`compatible_with` register; the declaration is model content, checked
+like any other reference (C104).
+
+The checker verifies the dataspace's references (C104,
+`dataspace-references-resolve`), the shape of its trust anchors (C105,
+`dataspace-trust-anchor-shape`), and the presence of its governance
+citations (C106, `dataspace-governance-provenance`, a warning: a
+dataspace with no governance provenance is an orphan definition).
+
+[[policy-construct]]
+=== The policy construct
+
+A `policy` declares a usage-policy set as first-class model content, in
+Primmel's own grammar: rules over the dataspace's artifact classes and
+the actions on them, with constraints in the language's embedded
+expression dialect (<<embedded-expressions,8.6>>). A policy is fully
+meaningful with zero external references. Export to a policy expression
+language (ODRL 2.2 is the reference codec) is a projection of the
+expression layer (<<expression-layer,19.5>>): the wire consumes the
+expression; the semantics are this clause's.
+
+[source,prl]
+----
+policy restricted-exchange {
+  name "Restricted exchange"
+  description "Restricted artifact classes exchange under an active agreement only."
+  default_posture true
+  governs { evaluation-report }
+
+  rule read-under-agreement {
+    kind permission
+    action read
+    artifact evaluation-report
+    constraint "ocl{agreement.state = #active}"
+  }
+  rule retain-nothing {
+    kind prohibition
+    action retain
+  }
+  rule log-every-access {
+    kind obligation
+    action log
+  }
+
+  ref derives-from "urn:example:bfs:2026#clause-6.2"
+}
+----
+
+The facets:
+
+[cols="1,1,3"]
+|===
+|Facet |Arity |Meaning
+
+|`name` |0..1 |The display name.
+|`description` |0..1 |Free text.
+|`governs { ... }` |0..1 |The artifact classes the policy governs:
+identifiers of artifact classes declared by the dataspaces of the
+merged model (C107).
+|`default_posture` |0..1 |`true` or `false` (a closed vocabulary,
+parse-enforced). A default-posture policy applies to every artifact
+class it governs unless the class overrides it; a non-default policy
+attaches only by explicit reference (an artifact class's `policy`
+facet, or the platform's negotiation records).
+|`rule <id> { ... }` |0..* |One rule of the set. Facets below.
+|`ref`, `source` |0..* |The clause provenance of the policy.
+|`corresponds` |0..* |Correspondence annotations
+(<<correspondence-annotations,19.4>>).
+|===
+
+A rule's facets:
+
+[cols="1,1,3"]
+|===
+|Facet |Arity |Meaning
+
+|`kind` |1 |The rule kind, a closed vocabulary, parse-enforced:
+`permission`, `obligation`, or `prohibition`.
+|`action` |1 |The governed action: a bare token from the program's
+action register (`read`, `exchange`, `retain`, `log`, ...). The
+vocabulary is the program's data; the language carries it untyped, and
+the expression codecs map it (an ODRL projection maps to the ODRL
+action vocabulary).
+|`artifact` |0..1 |The artifact class the rule constrains. When present
+it names one class of the policy's `governs` register (C107); when
+absent the rule applies to every governed class.
+|`constraint` |0..* |A constraint on the rule's applicability, as an
+embedded expression (<<embedded-expressions,8.6>>); quantities carry
+the measurement model's unit contract. The language stores the
+expression; evaluation is the platform's.
+|===
+
+The checker verifies the policy's shape: a policy declares at least one
+rule, every rule carries its action, a rule's `artifact` stays inside
+the `governs` register, the governed classes resolve, and two
+default-posture policies never govern the same artifact class (C107,
+`policy-shape`).
+
+[[trust-references]]
+=== Trust references: the trust_ref form
+
+A trust reference names a trust-plane identity from model content: an
+organization by its registry identifier, optionally with one of the
+organization's published keys by key id:
+
+[source,prl]
+----
+trust_ref bfs-scheme-op
+trust_ref bfs-scheme-op key bfs-2026-root
+----
+
+The form is a shared sub-structure of the grammar
+(<<shared-sub-structures,18.3>>), specified here and adopted by the
+dataspace's trust anchors (<<dataspace-construct,19.1>>); later
+revisions may admit it on further constructs.
+
+The resolution contract, stated once:
+
+. the reference is *opaque to the model*. It carries addressing only:
+the organization identifier and the optional key id. It never carries
+key material, endpoints, or credentials;
+. resolution is the consumer's, at runtime. The platform resolves the
+organization identifier against the trust registry it is configured
+with, and the key id against that registry's published key set for the
+organization. The registry's endpoint shape is the platform's contract,
+never the language's;
+. a conforming checker never resolves a trust reference. An unresolved
+(or unresolvable) organization identifier is not a finding: the trust
+plane's membership at any moment is runtime fact, not model content.
+The checker verifies the reference's shape only (C105, on the dataspace's
+trust anchors).
+
+[[correspondence-annotations]]
+=== Correspondence annotations: the corresponds facet
+
+A `corresponds` facet declares that its element corresponds to an
+external concept, and optionally steers how the element projects into an
+expression codec's output:
+
+[source,prl]
+----
+attribute_definition moisture_limit {
+  name "Moisture limit"
+  value_type QuantityValue
+  unit percent
+  irdi "0112/2///61987#ABA001"
+  corresponds iec-cdd "0112/2///61987#ABA001"
+  corresponds dpp "attr:moistureLimit" {
+    projection dpp-attribute { path "identity.moistureLimit" }
+  }
+}
+----
+
+The entry's shape is `corresponds <scheme> "<concept>" [ { ... } ]`:
+
+scheme:: a bare token naming the external scheme register the concept
+identifier belongs to (`iec-cdd`, `dpp`, `vc-claims`, ...). The scheme
+vocabulary is data: the program declares the registers it maps to, and
+the language carries the token untyped. A scheme declaration never
+imports the register's semantics; it names the correspondence's target
+address space.
+
+concept:: the concept identifier in the scheme's own addressing (an
+IRDI, a URI, a claim name), an opaque string. The model asserts
+correspondence with the concept; it does not restate the concept's
+definition.
+
+the optional block:: the projection-steering declarations: `projection
+<codec-id> { <key> <value> ... }` entries, one per expression codec the
+element projects through. The codec identifier names the codec (the
+program's register again); the key-value payload is the codec's input,
+authored once in the model and stored untyped, validated by the codec at
+export time, never by the language.
+
+Like the `ref` facet, `corresponds` is accepted on every construct; the
+lenient skip consumes its scheme, its concept, and its optional block
+(<<parse-modes,9.5>>). The `irdi` facet of an attribute definition
+(<<five-entity-kinds,10.1>>) remains as the legacy single-scheme
+spelling of `corresponds iec-cdd`; a conforming serializer keeps each
+spelling as authored, and when both are present on one element they must
+name the same concept (C108, `correspondence-shape`, a warning leg).
+Two entries on one element never name the same scheme: one element has
+at most one correspondence per scheme, so every bridge reads an
+unambiguous mapping (C108, an error leg).
+
+[[expression-layer]]
+=== The expression layer: correspondence is not import
+
+The constructs of this clause complete the language's answer to
+alignment with external standards, and the answer is one-sided by
+design. A Primmel model is the single source of truth of its own
+semantics; an external standard enters the model's content only as a
+*correspondence claim* (maps-to), and leaves the model only as a
+*projection* (an export document). The expression layer, the set of
+projection codecs a toolchain ships, turns model content into the
+documents a third-party ecosystem consumes: an ODRL policy document for
+the dataspace wire, a catalog dataset for a dataspace protocol, an AAS
+submodel, a verifiable-credential claim set, a concept-register
+reference. Each codec is an output format of the toolchain, exactly the
+shape of the ReqIF and RDF projections of <<projections,17.7>>, and no
+codec's semantics flow back into the language. A capability the grammar
+lacks is a language extension; it is never a bolted-on foreign document.
+
+The authored correspondence annotations
+(<<correspondence-annotations,19.4>>) are the codecs' input: a program
+declares its correspondences once, in the model, and every bridge
+consumes them instead of its own hand mapping.

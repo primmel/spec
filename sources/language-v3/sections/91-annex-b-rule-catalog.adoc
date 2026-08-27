@@ -4,7 +4,7 @@
 This annex is the catalog of every rule the checker runs. It reproduces,
 without paraphrase, the machine-readable registry of the reference
 implementation (`packages/primmel/src/check-rules.ts` of primmel-ts at
-version 1.6.1), which `primmel check --rules` prints. The toolchain
+version 1.8.0), which `primmel check --rules` prints. The toolchain
 registry is the operative form; this annex is its publication. A
 discrepancy between this annex and the toolchain registry is a defect in
 one of them, and the verification is one command:
@@ -14,7 +14,7 @@ one of them, and the verification is one command:
 primmel check --rules
 ----
 
-Each rule has an identifier (C1 to C103; the numbering is historical and
+Each rule has an identifier (C1 to C108; the numbering is historical and
 not contiguous by family), a name used in findings, a family, a default
 severity, and a level:
 
@@ -251,5 +251,18 @@ cites.
 |C86 |`passport-content-resolves` |error |normal
 |C87 |`passport-access-leak` |error |normal
 |C88 |`passport-upi-scheme` |error |normal
+|===
+
+=== dataspace
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C104 |`dataspace-references-resolve` |error |normal
+|C105 |`dataspace-trust-anchor-shape` |error |normal
+|C106 |`dataspace-governance-provenance` |warning |normal
+|C107 |`policy-shape` |error |normal
+|C108 |`correspondence-shape` |error |normal
 |===
 

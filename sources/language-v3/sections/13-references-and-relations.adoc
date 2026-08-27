@@ -112,3 +112,17 @@ vocabulary is closed and parse-enforced: `follows_clause_x` or
 * the `discrepancy_record` construct, the corpus-level form, with
 `summary`, `sources { ... }`, `resolution`, `rationale`, and `status`;
 the status vocabulary is closed and parse-enforced: `open` or `resolved`.
+
+[[references-dataspace-forms]]
+=== The trust reference and the correspondence annotation
+
+Two further reference forms extend this layer without joining the
+predicate registry, and both are specified with the dataspace constructs
+of <<dataspaces-policies-trust,clause 19>>: the *trust reference*
+(`trust_ref`, <<trust-references,19.3>>) names a trust-plane identity by
+addressing only, opaque to the model and resolved by the consumer at
+runtime; the *correspondence annotation* (`corresponds`,
+<<correspondence-annotations,19.4>>) declares that an element maps to an
+external concept and steers the expression codecs. Neither is a `ref`
+triple: a trust reference has no model-internal target, and a
+correspondence is maps-to, never is-defined-by.
