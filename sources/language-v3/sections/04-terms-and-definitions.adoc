@@ -110,3 +110,28 @@ forward compatibility (<<parse-modes,9.5>>)
 the single emission spelling a conforming serializer produces for a model,
 such that loading and re-serializing is a fixed point
 (<<canonical-form,16.5>>)
+
+[[term-dataspace]]
+=== dataspace
+model object declaring one dataspace: its participant classes, artifact
+classes, policy sets, trust anchors, compatibility register, and
+governance citations (<<dataspace-construct,19.1>>)
+
+[[term-policy]]
+=== policy
+usage-policy set as first-class model content: rules of kind permission,
+obligation, or prohibition over a dataspace's artifact classes and their
+actions, with constraints in the embedded expression dialect
+(<<policy-construct,19.2>>)
+
+[[term-trust-reference]]
+=== trust reference
+model-level reference to a trust-plane identity (an organization by its
+registry identifier, optionally a key by key id), opaque to the model and
+resolved by the consuming platform at runtime (<<trust-references,19.3>>)
+
+[[term-correspondence]]
+=== correspondence
+declared alignment of a model element to an external concept (maps-to,
+never is-defined-by), expressed as a `corresponds` annotation and consumed
+by the expression codecs (<<correspondence-annotations,19.4>>)

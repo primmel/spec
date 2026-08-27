@@ -1,7 +1,7 @@
 = MN 114: Primmel Language Specification
 :docnumber: 114
 :edition: 1
-:revdate: 2026-08-20
+:revdate: 2026-08-28
 :copyright-year: 2026
 :language: en
 :title-main-en: Primmel Language Specification
@@ -29,6 +29,7 @@ include::sections/14-multilinguality.adoc[]
 include::sections/15-serialization.adoc[]
 include::sections/16-checker.adoc[]
 include::sections/17-formal-grammar.adoc[]
+include::sections/18-dataspaces-policies-trust.adoc[]
 include::sections/90-annex-a-constructs.adoc[]
 include::sections/91-annex-b-rule-catalog.adoc[]
 include::sections/92-annex-c-comparison.adoc[]

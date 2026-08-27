@@ -46,11 +46,13 @@ state
 |Tertiary
 |Execution and judgment over secondary × primary instances
 |Runs and evidence records, verdicts, evaluations, decisions,
-certificates, workflow processes, monitors
+certificates, workflow processes, monitors, dataspaces and their usage
+policies
 
 |Cross-cutting
 |Properties of every element on every tier
-|Provenance, time and versioning, the traceability spine, multilinguality
+|Provenance, time and versioning, the traceability spine,
+multilinguality, correspondence annotations
 |===
 
 A downward reference is a modelling error, and the checker reports one

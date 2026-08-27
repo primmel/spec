@@ -13,12 +13,20 @@ Document identity:
 [cols="1,3"]
 |===
 |Document |MN 114, Primmel Language Specification
-|Language version specified |Primmel version 3 (v3)
+|Language version specified |Primmel version 3.1 (v3.1)
 |Edition |1
-|Date |2026-08-20
+|Date |2026-08-28
 |Status |Draft, published for comment
-|Reference implementation |`@primmel/primmel` (primmel-ts) 1.6.1
+|Reference implementation |`@primmel/primmel` (primmel-ts) 1.8.0
 |===
+
+Revision note (2026-08-28). This revision of the draft adds the v3.1
+extension set: the dataspace as a model object, the policy construct in
+Primmel's own policy grammar, the trust reference form, and the
+generalized correspondence annotations (clause 19), with their checker
+rules (C104 to C108, Annex B) and their grammar productions (clause 18).
+The addition is strictly additive: every construct, facet, and rule of the
+2026-08-20 revision is unchanged.
 
 This document is published as a *draft for comment*. Comments are invited by
 issue on the public source repository,

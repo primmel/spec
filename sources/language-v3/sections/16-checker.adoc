@@ -5,7 +5,7 @@
 
 The checker is the semantic layer of the toolchain: the rules that a
 syntactically conforming package is judged against. The full rule catalog,
-C1 to C103 with family, default severity, and level, is normative in
+C1 to C108 with family, default severity, and level, is normative in
 <<annex-b-rule-catalog,Annex B>>; this clause specifies the checker's
 operating semantics.
 
@@ -95,6 +95,12 @@ well-formed?
 |supply-chain
 |Do product mappings resolve, stay pinned, and keep passport access
 classes leak-free?
+
+|dataspace
+|Do the dataspace's policy, compatibility, and content references
+resolve, are its trust anchors shaped, is its governance cited, do its
+policies carry well-formed rules, and do correspondence annotations stay
+unambiguous?
 |===
 
 [[allowlist]]

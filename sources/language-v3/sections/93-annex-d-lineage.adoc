@@ -27,6 +27,13 @@ requirements and subject-chain constructs
 quantities and duality, the activity taxonomy, the twin interface,
 monitors, passports, the assurance constructs, multilinguality, and the
 checker catalog as a conformance surface
+
+|Primmel v3.1
+|This document, 2026-08-28 revision
+|The v3 surface plus the dataspace constructs: the `dataspace` and
+`policy` constructs, the `trust_ref` reference form, and the generalized
+`corresponds` annotations (<<dataspaces-policies-trust,clause 19>>), with
+their checker rules (C104 to C108)
 |===
 
 === The compatibility contract
@@ -56,6 +63,18 @@ a v3 document using constructs a v2 parser does not register parses under
 that parser with the unknown material skipped. Authors targeting a mixed
 toolchain estate SHOULD validate in strict mode against the oldest
 intended generation.
+
+v3.1 is a strict extension of v3 at the parse level, with one boundary
+stated honestly. A parser of the first v3 revision tolerates the v3.1
+top-level constructs (`dataspace`, `policy`): the unknown keyword, its
+identifier, and its block are skipped whole. The new multi-token facets
+are a different case: the skip discipline of the first revision
+special-cases only `ref`, so a first-revision parser misparses a
+`corresponds` or `trust_ref` facet inside a construct it knows. The
+multi-token skip rule of <<parse-modes,9.5>> covers these facets from
+this revision on; a document that uses them on the older constructs
+requires a v3.1 reader, and the version-pinned package composition of
+<<composition-rules,7.6>> is where a program states that requirement.
 
 === Migration guidance
 
