@@ -172,7 +172,8 @@ reference package: located and checked (C83), never content-merged.
 
 Editions are the package lifecycle: a manifest registers its `editions`,
 the lifecycle `status` (`current`, `preview`, `superseded`, `withdrawn`),
-the `validity` window, and the `supersedes`/`replaces` chains, all checked
-by the edition rules (C77–C80, C85). The structural model diff between two
+the `validity` window, and the `supersedes`/`replaces`/`superseded_by`
+lineage edges, all checked by the edition rules (C77–C80, C85, C113;
+<<edition-lineage,9.3.1>>). The structural model diff between two
 package states is a toolchain operation (`primmel diff`,
 <<diff-and-exports,17.6>>), not a language construct.

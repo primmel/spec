@@ -126,3 +126,64 @@ runtime; the *correspondence annotation* (`corresponds`,
 external concept and steers the expression codecs. Neither is a `ref`
 triple: a trust reference has no model-internal target, and a
 correspondence is maps-to, never is-defined-by.
+
+[[document-anchors]]
+=== Document anchors and the structured reference
+
+*Roadmap — primmel/spec#18, v3.2.* A `ref` target that names a document
+or a clause of a document is a *document anchor*, and its shape is
+normative, because a cross-standard hop is machine-traversable exactly
+when the anchor composes from declared parts:
+
+[source,ebnf]
+----
+DocumentAnchor ::= DocumentURN [ '#' 'clause-' ClauseRef [ '/' Fragment ] ]
+DocumentURN    ::= ? a URN naming a document (a package's baseUrn names
+                     its own document namespace; C85 checks the shape) ?
+ClauseRef      ::= ? the document's own clause numbering, dot-separated ?
+----
+
+The deployed spelling — `urn:oiml:pub:r:60-1:2021#clause-5.3.2` — is the
+canonical form: the URN names the document, the `clause-` fragment names
+the clause in the DOCUMENT's own numbering (never a producer-internal
+anchor such as a UUID; an internal anchor is not citable and a consumer
+strips it — primmel-ts#65 ask 1 holds the serializer to the same rule).
+A document without a URN scheme is cited through the structured identity
+of a `reference` construct instead.
+
+The v2 `reference` construct (<<provenance-forms,14.3>>) is the registry
+of such named citation targets, and its facet set grows from display
+strings to a resolvable identity:
+
+[source,prl]
+----
+reference iso-iec-17025-7.2 {
+  org "ISO/IEC"
+  document "ISO/IEC 17025"
+  edition "2017"
+  clause "7.2"
+  title "General requirements for the competence of testing and calibration laboratories"
+  urn "urn:iso:std:iso-iec:17025:ed-3"
+}
+----
+
+The facets: `org` (the publishing organization), `document` (the
+designation), `edition` (the publication edition), `clause`, `title`,
+and `urn` (the resolvable identifier). When `urn` is present it IS the
+document's identity and the clause anchor composes as
+`<urn>#clause-<clause>`; when it is absent, the structured quadruple
+(org / document / edition / clause) is the identity a consumer's locator
+resolves. Either way the cross-reference carries resolvable identifiers
+alongside its labels, and the hop from a citing element to the cited
+standard's clause is data, not display text. The checker verifies the
+identity (C112, `reference-identity`): a malformed `urn` is an error;
+a reference carrying neither `urn` nor the org-and-document pair is a
+warning (a display-string citation is visible debt, never silently
+citable).
+
+The composition edge stays where it always was: a manifest's `uses`
+entry IS the resolvable identifier of a composed package (the package id
+through the package locator, with the pinned `<id>@<edition>` form for
+abstract imports, <<composition-rules,7.6>>), and the `reference`
+construct serves the citations that are NOT composition — the standards
+a model cites without merging their content.

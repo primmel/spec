@@ -155,3 +155,16 @@ on: a classification dimension of an instrument, an attribute definition
 declared `is_dimension true`, or a top-level `dimension` declaration
 (<<dimension-construct,10.6>>), with a declared value set, optional
 subsumption links, and a match mode (<<applicability-semantics,11.1.1>>)
+
+[[term-document-anchor]]
+=== document anchor
+the address of a document or of a clause within it: a document URN,
+optionally suffixed by `#clause-<clause>` in the document's own clause
+numbering (<<document-anchors,14.7>>)
+
+[[term-edition-lineage]]
+=== edition lineage
+the declared succession graph of a package's editions: the `editions`
+register order, the `supersedes` / `replaces` / `superseded_by` edges, the
+lifecycle `status`, and the `validity` windows of the package manifest
+(<<edition-lineage,9.3.1>>)

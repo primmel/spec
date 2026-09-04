@@ -39,8 +39,11 @@ their checker rules (C104 to C108)
 |This document, 2026-09-04 revision
 |The v3.1 surface plus the consumption constructs (primmel/spec#18,
 *roadmap* pending the kernel wave): the term alias family
-(<<term-alias-family,13.10.1>>) and the top-level `dimension` construct
-(<<dimension-construct,10.6>>), with their checker rules (C110, C111)
+(<<term-alias-family,13.10.1>>), the top-level `dimension` construct
+(<<dimension-construct,10.6>>), the document-anchor grammar and the
+structured `reference` identity (<<document-anchors,14.7>>), and the
+`superseded_by` lineage edge (<<edition-lineage,9.3.1>>), with their
+checker rules (C110 to C113)
 |===
 
 === The compatibility contract
@@ -86,11 +89,12 @@ requires a v3.1 reader, and the version-pinned package composition of
 v3.2 is a strict extension of v3.1 at the parse level and changes no
 v3.1 construct. Its new top-level construct (`dimension`) is skipped
 whole by a v3.1 parser, and its new facets are block-valued (the alias
-family of <<term-alias-family,13.10.1>>) or bare-valued (`values_of`,
-<<dimension-construct,10.6>>), which the one-token skip covers — with
-one exception stated in <<parse-modes,9.5>>: the spelling-tagged form
-(`colloquial fra-Latn { ... }`) is a multi-token facet, so a document
-using it requires a v3.2 reader.
+family of <<term-alias-family,13.10.1>>, the manifest `superseded_by`
+register) or single-valued (`values_of`, the `reference` identity
+facets), which the one-token skip covers — with one exception stated in
+<<parse-modes,9.5>>: the spelling-tagged form (`colloquial fra-Latn
+{ ... }`) is a multi-token facet, so a document using it requires a
+v3.2 reader.
 
 === Migration guidance
 
