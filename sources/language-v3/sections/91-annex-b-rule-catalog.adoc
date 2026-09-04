@@ -4,7 +4,7 @@
 This annex is the catalog of every rule the checker runs. It reproduces,
 without paraphrase, the machine-readable registry of the reference
 implementation (`packages/primmel/src/check-rules.ts` of primmel-ts at
-version 1.8.0), which `primmel check --rules` prints. The toolchain
+version 1.8.2), which `primmel check --rules` prints. The toolchain
 registry is the operative form; this annex is its publication. A
 discrepancy between this annex and the toolchain registry is a defect in
 one of them, and the verification is one command:
@@ -14,7 +14,7 @@ one of them, and the verification is one command:
 primmel check --rules
 ----
 
-Each rule has an identifier (C1 to C108; the numbering is historical and
+Each rule has an identifier (C1 to C110; the numbering is historical and
 not contiguous by family), a name used in findings, a family, a default
 severity, and a level:
 
@@ -29,6 +29,11 @@ The detailed semantics of a rule (what exactly it matches) are documented
 with the rule's implementation and its tests; this catalog fixes the
 identifiers, names, families, severities, and levels that conformance
 cites.
+
+Rules introduced by the v3.2 revision (C110 and higher) are *roadmap*
+entries, specified for comment ahead of their toolchain implementation
+(primmel/spec#18); they join the operative registry when the kernel wave
+ships, and until then a conforming checker is not required to run them.
 
 === base
 
@@ -53,6 +58,7 @@ cites.
 |C97 |`program-maps-resolves` |error |normal
 |C98 |`program-surveillance-required` |warning |normal
 |C103 |`declared-predicate` |error |normal
+|C110 |`term-alias-shape` |error |normal
 |===
 
 === anatomy
@@ -152,6 +158,7 @@ cites.
 |C40 |`anatomy-state-resolves` |error |normal
 |C41 |`precondition-on-violation-known` |warning |normal
 |C95 |`cascade-transition-resolve` |error |normal
+|C109 |`state-machine-initial-present` |error |normal
 |===
 
 === promises

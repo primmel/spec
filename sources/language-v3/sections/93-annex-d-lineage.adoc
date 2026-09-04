@@ -34,6 +34,12 @@ checker catalog as a conformance surface
 `policy` constructs, the `trust_ref` reference form, and the generalized
 `corresponds` annotations (<<dataspaces-policies-trust,clause 19>>), with
 their checker rules (C104 to C108)
+
+|Primmel v3.2
+|This document, 2026-09-04 revision
+|The v3.1 surface plus the consumption constructs (primmel/spec#18,
+*roadmap* pending the kernel wave): the term alias family
+(<<term-alias-family,13.10.1>>) with its checker rule (C110)
 |===
 
 === The compatibility contract
@@ -75,6 +81,13 @@ multi-token skip rule of <<parse-modes,9.5>> covers these facets from
 this revision on; a document that uses them on the older constructs
 requires a v3.1 reader, and the version-pinned package composition of
 <<composition-rules,7.6>> is where a program states that requirement.
+
+v3.2 is a strict extension of v3.1 at the parse level and changes no
+v3.1 construct. Its new facets are block-valued (the alias family of
+<<term-alias-family,13.10.1>>), which the one-token skip covers, with
+one exception stated in <<parse-modes,9.5>>: the spelling-tagged form
+(`colloquial fra-Latn { ... }`) is a multi-token facet, so a document
+using it requires a v3.2 reader.
 
 === Migration guidance
 

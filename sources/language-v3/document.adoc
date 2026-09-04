@@ -1,7 +1,7 @@
 = MN 114: Primmel Language Specification
 :docnumber: 114
 :edition: 1
-:revdate: 2026-08-28
+:revdate: 2026-09-04
 :copyright-year: 2026
 :language: en
 :title-main-en: Primmel Language Specification

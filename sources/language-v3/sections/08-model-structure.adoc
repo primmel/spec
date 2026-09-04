@@ -122,10 +122,12 @@ value token. The structural exceptions are the multi-token facets: the
 `ref` construct, whose skip consumes its predicate, its target, and its
 optional note block (<<ref-construct,14.2>>); the `corresponds` facet,
 whose skip consumes its scheme, its concept, and its optional projection
-block (<<correspondence-annotations,19.4>>); and the `trust_ref` form,
+block (<<correspondence-annotations,19.4>>); the `trust_ref` form,
 whose skip consumes the organization identifier and an optional `key`
-pair (<<trust-references,19.3>>). In each case a one-token skip would
-desynchronize the facet walk.
+pair (<<trust-references,19.3>>); and a spelling-tagged alias-family
+facet of a term, whose skip consumes its spelling code and its list
+block (<<term-alias-family,13.10.1>>). In each case a one-token skip
+would desynchronize the facet walk.
 
 strict:: an unrecognized top-level keyword is an error naming the keyword
 and its source position.

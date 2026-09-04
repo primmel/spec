@@ -47,3 +47,10 @@ resolves, and the terminal prose is authored. Alternate spellings of one
 field may be split across files; the parser merges the blocks of one
 address into one content set. Translation files (conventionally
 `l10n/<code>.prl`) therefore never modify the normative source spelling.
+
+The one exception to the text-block mechanism is the term's alias family
+(<<term-alias-family,13.10.1>>): a bare string entry of an `aliases`,
+`colloquial`, `abbreviations`, or `deprecated` list has no declared key
+to address, so the family carries its spelling variants inline, one
+spelling-tagged list per spelling. Everywhere else, alternate spellings
+are authored in `text` blocks and never inline.
