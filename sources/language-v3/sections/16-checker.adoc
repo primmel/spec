@@ -80,7 +80,7 @@ stays separate from judgment?
 
 |characteristics
 |Does every characteristic have one home, a behavior link, and declared
-derivation inputs?
+derivation inputs, and do the verdict chains resolve and stay acyclic?
 
 |twins
 |Do serve bindings, endpoints, monitors, and composition declarations

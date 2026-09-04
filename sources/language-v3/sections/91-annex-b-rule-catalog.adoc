@@ -14,7 +14,7 @@ one of them, and the verification is one command:
 primmel check --rules
 ----
 
-Each rule has an identifier (C1 to C115; the numbering is historical and
+Each rule has an identifier (C1 to C118; the numbering is historical and
 not contiguous by family), a name used in findings, a family, a default
 severity, and a level:
 
@@ -61,6 +61,7 @@ ships, and until then a conforming checker is not required to run them.
 |C110 |`term-alias-shape` |error |normal
 |C111 |`dimension-shape` |error |normal
 |C112 |`reference-identity` |error |normal
+|C118 |`requirement-parameter-shape` |error |normal
 |===
 
 === anatomy
@@ -196,6 +197,8 @@ ships, and until then a conforming checker is not required to run them.
 |C48 |`characteristic-one-home` |error |normal
 |C49 |`characteristic-behavior-link` |error |normal
 |C50 |`characteristic-derivation-inputs` |error |normal
+|C116 |`verdict-inputs-resolve` |error |normal
+|C117 |`verdict-chain-acyclic` |error |normal
 |===
 
 === twins

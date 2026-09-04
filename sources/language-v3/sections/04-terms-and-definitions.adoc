@@ -168,3 +168,10 @@ the declared succession graph of a package's editions: the `editions`
 register order, the `supersedes` / `replaces` / `superseded_by` edges, the
 lifecycle `status`, and the `validity` windows of the package manifest
 (<<edition-lineage,9.3.1>>)
+
+[[term-acceptance-chain]]
+=== acceptance chain
+the explicit decision graph of a judgment, every hop a citable model
+element: requirement → the limit's `accepts` verdict binding → the
+verdict's `inputs` (symbols and sub-verdicts) → each verdict's
+`acceptance` decision (<<verdict-construct,11.3>>)

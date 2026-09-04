@@ -33,8 +33,11 @@ forward lineage edge (manifest `superseded_by` and the edition lineage
 graph, <<edition-lineage,9.3.1>>), and units-typed quantities (the
 calculation signature's `quantity_kind` + `range` facets and the limit's
 `quantity { kind unit }` block, <<calculation-signatures,13.7.1>>,
-<<limit-quantities,11.1.2>>), with their checker rules (C110 to
-C115, Annex B).
+<<limit-quantities,11.1.2>>), and the verdict chain with the
+instance-parameter schema (verdict `inputs` may name verdicts;
+requirement parameters carry `unit` and `bind`,
+<<verdict-construct,11.3>>, <<instance-parameters,11.1.3>>), with their
+checker rules (C110 to C118, Annex B).
 The addition is strictly additive: every construct, facet, and rule of
 the 2026-08-28 revision is unchanged. Unlike the v3.1 set, the v3.2
 constructs land ahead of their kernel implementation: each is marked
