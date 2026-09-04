@@ -135,3 +135,15 @@ resolved by the consuming platform at runtime (<<trust-references,19.3>>)
 declared alignment of a model element to an external concept (maps-to,
 never is-defined-by), expressed as a `corresponds` annotation and consumed
 by the expression codecs (<<correspondence-annotations,19.4>>)
+
+[[term-alias]]
+=== alias
+admitted alternate designation of a term, carried as data in the term's
+alias family (<<term-alias-family,13.10.1>>) so that consumption systems
+can bridge vocabulary a user types to the defined term
+
+[[term-colloquial-form]]
+=== colloquial form
+informal, everyday phrasing recorded on a term (the `colloquial` facet of
+<<term-alias-family,13.10.1>>) that is not a designation of the concept:
+it carries no normative force and exists to bridge retrieval

@@ -16,6 +16,8 @@ This directory is the canonical plan for evolving Primmel from MMEL 0.1.
 | 07 | [07-primmel-ts-extensions.md](07-primmel-ts-extensions.md) | Parser support for new keywords | active |
 | 08 | [08-oiml-smart-converter.md](08-oiml-smart-converter.md) | YAML ↔ Primmel converter | active |
 | 09 | [09-build-pipeline-updates.md](09-build-pipeline-updates.md) | Build pipeline updates | active |
+| 10 | [10-dataspace-and-trust-constructs.md](10-dataspace-and-trust-constructs.md) | The v3.1 dataspace + policy + trust + correspondence constructs | substantially complete |
+| 11 | [11-ai-consumption-constructs.md](11-ai-consumption-constructs.md) | The v3.2 AI-consumption constructs (spec#18) | active |
 
 ## Phase order
 

@@ -129,6 +129,9 @@ opener re-parses as a comment, so both must never emit bare);
 . a URN-anchored provenance record emits as `ref derives-from`; a
 free-text one keeps the legacy `source` block
 (<<provenance-forms,14.3>>);
+. an admitted-alternate designation list of a term emits in the canonical
+`aliases { ... }` spelling, regardless of the authored spelling (`alt`
+folds; <<term-alias-family,13.10.1>>; *roadmap*, v3.2);
 . the dump of a parsed model, re-parsed, yields the same model, and
 re-serialized, yields the identical text: _dump_ ∘ _load_ ∘ _dump_ is a
 textual fixed point.
