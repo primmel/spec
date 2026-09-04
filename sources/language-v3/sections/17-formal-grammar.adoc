@@ -76,7 +76,10 @@ QuantityBlock  ::= '{' 'value' Value 'unit' Value
                      [ 'kind' Value ] [ 'uncertainty' Value ]
                      [ 'tolerance' Value ] '}'
 Applicability  ::= 'applicability' '{' ApplicabilityEntry { ApplicabilityEntry } '}'
-ApplicabilityEntry ::= DimensionKey ':' Value
+ApplicabilityEntry ::= DimensionKey ':' Value [ 'match' MatchMode ]
+            (* Value: a bare id, a quoted text, a bracket list, or a
+               parameter-mapping block *)
+MatchMode    ::= 'any' | 'all' | 'exact'   (* parse-enforced *)
 TrustRef       ::= 'trust_ref' BareToken [ 'key' BareToken ]
             (* the organization identifier, optionally one published key *)
 CorrespondsEntry ::= 'corresponds' BareToken QuotedString [ CorrespondsBlock ]

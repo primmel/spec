@@ -11,10 +11,13 @@ one keyword, one identifier, one block payload
 (<<top-level-shape,9.1>>). The four special declarations of the first
 table are the exceptions. The "since" column states the language
 generation that introduced the construct: v2 (the MN 113 generation,
-including its extension wave), v3 (this document's first revision), or
-v3.1 (this revision's extension set, <<dataspaces-policies-trust,clause
-19>>); v3 accepts every v2 construct (<<annex-d-lineage,Annex D>>), and
-v3.1 changes no v3 construct.
+including its extension wave), v3 (this document's first revision),
+v3.1 (the 2026-08-28 revision's extension set,
+<<dataspaces-policies-trust,clause 19>>), or v3.2 (the 2026-09-04
+revision's consumption extension set, primmel/spec#18 — *roadmap*
+pending the kernel wave); v3 accepts every v2 construct
+(<<annex-d-lineage,Annex D>>), v3.1 changes no v3 construct, and v3.2
+changes no v3.1 construct.
 
 === Special declarations
 
@@ -99,6 +102,7 @@ v3.1 changes no v3 construct.
 |`text` | |texts |v3 |15
 |`dataspace` | |dataspaces |v3.1 |19
 |`policy` | |policies |v3.1 |19
+|`dimension` | |dimensions |v3.2 |10
 |===
 
 === Registry notes

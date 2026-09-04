@@ -71,8 +71,10 @@ restates them.
 
 |`applicability { ... }`
 |Dimension-keyed applicability entries; a value is a bare id, a quoted
-text, or a bracket list (<<bracket-lists,8.7>>). A `match` mode of `any`,
-`all`, or `exact` is a closed vocabulary, parse-enforced.
+text, a bracket list (<<bracket-lists,8.7>>), or a parameter-mapping
+block. A `match` mode of `any`, `all`, or `exact` is a closed
+vocabulary, parse-enforced. The dimension namespace and the entry
+semantics: <<applicability-semantics,11.1.1>>.
 
 |`channel`, `obligation`
 |The evidence channel and the obligation level
@@ -91,6 +93,44 @@ text, or a bracket list (<<bracket-lists,8.7>>). A `match` mode of `any`,
 |The named-difference record against the source text
 (<<discrepancy-records,14.5>>).
 |===
+
+[[applicability-semantics]]
+==== The applicability entry: namespace and match semantics
+
+An `applicability { ... }` block appears on requirements, requirement
+classes, conformance classes, conformance tests, forms, and subform
+references — one grammar everywhere. Each entry is
+`<dimension> : <value> [ match <mode> ]`, and the dimension is TYPED:
+the key resolves into the *applicability dimension namespace* of the
+merged package — the union of the instruments' classification dimensions
+(<<five-entity-kinds,10.1>>), the attribute definitions declared
+`is_dimension true`, and the top-level dimension declarations
+(<<dimension-construct,10.6>>) — and each listed value resolves against
+the dimension's declared value set or its `implies` subsumption closure
+(the applicability engine walks the closure, so a subject holding
+`ac-and-battery` matches an entry listing `battery`). Both resolutions
+are checker-enforced (C3): an applicability entry keyed on an undeclared
+axis, or naming a value outside the axis's domain, is an error, not a
+silent string.
+
+The value forms:
+
+* a bare id or quoted text: one value of the dimension;
+* a bracket list `[A, B, C]`: the value set;
+* a mapping block `{ A: 5, C: 3 }`: applicability PLUS per-value
+parameter resolution — the entry applies where the dimension holds a
+listed value, and the map carries that value's parameter assignments
+(the per-classification parameterization the `instances` facet of a test
+states explicitly, <<conformance-test-construct,11.2>>).
+
+The `match` mode refines matching on set-cardinality dimensions: `any`
+(the default; existential — one selected value listed suffices), `all`
+(universal — every selected value must be listed), and `exact` (mutual
+coverage — the selection equals the listed set, without implies
+expansion). On a single-cardinality dimension the selection holds at
+most one value, so `all` and `exact` reduce to `any`; the checker warns
+(C3) so the author either sets the dimension's cardinality or drops the
+mode.
 
 [[conformance-test-construct]]
 === Conformance classes and conformance tests
