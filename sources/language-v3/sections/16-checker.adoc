@@ -150,6 +150,10 @@ renumbered clauses as same-text or differed.
 * `primmel export reqif` and `primmel export rdf` project a package into
 the interchange formats (<<projections,17.7>>). The projections are lossy
 by design: they export what the target format can say.
+* `primmel export impact` projects a package into the impact graph
+(<<impact-graph,17.8>>): the adjacency form of the model's edge-bearing
+facets, keyed by element id, with the forward and reverse indexes a
+change-impact read consumes.
 
 [[projections]]
 === Projections
@@ -161,3 +165,83 @@ Both are one-way views over the model; neither is an authoring format, and
 neither round-trips. Their presence answers the interop question without
 giving the interchange formats the authoring role
 (<<annex-c-comparison,Annex C>>).
+
+[[impact-graph]]
+=== The impact graph
+
+The impact graph is the adjacency form of the model's edge-bearing
+facets: the answer to the consumer's change-impact question ("if this
+tolerance changes, which tests, verdicts, and certificates are
+affected?") as a read over an index instead of a walk over the authored
+trees. Like the interchange projections it is a toolchain artifact —
+generated, never authored, never re-imported — and it is specified here
+informatively, *roadmap* pending the toolchain wave that ships it
+(primmel/spec#18 ask 7).
+
+==== The impact edge registry
+
+The registry below is the normative content: it names every facet that
+contributes edges to the graph, the kind of edge each contributes, and
+the collection the edge targets. These are the dedicated hot edges of
+<<provenance-forms,14.3>> — facets of their constructs, never `ref`
+triples — plus the typed references the v3.2 set added. An edge's
+*kind* is the facet's role; an edge's *target collection* is where the
+target id resolves.
+
+[cols="2,2,2,2"]
+|===
+|Construct |Facet |Edge kind |Target collection
+
+|`requirement` |`binds_to` |binding |aspect or capability of the subject
+|`requirement` |`dependencies` |prerequisite |requirement
+|`requirement` |`limit.accepts.verdict` |acceptance |verdict
+|`requirement` |`applicability` |classification |dimension (11.1.1)
+|`requirement` |`channel` |evidence channel |channel
+|`conformance_test` |`targets` |coverage |requirement
+|`conformance_test` |`inherits_from` |specialization |conformance_test
+|`conformance_test` |`dependencies` |prerequisite |conformance_test
+|`conformance_test` |`instances.by` |instantiation |instance
+|`conformance_test` |`result_forms` |evidence view |form
+|`conformance_test` |`produces_artifacts` |issuance |artifact
+|`verdict` |`inputs` (symbols) |derivation |symbol
+|`verdict` |`inputs` (verdicts) |acceptance chain |verdict
+|`verdict` |`behavior` |state transition |state machine
+|`calculation` |`inputs` |derivation |symbol
+|`calculation` |`lookup` / `profile` |data source |table or profile
+|`calculation` |`params` |parameterization |parameter register
+|`form` |`requirements` |evidence scope |requirement
+|`form` |`calculation_context` |derivation context |calculation
+|`form` |field `bind` / `verdict` / `targets` |binding |attribute path, verdict, requirement
+|`form` |`formulas_used` |derivation |calculation
+|`dimension` |value `implies` |subsumption |dimension value
+|`instance` |`of` / `model` / `family` |instantiation |the instantiated element
+|manifest |`uses` / `maps_to` |composition |package
+|manifest |`supersedes` / `superseded_by` |edition lineage |package edition
+|===
+
+==== The export contract
+
+The export is a versioned, one-way toolchain projection — the same
+doctrine as the ReqIF and RDF projections of <<projections,17.7>>, and
+the same "generated, never authored, never re-imported" rule. The
+projection carries the version identifier `impact-graph/1` and this
+shape:
+
+* adjacency keyed by the package-authored element id (the id an author
+wrote, not a generated surrogate), so a consumer joins the graph to the
+authored trees without a mapping step;
+* a forward index (element → the edges it declares) and a reverse index
+(element → the edges that target it), the two views of the same edge
+set;
+* every edge carrying its kind and its source facet, and the clause
+provenance (`source { doc clause }` / `ref derives-from`) of the
+edge-bearing element where the element declares one.
+
+The consumption win is the reverse-index read: the F6 change-impact
+question (`oimlsmart/rag` `docs/annealment/F6-impact.md`) — "this
+tolerance changed; enumerate the tests that target its requirement, the
+verdicts that chain through those tests, and the certificates those
+verdicts issue" — is a reverse-index traversal from the changed element,
+not a walk over the authored trees. Because the projection is one-way, a
+consumer that needs the authored form reads the package; the graph is
+the index, never the source.
