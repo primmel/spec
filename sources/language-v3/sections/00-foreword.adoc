@@ -24,10 +24,14 @@ Revision note (2026-09-04). This revision of the draft adds the v3.2
 extension set — the consumption constructs of primmel/spec#18, from the
 measured requirements of a production retrieval consumer: the term alias
 family (`aliases`, `colloquial`, spelling-tagged variants;
-<<term-alias-family,13.10.1>>) and the typed applicability dimension
+<<term-alias-family,13.10.1>>), the typed applicability dimension
 (the top-level `dimension` construct and the applicability namespace,
-<<dimension-construct,10.6>>, <<applicability-semantics,11.1.1>>), with
-their checker rules (C110, C111, Annex B).
+<<dimension-construct,10.6>>, <<applicability-semantics,11.1.1>>), the
+resolvable cross-standard reference (the document-anchor grammar and the
+structured `reference` identity, <<document-anchors,14.7>>), and the
+forward lineage edge (manifest `superseded_by` and the edition lineage
+graph, <<edition-lineage,9.3.1>>), with their checker rules (C110 to
+C113, Annex B).
 The addition is strictly additive: every construct, facet, and rule of
 the 2026-08-28 revision is unchanged. Unlike the v3.1 set, the v3.2
 constructs land ahead of their kernel implementation: each is marked

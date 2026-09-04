@@ -40,7 +40,8 @@ question:
 
 |base
 |Do references resolve, do dimensions use declared enums, are stores
-unique, and is the allowlist itself honest?
+unique, do declared reference targets carry resolvable identities, and is
+the allowlist itself honest?
 
 |anatomy
 |Is every aspect under its correct family, and do subject extensions
@@ -90,7 +91,7 @@ and the normative text covered?
 
 |edition
 |Are statuses, validity windows, supersedes chains, and edition pins
-well-formed?
+well-formed, and do the declared lineage edges agree across the closure?
 
 |supply-chain
 |Do product mappings resolve, stay pinned, and keep passport access

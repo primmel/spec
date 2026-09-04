@@ -82,8 +82,9 @@ it).
 |Capability tokens for composition matching (C30, C31).
 |`status` |0..1 |The edition lifecycle status: `current`, `preview`,
 `superseded`, or `withdrawn`; any other token is a parse error (C77).
-|`supersedes { ... }`, `replaces { ... }` |0..1 each |The edition lineage
-URNs (C79).
+|`supersedes { ... }`, `replaces { ... }`, `superseded_by { ... }` |0..1 each |The edition lineage
+URNs (C79; coherence across the closure: C113,
+<<edition-lineage,9.3.1>>).
 |`validity { from ... to ... }` |0..1 |The validity window of the edition
 (C78).
 |`default_spelling` |0..1 |The ISO 24229 spelling code every inline prose
@@ -100,6 +101,34 @@ register of the package (the `.prd` payload reference,
 
 Unknown manifest facets are skipped under the forward-compatibility rule
 (<<parse-modes,9.5>>).
+
+[[edition-lineage]]
+==== The edition lineage graph
+
+*Roadmap — primmel/spec#18, v3.2 (the `superseded_by` edge); the
+remainder is v3 content restated as one graph.* A package's editions
+form a declared succession graph, all of it manifest data: the `editions`
+register (newest first — the chain), the `status` and `validity` window
+of the packaged edition, and the lineage edges. `supersedes` and
+`replaces` point backward (this edition over those URNs);
+`superseded_by` points forward (those URNs over this edition) and exists
+so a consumer meets the successor edge on the SUPERSEDED package itself —
+temporal steering and superseded-model demotion read the graph without
+chasing the successor's manifest. The lineage graph is the union of the
+declared edges of both directions; `replaces` is the stronger relation
+(this edition takes the target's place).
+
+The checker verifies coherence across the composed closure (C113,
+`edition-lineage-coherent`): when two composed packages declare opposite
+edges between the same pair, the declarations must agree — package A
+declaring `supersedes { B }` while B declares `superseded_by { C }`
+without A is an error. A missing forward edge is NOT an error: the
+backward edges remain the authored minimum, and the graph derives
+without them. The consumption contract, stated informatively: the
+serializer projects the graph beside the edition semantics of the
+retrieval export (the publication `edition` versus the package
+`model_version`, primmel-ts#65 ask 2), so "answer from the current
+edition" and "demote the superseded model" are reads of declared data.
 
 [[identifiers]]
 === Identifiers and duplicate detection

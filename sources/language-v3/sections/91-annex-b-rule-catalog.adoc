@@ -14,7 +14,7 @@ one of them, and the verification is one command:
 primmel check --rules
 ----
 
-Each rule has an identifier (C1 to C111; the numbering is historical and
+Each rule has an identifier (C1 to C113; the numbering is historical and
 not contiguous by family), a name used in findings, a family, a default
 severity, and a level:
 
@@ -60,6 +60,7 @@ ships, and until then a conforming checker is not required to run them.
 |C103 |`declared-predicate` |error |normal
 |C110 |`term-alias-shape` |error |normal
 |C111 |`dimension-shape` |error |normal
+|C112 |`reference-identity` |error |normal
 |===
 
 === anatomy
@@ -245,6 +246,7 @@ ships, and until then a conforming checker is not required to run them.
 |C79 |`edition-supersedes-resolves` |error |normal
 |C80 |`edition-pin-resolves` |error |normal
 |C85 |`baseurn-wellformed` |error |normal
+|C113 |`edition-lineage-coherent` |error |normal
 |===
 
 === supply chain
