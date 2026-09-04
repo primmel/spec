@@ -60,7 +60,10 @@ restates them.
 |The per-subject apportioning of the constraint.
 
 |`parameters { param <name>: <type> { ... } }`
-|Typed parameters with `description`, `default`, and `range { min max }`.
+|Typed parameters — the requirement's instance-parameter schema:
+`description`, `unit`, `default`, `range { min max }`, `enum_values`,
+and `bind` (the aspect path the parameter instantiates from — *roadmap*,
+v3.2; <<instance-parameters,11.1.3>>).
 
 |`limit { ... }`
 |The formal limit: `expression` (an embedded expression,
@@ -152,6 +155,69 @@ makes "limits expressed in mV/V" a unit lookup instead of a string
 search, and what lets an execution environment normalize the compared
 quantities (quantity-kind coherence, never string matching,
 <<quantities,13.4>>).
+
+[[instance-parameters]]
+==== The instance-parameter schema
+
+*Roadmap — primmel/spec#18, v3.2 (the `bind` facet and the
+instantiation order).* A requirement's `parameters { ... }` block is the
+explicit schema for instantiating its check: which parameters a run of
+the check takes, their types, their units and admissible ranges, and —
+with `bind` — WHERE each value comes from:
+
+[source,prl]
+----
+requirement /req/metrological/mpe {
+  name "Maximum permissible error"
+  statement "The error of indication shall not exceed the mpe."
+  binds_to { model.parameters.mpe model.classification.accuracy_class }
+  parameters {
+    param n_runs: integer {
+      description "Repetitions per test point."
+      default 20
+      range { min 1 max 100 }
+    }
+    param e_max: number {
+      description "Maximum capacity of the instrument under test."
+      unit kg
+      bind "model.parameters.e_max"
+      range { min 0 }
+    }
+  }
+  limit {
+    expression "ocl{...}"
+    uses { mpe accuracy_class }
+    quantity { kind mass unit kg }
+    accepts { verdict mpe_error op lte limit "ocl{...}" }
+  }
+  applicability { accuracy_class: [A, B, C, D] }
+  ref derives-from "urn:oiml:pub:r:60-1:2021#clause-5.3.2"
+}
+----
+
+A `bind` names the aspect path that supplies the parameter's value —
+into the subject's IS catalog (`model.parameters.e_max`), its
+classification (`dimensions.accuracy_class`), or the run context — the
+same path discipline as the form field's `bind`
+(<<form-constructs,11.8>>) and the requirement's own `binds_to`. The
+instantiation order is fixed and deterministic:
+
+. a `bind` path resolves against the instance under test (its exhibited
+values, <<instance-construct,10.3>>);
+. a parameter with no `bind` falls back to its `default`;
+. a parameter with neither is caller-supplied — derivable from the
+schema alone, so an execution-side system knows exactly which inputs to
+ask for.
+
+This is the binding contract an execution environment (the primmel/sst
+runtime is the estate's) needs to bind a user's instrument instance to
+the model deterministically — "for THIS instrument instance, does it
+pass?" becomes a deterministic read, never a guess: the schema says
+which parameters instantiate the check, `bind` says their provenance,
+`unit`/`range` say their domain. The checker verifies the schema (C118,
+`requirement-parameter-shape`): a `bind` path resolves against the
+subject's aspect catalog, a `unit` resolves against the merged quantity
+register, and a range's `min` never exceeds its `max`.
 
 [[conformance-test-construct]]
 === Conformance classes and conformance tests
@@ -245,6 +311,21 @@ from), `quantity { kind unit }`, `derive` (the expression), `inputs`,
 (<<acceptance-decisions,11.5>>), and provenance. Requirement limits,
 conformance tests, and form fields reference the verdict identifier
 instead of restating the derivation.
+
+A verdict's `inputs` name the free identifiers of its derivation, and an
+input may name another VERDICT (*roadmap* — primmel/spec#18, v3.2): the
+acceptance chain is then an explicit graph, not an implicit one —
+requirement → `limit.accepts.verdict` → the verdict's `inputs` (symbols
+and sub-verdicts) → each verdict's `acceptance` — and every hop is a
+declared, citable model element with its own identifier and clause
+provenance. The checker keeps the graph honest (C116,
+`verdict-inputs-resolve`: every input resolves to a declared symbol, a
+test variable or observable, or another verdict; C117,
+`verdict-chain-acyclic`: the verdict graph never cycles). A consumption
+system can therefore cite "the acceptance chain" precisely — the
+decision structure is retrievable data — and traverse it: from a
+verdict to the quantities it derives from, the tests that produce them,
+and the requirements that bind it.
 
 [[probe-channels]]
 === Probe channels

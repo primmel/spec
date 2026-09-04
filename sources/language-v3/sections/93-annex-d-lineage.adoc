@@ -44,8 +44,10 @@ their checker rules (C104 to C108)
 structured `reference` identity (<<document-anchors,14.7>>), the
 `superseded_by` lineage edge (<<edition-lineage,9.3.1>>), and the
 units-typed calculation signatures and limit quantities
-(<<calculation-signatures,13.7.1>>, <<limit-quantities,11.1.2>>), with
-their checker rules (C110 to C115)
+(<<calculation-signatures,13.7.1>>, <<limit-quantities,11.1.2>>), and
+the verdict chain with the instance-parameter schema
+(<<verdict-construct,11.3>>, <<instance-parameters,11.1.3>>), with
+their checker rules (C110 to C118)
 |===
 
 === The compatibility contract
