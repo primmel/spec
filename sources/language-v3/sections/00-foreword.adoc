@@ -28,10 +28,13 @@ family (`aliases`, `colloquial`, spelling-tagged variants;
 (the top-level `dimension` construct and the applicability namespace,
 <<dimension-construct,10.6>>, <<applicability-semantics,11.1.1>>), the
 resolvable cross-standard reference (the document-anchor grammar and the
-structured `reference` identity, <<document-anchors,14.7>>), and the
+structured `reference` identity, <<document-anchors,14.7>>), the
 forward lineage edge (manifest `superseded_by` and the edition lineage
-graph, <<edition-lineage,9.3.1>>), with their checker rules (C110 to
-C113, Annex B).
+graph, <<edition-lineage,9.3.1>>), and units-typed quantities (the
+calculation signature's `quantity_kind` + `range` facets and the limit's
+`quantity { kind unit }` block, <<calculation-signatures,13.7.1>>,
+<<limit-quantities,11.1.2>>), with their checker rules (C110 to
+C115, Annex B).
 The addition is strictly additive: every construct, facet, and rule of
 the 2026-08-28 revision is unchanged. Unlike the v3.1 set, the v3.2
 constructs land ahead of their kernel implementation: each is marked

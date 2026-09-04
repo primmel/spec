@@ -63,8 +63,9 @@ calculus, and stay disjoint from imports?
 capability tokens match?
 
 |quantities
-|Does every quantity carry its unit contract, and do duals and maps stay
-coherent?
+|Does every quantity carry its unit contract, do duals and maps stay
+coherent, and do limits and calculation signatures declare their quantity
+kinds?
 
 |state
 |Do fired transitions and referenced states exist, and do the lifecycle

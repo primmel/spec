@@ -65,7 +65,9 @@ restates them.
 |`limit { ... }`
 |The formal limit: `expression` (an embedded expression,
 <<embedded-expressions,8.6>>), `uses` (the free variables), `modality`,
-`relative_to`, `notes`, `accepts` (the verdict binding: `verdict`, `op`,
+`relative_to`, `notes`, `quantity { kind unit }` (the derived quantity's
+typing — *roadmap*, v3.2; <<limit-quantities,11.1.2>>), `accepts` (the
+verdict binding: `verdict`, `op`,
 `limit`, an optional `source_discrepancy`), and `acceptance`
 (<<acceptance-decisions,11.5>>).
 
@@ -131,6 +133,25 @@ expansion). On a single-cardinality dimension the selection holds at
 most one value, so `all` and `exact` reduce to `any`; the checker warns
 (C3) so the author either sets the dimension's cardinality or drops the
 mode.
+
+[[limit-quantities]]
+==== The limit's quantity typing
+
+*Roadmap — primmel/spec#18, v3.2.* A machine limit is a quantity, and
+its typing is data: `quantity { kind unit }` on the `limit` block
+declares the derived quantity's kind and unit — the same contract the
+`verdict` construct carries (<<verdict-construct,11.3>>) and the
+calculation signature declares (<<calculation-signatures,13.7.1>>).
+When the limit binds a verdict (`accepts`), the two declarations must
+agree: the checker verifies that the limit's `kind` and `unit` match the
+verdict's declared quantity (C114, `limit-quantity-coherence`), so a
+limit and its acceptance chain can never drift apart in units. A limit
+with no quantity block remains conforming — the facet is the migration
+path, and a quantitative limit SHOULD declare it: the block is what
+makes "limits expressed in mV/V" a unit lookup instead of a string
+search, and what lets an execution environment normalize the compared
+quantities (quantity-kind coherence, never string matching,
+<<quantities,13.4>>).
 
 [[conformance-test-construct]]
 === Conformance classes and conformance tests

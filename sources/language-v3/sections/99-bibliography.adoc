@@ -50,6 +50,11 @@ Source of the scheme-type register read by C98.
 Informative background of the quantity-kind machinery
 (<<quantities,13.4>>).
 
+* [[UNITSML]] UnitsML, _Units Markup Language_. The document-side unit
+register a unit or kind entry corresponds to via `corresponds unitsml`
+(<<quantities,13.4>>); the OASIS/BDIP specification is the expression
+layer's register, never an input dependency of the language.
+
 * [[FOUNDATIONS]] _The Primmel documentation volumes_, volume 0
 (Foundation) and volume I (The Primmel Kernel),
 `primmel/primmel-smart-docs`, `docs/foundation/` and `docs/primmel/`.
