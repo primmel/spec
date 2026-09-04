@@ -86,6 +86,15 @@ strings (C33), and a package extends a register without redefining its
 entries (C32, C33). A `series` declaration on a symbol or variable states
 the axes and cell shape of a reading series.
 
+A quantity register is self-contained: its kinds, units, factors, and
+offsets are Primmel's own content. Where a document-side toolchain
+carries a unit vocabulary (UnitsML is the document format's register),
+the binding rides the correspondence annotation of
+<<correspondence-annotations,19.4>> — a unit or kind entry declares
+`corresponds unitsml "<unit-identifier>"`, a maps-to claim that steers
+the document projections and never imports the register's semantics
+(<<expression-layer,19.5>>).
+
 [[dual-construct]]
 === The value duality: dual
 
@@ -131,11 +140,50 @@ symbol: `type` is a closed vocabulary, parse-enforced (`number`,
 and the linking facets `attribute`, `calculation`, and `profile`.
 
 A `calculation` declares a named computation: `inputs { ... }`,
-`output { type unit }`, and one of the calculation forms, `expression`
+`output { ... }`, and one of the calculation forms, `expression`
 (an embedded expression), `lookup` (a table lookup with `key`), or
 `profile` (a profile reference), with
 `params { param <name>: <type> { ... } }`, `variable` bindings, and
 provenance.
+
+[[calculation-signatures]]
+==== The calculation signature: typed inputs and outputs
+
+*Roadmap — primmel/spec#18, v3.2 (the `quantity_kind` and `range`
+facets); the remainder is v2 content restated.* A retrieved calculation
+is executable exactly when its signature is data: what goes in, in which
+units, over which ranges, and what comes out. The signature declares it:
+
+[source,prl]
+----
+calculation mpe_absolute {
+  inputs {
+    input e_l { type number unit kg quantity_kind mass range { min 0 }
+      description "Error of indication at the test load." }
+    input n_lc { type integer range { min 1 max 10000 }
+      description "Number of load cell intervals." }
+  }
+  output { type number unit kg quantity_kind mass range { min 0 }
+    description "Maximum permissible error, absolute." }
+  expression "ocl{...}"
+  ref derives-from "urn:oiml:pub:r:60-1:2021#clause-5.1"
+}
+----
+
+An `input <name> { ... }` entry carries `type` (the symbol type
+vocabulary), `unit` and `quantity_kind` (the typed-unit pair, resolved
+against the merged quantity register of <<quantities,13.4>>), `range
+{ min max }` (the admissible domain; either bound may be absent),
+`description`, `default`, and `enum_values` for enum-typed inputs. The
+`output { ... }` carries the same typing facets with `name` and
+`description`. The checker verifies the signature (C115,
+`calculation-signature-shape`): every `unit` resolves to a registered
+unit and every `quantity_kind` to a registered kind of the merged
+quantity register, the two agree in kind, a range's `min` never exceeds
+its `max`, and an enum-typed input declares its values. Unit-aware
+retrieval ("limits expressed in mV/V") and the trustworthy execution of
+a retrieved calculation both read this signature; they never parse the
+expression text for units.
 
 [[test-point-sets]]
 === Test point sets and reference materials
