@@ -46,8 +46,10 @@ structured `reference` identity (<<document-anchors,14.7>>), the
 units-typed calculation signatures and limit quantities
 (<<calculation-signatures,13.7.1>>, <<limit-quantities,11.1.2>>), and
 the verdict chain with the instance-parameter schema
-(<<verdict-construct,11.3>>, <<instance-parameters,11.1.3>>), with
-their checker rules (C110 to C118)
+(<<verdict-construct,11.3>>, <<instance-parameters,11.1.3>>), and the
+impact-graph export (the impact edge registry and the `impact-graph/1`
+projection, <<impact-graph,17.8>>), with their checker rules (C110 to
+C118)
 |===
 
 === The compatibility contract

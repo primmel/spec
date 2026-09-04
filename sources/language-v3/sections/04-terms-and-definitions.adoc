@@ -175,3 +175,10 @@ the explicit decision graph of a judgment, every hop a citable model
 element: requirement → the limit's `accepts` verdict binding → the
 verdict's `inputs` (symbols and sub-verdicts) → each verdict's
 `acceptance` decision (<<verdict-construct,11.3>>)
+
+[[term-impact-graph]]
+=== impact graph
+the adjacency form of the model's edge-bearing facets, exported by the
+toolchain as a versioned one-way projection with a forward and a reverse
+index, consumed for change-impact reads ("what does this change
+affect?") without walking the authored trees (<<impact-graph,17.8>>)
