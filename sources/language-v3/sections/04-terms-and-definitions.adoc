@@ -147,3 +147,11 @@ can bridge vocabulary a user types to the defined term
 informal, everyday phrasing recorded on a term (the `colloquial` facet of
 <<term-alias-family,13.10.1>>) that is not a designation of the concept:
 it carries no normative force and exists to bridge retrieval
+
+[[term-applicability-dimension]]
+=== applicability dimension
+named, typed axis of the model that an `applicability { ... }` entry keys
+on: a classification dimension of an instrument, an attribute definition
+declared `is_dimension true`, or a top-level `dimension` declaration
+(<<dimension-construct,10.6>>), with a declared value set, optional
+subsumption links, and a match mode (<<applicability-semantics,11.1.1>>)

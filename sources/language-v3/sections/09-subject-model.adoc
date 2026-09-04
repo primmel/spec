@@ -45,8 +45,10 @@ instrument LoadCell {
 The facets are: `extends` (parent subject type), `definition`,
 `variant <id> { ... }` (repeatable), `dimension <id> { ... }` (repeatable;
 facets `label`, `scope`, `description`, `cardinality`, `label_separator`,
-`reference`, `term_ref`, and `values { ... }` whose values may carry
-`description`, a `payload { ... }` map, and `implies` subsumption links),
+`reference`, and `values { ... }` whose values may carry `label`,
+`description`, a `payload { ... }` map, `implies` subsumption links, and
+`term_ref` — the dimension grammar is stated once with the top-level
+form, <<dimension-construct,10.6>>),
 `family_criteria { ... }`, `family_defaults { dimensions { ... }
 parameters { ... } }`, and `model_group { ... }` with
 `identical_characteristics` and `identical_attributes`. Typed relations
@@ -329,3 +331,75 @@ instance), and `content { ... }` (the recorded values, in the
 `key : value [unit]` entry form of <<instance-construct,10.3>>). The
 checker enforces the contract (C45), instance resolution (C46), and the
 separation of evidence from judgment (C47).
+
+[[dimension-construct]]
+=== The dimension construct (top-level form)
+
+*Roadmap — primmel/spec#18, v3.2.* An instrument's inline `dimension`
+blocks (<<five-entity-kinds,10.1>>) declare the subject's classification
+axes. A `dimension` declared at the TOP LEVEL is a free-standing
+applicability axis: a named, typed dimension that any
+`applicability { ... }` entry (<<requirement-construct,11.1>>) may key
+on, independent of one subject's classification — the axis vocabulary of
+a domain (an electrical supply axis, an installation-environment axis, a
+capability axis), declared once and shared.
+
+[source,prl]
+----
+dimension power-supply-axis {
+  label "Power supply"
+  description "Power source of the instrument."
+  cardinality single
+  values {
+    ac-mains { label "AC mains" description "Supply from AC mains power." }
+    battery { label "Battery" description "Internal battery power." }
+    ac-and-battery {
+      label "AC mains and battery"
+      description "Dual supply."
+      implies { ac-mains battery }
+    }
+  }
+  ref derives-from "urn:oiml:pub:r:144-1:2013#clause-4.5.1"
+}
+
+dimension capabilities {
+  label "Capabilities"
+  description "Which declared capabilities of the program a unit carries."
+  cardinality set
+  values_of capabilities
+}
+----
+
+The facet set is exactly the instrument dimension's — one grammar, two
+placements: `label`, `scope`, `description`, `cardinality` (`single` or
+`set`, parse-enforced), `label_separator`, `reference` / `source`
+provenance, and `values { ... }`, whose values may carry `label`,
+`description`, a `payload { ... }` map (nested blocks allowed),
+`implies { ... }` subsumption links, and `term_ref` (the dimension
+value's terminology anchor). A top-level dimension adds one facet of its
+own: `values_of <register>` (0..1) names a program register whose
+members ARE the value domain — the documented register is `capabilities`
+(the merged package's capability register, <<five-entity-kinds,10.1>>),
+so an axis keyed on capabilities never restates the capability list; the
+register vocabulary is the program's data, stored untyped. A dimension
+carries either `values` or `values_of`, never both.
+
+All three declaration paths — an instrument's inline `dimension` blocks,
+an attribute definition with `is_dimension true` (its bound enum
+supplies the value set), and the top-level `dimension` — populate one
+*applicability dimension namespace* of the merged package, the
+resolution domain of every applicability entry
+(<<applicability-semantics,11.1.1>>). The checker verifies the shape
+(C111, `dimension-shape`): value identifiers are unique within a
+dimension, `implies` targets resolve inside their own dimension and the
+implication graph is acyclic, `values` and `values_of` never combine,
+and no dimension identifier is declared twice in one namespace.
+
+The consumption contract, stated informatively: applicability entries
+are the model's filter axes. Because every axis is a typed, declared
+dimension, a serializer projects an entry into flat retrieval facets
+directly — dimension identifier to value identifiers — and self-querying
+retrieval becomes native: "what applies to a class C instrument on
+battery?" is a filter on two declared dimensions, not a parse of a
+content blob (the retrieval-facet export is the toolchain's surface,
+primmel-ts#65 ask 3).
