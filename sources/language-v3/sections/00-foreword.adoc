@@ -15,10 +15,31 @@ Document identity:
 |Document |MN 114, Primmel Language Specification
 |Language version specified |Primmel version 3.2 (v3.2)
 |Edition |1
-|Date |2026-09-04
+|Date |2026-09-05
 |Status |Draft, published for comment
-|Reference implementation |`@primmel/primmel` (primmel-ts) 1.8.2
+|Reference implementation |`@primmel/primmel` (primmel-ts) 1.9.0
 |===
+
+Revision note (2026-09-05). This revision of the draft removes the
+*roadmap* marks of the v3.2 extension set: the condition of the
+verification doctrine is met. Every v3.2 construct and checker rule
+(C110 to C118) is implemented by the reference toolchain at
+`@primmel/primmel` 1.9.0, and the standalone conformance suite at
+version 3.2.0 pins each rule's error-severity leg (clauses CON-01 to
+CON-09; 112 cases across 37 clauses, every case passing). The
+specification text is otherwise unchanged — the removal is normative
+activation, not new content — with two register-keeping exceptions: the
+calculation-signature example of <<calculation-signatures,13.7.1>> now
+shows the entry form the toolchain ships (the v2
+`<name> : <type> { ... }` spelling), and the three rollout legs the
+toolchain reports at warning severity in 1.9.0 are stated as such where
+the rules are described (C110's cross-field alias overlap, C115's unit
+resolution, C118's unit resolution — the error forms tighten when the
+estate's terms and quantity registers are re-authored, tracked in
+TODO.primmel/11d). The proof by consumption: the OIML SMART estate
+(oimlsmart/smart#256) declares R 144's `capabilities` axis as a
+top-level dimension and projects all six facet families byte-clean in
+both codec directions.
 
 Revision note (2026-09-04). This revision of the draft adds the v3.2
 extension set — the consumption constructs of primmel/spec#18, from the

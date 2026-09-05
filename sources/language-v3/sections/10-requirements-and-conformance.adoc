@@ -62,14 +62,14 @@ restates them.
 |`parameters { param <name>: <type> { ... } }`
 |Typed parameters — the requirement's instance-parameter schema:
 `description`, `unit`, `default`, `range { min max }`, `enum_values`,
-and `bind` (the aspect path the parameter instantiates from — *roadmap*,
-v3.2; <<instance-parameters,11.1.3>>).
+and `bind` (the aspect path the parameter instantiates from;
+<<instance-parameters,11.1.3>>).
 
 |`limit { ... }`
 |The formal limit: `expression` (an embedded expression,
 <<embedded-expressions,8.6>>), `uses` (the free variables), `modality`,
 `relative_to`, `notes`, `quantity { kind unit }` (the derived quantity's
-typing — *roadmap*, v3.2; <<limit-quantities,11.1.2>>), `accepts` (the
+typing; <<limit-quantities,11.1.2>>), `accepts` (the
 verdict binding: `verdict`, `op`,
 `limit`, an optional `source_discrepancy`), and `acceptance`
 (<<acceptance-decisions,11.5>>).
@@ -140,7 +140,7 @@ mode.
 [[limit-quantities]]
 ==== The limit's quantity typing
 
-*Roadmap — primmel/spec#18, v3.2.* A machine limit is a quantity, and
+A machine limit is a quantity, and
 its typing is data: `quantity { kind unit }` on the `limit` block
 declares the derived quantity's kind and unit — the same contract the
 `verdict` construct carries (<<verdict-construct,11.3>>) and the
@@ -159,8 +159,7 @@ quantities (quantity-kind coherence, never string matching,
 [[instance-parameters]]
 ==== The instance-parameter schema
 
-*Roadmap — primmel/spec#18, v3.2 (the `bind` facet and the
-instantiation order).* A requirement's `parameters { ... }` block is the
+A requirement's `parameters { ... }` block is the
 explicit schema for instantiating its check: which parameters a run of
 the check takes, their types, their units and admissible ranges, and —
 with `bind` — WHERE each value comes from:
@@ -217,7 +216,10 @@ which parameters instantiate the check, `bind` says their provenance,
 `unit`/`range` say their domain. The checker verifies the schema (C118,
 `requirement-parameter-shape`): a `bind` path resolves against the
 subject's aspect catalog, a `unit` resolves against the merged quantity
-register, and a range's `min` never exceeds its `max`.
+register (reported as a warning by the reference toolchain during the
+v3.2 rollout — the estate declares units no register carries yet; the
+leg tightens to an error when the registers catch up,
+TODO.primmel/11d), and a range's `min` never exceeds its `max`.
 
 [[conformance-test-construct]]
 === Conformance classes and conformance tests
@@ -313,7 +315,7 @@ conformance tests, and form fields reference the verdict identifier
 instead of restating the derivation.
 
 A verdict's `inputs` name the free identifiers of its derivation, and an
-input may name another VERDICT (*roadmap* — primmel/spec#18, v3.2): the
+input may name another VERDICT: the
 acceptance chain is then an explicit graph, not an implicit one —
 requirement → `limit.accepts.verdict` → the verdict's `inputs` (symbols
 and sub-verdicts) → each verdict's `acceptance` — and every hop is a

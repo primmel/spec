@@ -37,8 +37,8 @@ their checker rules (C104 to C108)
 
 |Primmel v3.2
 |This document, 2026-09-04 revision
-|The v3.1 surface plus the consumption constructs (primmel/spec#18,
-*roadmap* pending the kernel wave): the term alias family
+|The v3.1 surface plus the consumption constructs (primmel/spec#18): the
+term alias family
 (<<term-alias-family,13.10.1>>), the top-level `dimension` construct
 (<<dimension-construct,10.6>>), the document-anchor grammar and the
 structured `reference` identity (<<document-anchors,14.7>>), the

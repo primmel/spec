@@ -14,8 +14,8 @@ generation that introduced the construct: v2 (the MN 113 generation,
 including its extension wave), v3 (this document's first revision),
 v3.1 (the 2026-08-28 revision's extension set,
 <<dataspaces-policies-trust,clause 19>>), or v3.2 (the 2026-09-04
-revision's consumption extension set, primmel/spec#18 — *roadmap*
-pending the kernel wave); v3 accepts every v2 construct
+revision's consumption extension set, primmel/spec#18); v3 accepts every
+v2 construct
 (<<annex-d-lineage,Annex D>>), v3.1 changes no v3 construct, and v3.2
 changes no v3.1 construct.
 

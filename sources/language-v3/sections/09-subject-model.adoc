@@ -335,7 +335,7 @@ separation of evidence from judgment (C47).
 [[dimension-construct]]
 === The dimension construct (top-level form)
 
-*Roadmap — primmel/spec#18, v3.2.* An instrument's inline `dimension`
+An instrument's inline `dimension`
 blocks (<<five-entity-kinds,10.1>>) declare the subject's classification
 axes. A `dimension` declared at the TOP LEVEL is a free-standing
 applicability axis: a named, typed dimension that any
