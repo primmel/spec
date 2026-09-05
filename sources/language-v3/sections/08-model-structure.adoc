@@ -105,8 +105,7 @@ Unknown manifest facets are skipped under the forward-compatibility rule
 [[edition-lineage]]
 ==== The edition lineage graph
 
-*Roadmap — primmel/spec#18, v3.2 (the `superseded_by` edge); the
-remainder is v3 content restated as one graph.* A package's editions
+A package's editions
 form a declared succession graph, all of it manifest data: the `editions`
 register (newest first — the chain), the `status` and `validity` window
 of the packaged edition, and the lineage edges. `supersedes` and

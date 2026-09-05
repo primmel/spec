@@ -149,8 +149,7 @@ provenance.
 [[calculation-signatures]]
 ==== The calculation signature: typed inputs and outputs
 
-*Roadmap — primmel/spec#18, v3.2 (the `quantity_kind` and `range`
-facets); the remainder is v2 content restated.* A retrieved calculation
+A retrieved calculation
 is executable exactly when its signature is data: what goes in, in which
 units, over which ranges, and what comes out. The signature declares it:
 
@@ -158,28 +157,32 @@ units, over which ranges, and what comes out. The signature declares it:
 ----
 calculation mpe_absolute {
   inputs {
-    input e_l { type number unit kg quantity_kind mass range { min 0 }
+    e_l : number { unit kg quantity_kind mass range { min 0 }
       description "Error of indication at the test load." }
-    input n_lc { type integer range { min 1 max 10000 }
+    n_lc : integer { range { min 1 max 10000 }
       description "Number of load cell intervals." }
   }
-  output { type number unit kg quantity_kind mass range { min 0 }
-    description "Maximum permissible error, absolute." }
+  output : number { unit kg quantity_kind mass range { min 0 }
+    name "mpe" description "Maximum permissible error, absolute." }
   expression "ocl{...}"
   ref derives-from "urn:oiml:pub:r:60-1:2021#clause-5.1"
 }
 ----
 
-An `input <name> { ... }` entry carries `type` (the symbol type
-vocabulary), `unit` and `quantity_kind` (the typed-unit pair, resolved
+An input entry keeps the v2 `<name> : <type> { ... }` form; the block
+carries `unit` and `quantity_kind` (the typed-unit pair, resolved
 against the merged quantity register of <<quantities,13.4>>), `range
 { min max }` (the admissible domain; either bound may be absent),
 `description`, `default`, and `enum_values` for enum-typed inputs. The
-`output { ... }` carries the same typing facets with `name` and
+`output : <type> { ... }` carries the same typing facets with `name` and
 `description`. The checker verifies the signature (C115,
 `calculation-signature-shape`): every `unit` resolves to a registered
 unit and every `quantity_kind` to a registered kind of the merged
-quantity register, the two agree in kind, a range's `min` never exceeds
+quantity register (unit resolution is reported as a warning by the
+reference toolchain during the v3.2 rollout — the estate declares units
+no register carries yet; the leg tightens to an error when the registers
+catch up, TODO.primmel/11d), the two agree in kind, a range's `min`
+never exceeds
 its `max`, and an enum-typed input declares its values. Unit-aware
 retrieval ("limits expressed in mV/V") and the trustworthy execution of
 a retrieved calculation both read this signature; they never parse the
@@ -250,7 +253,7 @@ to no subject.
 [[term-alias-family]]
 ==== The alias family
 
-*Roadmap — primmel/spec#18, v3.2.* The designation set of a term is
+The designation set of a term is
 data, and it is the bridge a consumption system (a search index, a
 retrieval plane, an assistant) walks from the vocabulary a user actually
 types to the defined term the corpus knows. Four facets carry it, each
@@ -312,10 +315,13 @@ lists (per-unit language tags in a retrieval export) is the toolchain's
 projection (primmel-ts#65, ask 7).
 
 The checker verifies the family's shape (C110, `term-alias-shape`):
-duplicate entries within one list of one term, or the same string
-appearing in two different family fields of one term, are errors (one
-entry has one home); an entry that merely echoes the term's `label` is a
-warning (it adds no bridge).
+duplicate entries within one list of one term are errors, and the same
+string appearing in two different family fields of one term violates
+one-entry-one-home (reported as a warning by the reference toolchain
+during the v3.2 rollout — the v2 `alt` semantics admitted the overlap
+and the shipped estate carries it; the leg tightens to an error when the
+estate's terms are re-authored, TODO.primmel/11d); an entry that merely
+echoes the term's `label` is a warning (it adds no bridge).
 
 [[twin-era-constructs]]
 === Twin-era constructs

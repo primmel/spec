@@ -1,6 +1,7 @@
 # TODO.primmel/11 — the AI-consumption constructs (Primmel v3.2)
 
-**Status:** ACTIVE — canonical plan for the v3.2 extension set
+**Status:** SHIPPED — spec marks removed 2026-09-05 (the doctrine's
+condition met); the tightening backlog below carries the 11d follow-ups
 **Date:** 2026-09-04
 **Driver:** primmel/spec#18 — requirements from a production RAG consumer
 (the OIML SMART estate, ai.oimlsmart.org: 644 typed model nodes live
@@ -92,14 +93,56 @@ revision note.
 
 ## Done when
 
-- [ ] The MN 114 draft (2026-09-04 revision) carries the six constructs
-      with examples, grammar, and checker-rule identifiers.
-- [ ] The kernel parses + validates + serializes them; the conformance
-      suite covers them; every v3.1 corpus case still passes.
-- [ ] The retrieval export (primmel-ts#65) projects the alias family,
+- [x] The MN 114 draft (2026-09-04 revision) carries the six constructs
+      with examples, grammar, and checker-rule identifiers. — spec
+      slices primmel/spec#19–#24 (the six stacked MN 114 v3.2 commits,
+      tip ba89484); the roadmap marks came off in the 2026-09-05
+      revision per the doctrine above.
+- [x] The kernel parses + validates + serializes them; the conformance
+      suite covers them; every v3.1 corpus case still passes. — kernel
+      slices primmel/primmel-ts#71–#77, released as `@primmel/primmel`
+      1.9.0 (v1 tip f3ca3df, tag v1.9.0); conformance suite v3.2.0:
+      112/112 across 37 clauses, the CON-01…CON-09 consumption set
+      pinning C110–C118.
+- [x] The retrieval export (primmel-ts#65) projects the alias family,
       the applicability namespace, the structured references, the
-      lineage edges, the typed units, and the impact graph.
-- [ ] The OIML SMART packages re-author the seams this wave closes
+      lineage edges, the typed units, and the impact graph. — shipped in
+      `@primmel/primmel` 1.9.0; the byte-clean projection proof is
+      oimlsmart/smart#256 (all six facet families, both codec
+      directions, ssot 4/4).
+- [x] The OIML SMART packages re-author the seams this wave closes
       (the `capabilities` applicability key becomes a declared
       dimension), and the model plane consumes the new fields — the
-      proof by consumption.
+      proof by consumption. — oimlsmart/smart#256 (MERGED, v2 7855f9fe):
+      R 144's `capabilities` is a declared dimension; all six facet
+      families project byte-clean in both codec directions (ssot 4/4).
+
+## Tightening backlog (the 11d follow-ups)
+
+The kernel wave shipped three spec legs at WARNING severity in 1.9.0
+where the shipped estate trips the error form; each tightens to the
+spec's error when the estate re-authors (the smart corpus work, tracked
+under TODO.primmel/11d — smart's KNOWN allowlists carry
+`audit_ref: TODO.primmel/11d` and burn down as the registers fill):
+
+1. **C110 cross-field alias overlap** (clause 13.10.1): the same string
+   in two family fields of one term is the spec's one-entry-one-home
+   error; v2 `alt` semantics admitted the overlap and the estate carries
+   it (R 60's load-cell and mpe terms). The within-list duplicate leg is
+   error as specified.
+2. **C115 unit resolution** (clause 13.7.1) and **C118 unit resolution**
+   (clause 11.1.3): a signature/parameter unit no register declares is
+   the spec's error (the C33 §6.8 "unmapped units are warnings"
+   precedent governs the rollout). The six smart-corpus units needing
+   register entries before the legs tighten: R 60's `counts/v`,
+   `g, kg, or t`, `indication units`, `intervals`, `%`, and R 129's
+   `cm3/kg`. The quantity_kind legs of both rules are error as
+   specified.
+3. **Serializer alignment (direction-2-invisible)**: the kernel's
+   `dumpLimit` emits quantity units unquoted where the smart emitter
+   quotes — invisible in the byte-clean direction, to be aligned.
+4. **External-body URN coverage is partial by design**: R 129's nine IEC
+   module references carry org only; R 144's ISO 7504 reference carries
+   org + edition, no urn. Full structured-identity coverage (clause
+   14.7) needs corpus authoring, not toolchain work.
+

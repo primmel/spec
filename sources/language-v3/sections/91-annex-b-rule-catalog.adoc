@@ -30,10 +30,15 @@ with the rule's implementation and its tests; this catalog fixes the
 identifiers, names, families, severities, and levels that conformance
 cites.
 
-Rules introduced by the v3.2 revision (C110 and higher) are *roadmap*
-entries, specified for comment ahead of their toolchain implementation
-(primmel/spec#18); they join the operative registry when the kernel wave
-ships, and until then a conforming checker is not required to run them.
+Rules introduced by the v3.2 revision (C110 and higher; primmel/spec#18)
+ship in the reference toolchain at `@primmel/primmel` 1.9.0 and are part
+of the operative registry; the conformance suite at version 3.2.0 pins
+each rule's error-severity leg (clauses CON-01 to CON-09). Three legs
+report at warning severity in 1.9.0 where the shipped estate trips the
+error form — C110's cross-field alias overlap, C115's unit resolution,
+and C118's unit resolution — and tighten to the severities this catalog
+states when the estate's terms and quantity registers are re-authored
+(TODO.primmel/11d).
 
 === base
 

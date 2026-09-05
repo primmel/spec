@@ -175,8 +175,8 @@ tolerance changes, which tests, verdicts, and certificates are
 affected?") as a read over an index instead of a walk over the authored
 trees. Like the interchange projections it is a toolchain artifact —
 generated, never authored, never re-imported — and it is specified here
-informatively, *roadmap* pending the toolchain wave that ships it
-(primmel/spec#18 ask 7).
+informatively; the reference toolchain emits it as `primmel export
+impact` (the `impact-graph/1` projection).
 
 ==== The impact edge registry
 

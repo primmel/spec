@@ -130,7 +130,7 @@ correspondence is maps-to, never is-defined-by.
 [[document-anchors]]
 === Document anchors and the structured reference
 
-*Roadmap — primmel/spec#18, v3.2.* A `ref` target that names a document
+A `ref` target that names a document
 or a clause of a document is a *document anchor*, and its shape is
 normative, because a cross-standard hop is machine-traversable exactly
 when the anchor composes from declared parts:
