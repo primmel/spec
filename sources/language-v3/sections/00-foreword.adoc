@@ -41,6 +41,16 @@ TODO.primmel/11d). The proof by consumption: the OIML SMART estate
 top-level dimension and projects all six facet families byte-clean in
 both codec directions.
 
+Revision note (2026-09-08). This revision of the draft adds the
+requirement-namespace pin to the composition rules
+(<<composition-rules,7.6>>, checker rule C119): a requirement scope a
+composed package declares is owned by that package, and a downstream
+package never declares a requirement class or requirement at or under an
+owned namespace — the language-level form of the layering doctrine the
+OIML SMART estate enforces at build time. The reference toolchain ships
+the rule at `@primmel/primmel` 1.10.0; the conformance suite at version
+3.3.0 pins it (clause PKG-06; 118 cases across 38 clauses).
+
 Revision note (2026-09-04). This revision of the draft adds the v3.2
 extension set — the consumption constructs of primmel/spec#18, from the
 measured requirements of a production retrieval consumer: the term alias
