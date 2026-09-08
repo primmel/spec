@@ -59,8 +59,9 @@ a realized signature, bound subprocess calls?
 calculus, and stay disjoint from imports?
 
 |composition
-|Do package imports resolve without redefinition or cycles, and do
-capability tokens match?
+|Do package imports resolve without redefinition or cycles, do
+capability tokens match, and do downstream packages stay out of
+owned requirement namespaces?
 
 |quantities
 |Does every quantity carry its unit contract, do duals and maps stay

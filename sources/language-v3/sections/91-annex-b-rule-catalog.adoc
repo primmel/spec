@@ -14,7 +14,7 @@ one of them, and the verification is one command:
 primmel check --rules
 ----
 
-Each rule has an identifier (C1 to C118; the numbering is historical and
+Each rule has an identifier (C1 to C119; the numbering is historical and
 not contiguous by family), a name used in findings, a family, a default
 severity, and a level:
 
@@ -38,7 +38,11 @@ report at warning severity in 1.9.0 where the shipped estate trips the
 error form — C110's cross-field alias overlap, C115's unit resolution,
 and C118's unit resolution — and tighten to the severities this catalog
 states when the estate's terms and quantity registers are re-authored
-(TODO.primmel/11d).
+(TODO.primmel/11d). Rule C119 (the requirement-namespace pin of
+<<composition-rules,7.6>>, mirroring the layering doctrine's
+layer-owned-namespace guard) ships in the reference toolchain at
+`@primmel/primmel` 1.10.0; the conformance suite at version 3.3.0 pins
+its error leg (clause PKG-06).
 
 === base
 
@@ -139,6 +143,7 @@ states when the estate's terms and quantity registers are re-authored
 |C29 |`uses-cycle` |error |normal
 |C30 |`provides-consumed-or-waived` |warning |normal
 |C31 |`requires-satisfied` |error |normal
+|C119 |`namespace-pin-violation` |error |normal
 |===
 
 === quantities

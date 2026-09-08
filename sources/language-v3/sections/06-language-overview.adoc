@@ -169,6 +169,12 @@ closure: an unsatisfied `requires` is an error (C31); a `provides` that
 nothing consumes is a warning unless waived (C30);
 . a version-pinned entry `id@edition` is an abstract import of a product
 reference package: located and checked (C83), never content-merged.
+. a requirement namespace — a requirement class identifier path, e.g.
+`/req/cs` — declared by a composed package is OWNED by that package
+(<<requirements-and-conformance,clause 11>>): a downstream package may
+reference its provisions but MUST NOT declare a requirement class or a
+requirement whose identifier sits at or under an owned namespace (C119,
+namespace-pin-violation; the exact-identifier case is C28).
 
 Editions are the package lifecycle: a manifest registers its `editions`,
 the lifecycle `status` (`current`, `preview`, `superseded`, `withdrawn`),
