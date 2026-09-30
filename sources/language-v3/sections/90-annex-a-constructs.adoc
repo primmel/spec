@@ -6,6 +6,20 @@ It reproduces the parser configuration of the reference implementation
 (`packages/primmel/src/ser-des/config/index.ts` of primmel-ts); the two
 are verified together, and a discrepancy is a defect in one of them.
 
+The annex is generated from the parser configuration by the parity
+tooling of the kernel repository (`packages/primmel/scripts/annex-a.mts`
+of primmel-ts, `--check` in continuous integration); it is never
+hand-edited, and a hand edit is a defect in this annex.
+
+During the reconfiguration whose plan of record is the Primmel
+reconfiguration roadmap, a construction freeze applies to the parser:
+no new construct joins the parser configuration. A construct lands
+only together with the specification section this annex points at, in
+one change, with the parity check green in both repositories'
+continuous integration; the unregistered constructs carry their
+triage dispositions in the kernel's visible `registry-triage.prl`
+list, and the list only shrinks.
+
 Every construct declaration has the shape `KEYWORD IDENTIFIER { ... }`:
 one keyword, one identifier, one block payload
 (<<top-level-shape,9.1>>). The four special declarations of the first

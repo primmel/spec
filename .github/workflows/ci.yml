@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  registry-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the kernel (the parity counterpart)
+        uses: actions/checkout@v4
+        with:
+          repository: primmel/primmel-ts
+          path: primmel-ts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install
+        working-directory: primmel-ts
+        run: yarn install
+      - name: Registry parity (R1) — the specification's Annex A against the parser
+        working-directory: primmel-ts
+        run: yarn workspace @primmel/primmel annex-a --check
+        env:
+          PRIMMEL_SPEC_SOURCES: ${{ github.workspace }}/sources
