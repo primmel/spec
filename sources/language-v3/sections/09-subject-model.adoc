@@ -324,6 +324,60 @@ example the suite carries.
 Instance scope discipline (which values a sample-level instance may carry)
 is a checker matter (C17), not a parse matter.
 
+[[power-type-instantiation]]
+==== Power-type instantiation
+
+The `of` reference names a subject definition or ANOTHER INSTANCE:
+every instance can serve as the definition of further instantiation.
+This is the power-type discipline — the modelling relationship the CDD
+family of languages is built on, and the interop requirement of the
+CDDAL projection (a Primmel instance projects as a subclass-of-one):
+specialization is not a fixed ladder of levels but a recursive pattern,
+and the subject chain of <<subject-construct>> is one profile of it.
+
+[source,prl]
+----
+instance grp-500 {
+  of LoadCellModelFamily
+  has { attributes { p_lc : 0.7 } }
+}
+
+instance mod-500-2t {
+  of grp-500
+  has { attributes { e_max : 2.2 t } }
+}
+
+instance smp-001 {
+  of mod-500-2t
+  level sample
+  has { test_context { d_min : 0 kg } }
+}
+----
+
+Value resolution walks the `of` chain upward: an instance's own
+`has` values override (never replace) those of the instance it
+instantiates, and the walk terminates at a subject definition (the
+delegation law INV-10, generalized from the fixed four-level chain).
+The upward chain links (`model`, `family`, `group`) remain the
+subject-chain profile's idiom and are unchanged; an instance that
+carries BOTH an `of`-to-instance reference and an upward chain link is
+incoherent and is rejected (C20).
+
+The same discipline reaches the definition side: a `class`'s
+`extends { ... }` names a class or an INSTANCE. A class extending an
+instance specializes that individual — the class's instances inherit
+the named instance's exhibited values before the class's own defaults,
+so a manufacturer's product line can derive from one characterized
+prototype without restating it.
+
+The checker resolves `of` against declared subjects AND declared
+instances (C20), and rejects a cycle in the `of` chain (an instance
+that transitively instantiates itself). The four-level scope vocabulary
+(family, group, model, sample) governs the subject-chain profile;
+`of`-to-instance chains outside that profile carry value inheritance
+without the level law (a package that wants the level law declares its
+levels, as the R 60 packages do).
+
 [[is-has-duality]]
 === The IS/HAS value duality
 
