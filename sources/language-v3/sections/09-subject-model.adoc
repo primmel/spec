@@ -327,8 +327,9 @@ is a checker matter (C17), not a parse matter.
 [[power-type-instantiation]]
 ==== Power-type instantiation
 
-The `of` reference names a subject definition or ANOTHER INSTANCE:
-every instance can serve as the definition of further instantiation.
+The `of` reference names a subject definition, an instrument, a class,
+or ANOTHER INSTANCE: every instance can serve as the definition of
+further instantiation.
 This is the power-type discipline — the modelling relationship the CDD
 family of languages is built on, and the interop requirement of the
 CDDAL projection (a Primmel instance projects as a subclass-of-one):
@@ -365,10 +366,26 @@ incoherent and is rejected (C20).
 
 The same discipline reaches the definition side: a `class`'s
 `extends { ... }` names a class or an INSTANCE. A class extending an
-instance specializes that individual — the class's instances inherit
-the named instance's exhibited values before the class's own defaults,
-so a manufacturer's product line can derive from one characterized
-prototype without restating it.
+instance specializes that individual — the PROTOTYPE: an instance of
+the class walks, through the class plane, to the prototype and
+inherits its exhibited values, so a manufacturer's product line can
+derive from one characterized prototype without restating it. The
+delegation walk reads exhibited values only — a class's declared
+defaults stay outside the walk, exactly as they always were; the
+prototype hop adds the individual's readings, never the class's
+contracts.
+
+The walk crosses the class plane exactly once per `of` to a class: it
+follows the class's `extends` chain (class to class, transitively)
+until it reaches an instance, and continues from there through that
+instance's own chain. A cycle over these mixed edges — an instance
+whose continuation through the class plane reaches itself — is
+rejected (C155).
+
+The typing bridge power-types too: a `payload_class` reference and an
+attribute definition's `class` reference name a class or an INSTANCE —
+an instance is a class, and its shape is the fields of the class its
+own chain terminates at (C152).
 
 The checker resolves `of` against declared subjects AND declared
 instances (C20), and rejects a cycle in the `of` chain (an instance
