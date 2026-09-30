@@ -1,0 +1,347 @@
+[[platform-modules]]
+== Platform modules
+
+This clause specifies the platform-module constructs: the registers and
+contracts the SMART platform's methodology defines and that any
+programme on the platform may use. Each construct below was first
+carried by the reference implementation; this clause is its normative
+home (the layering contract of <<annex-a-constructs,Annex A>> states
+that the kernel knows nothing about legal metrology, and each of these
+constructs is motivated by a standard's structure in general, not by
+one programme's document). The constructs form one lineage: the
+application declaration carries the certificate's declaration stage,
+the test-report and evaluation modules carry the validation stage, and
+the certificate module prints validated claims by reference
+(<<attestation-lineage,clause 19>>).
+
+[[promise-set-construct]]
+=== promise_set — the promise register
+
+A promise set is a subject's manufacturer-claim register: first-class
+claims on characteristics and behaviors — possibly envelope-shaped,
+possibly conditional — that evaluation verifies and the certificate
+prints as promises-as-verified.
+
+[source,prl]
+----
+promise_set LoadCell {
+  promise accuracy_class {
+    target accuracy_class
+    statement "The type holds its declared accuracy class."
+    verified_by { /req/metrological/mpe /conf/metrological-tests/measurement-error }
+    source { doc "urn:oiml:pub:r:60-1:2021" clause "5.1.1" }
+    certificate { dimension accuracy_class type string label "Accuracy class" obligation mandatory }
+  }
+}
+----
+
+The promise facets are those of the subject's own promise entries
+(<<subject-model,clause 10>>): `target`, `level`, `conditions`,
+`statement`, `verified_by`, `source`, and the `certificate` print
+projection. The certificate projection's obligation vocabulary
+(`mandatory`, `optional`) is parse-enforced; its characteristic type
+vocabulary and every reference resolution are check-enforced (C131,
+C42–C44). A promise set is referenced by an attestation
+(<<attestation-construct,clause 19>>) and by an artifact definition's
+`contract_from` facet (C153); the certificate's characteristic list
+generates from the set, never as a restatement.
+
+[[identity-slot-construct]]
+=== identity_slot — the marking register
+
+An identity slot is one marking of the instrument's documentary
+identity: the name or trade mark, the type designation, the serial
+number, the year of production, the approval mark. Each slot declares
+its label, its type, its presentation surfaces (`marked-on-instrument`,
+`accompanying-document`), its definition, its provenance, and whether
+it is optional. The register feeds the markings examination's evidence
+surface: the examiner records what the sample carries against the
+declared slots.
+
+[[application-declaration-construct]]
+=== application_declaration — the application register
+
+An application declaration is the applicant-facing register of an
+application for type evaluation: the declaration form the applicant
+signs and the documentation checklist the application must carry. Each
+`document` entry declares a name, a description, an obligation from the
+closed register (`shall`, `should`, `may` — parse-enforced), and its
+provenance. The register carries the certificate lineage's declaration
+stage: the instrument characteristics the applicant declares are data,
+and the attestation's claims reference them
+(<<attestation-lineage,clause 19>>).
+
+[[common-test-condition-construct]]
+=== common_test_condition — the shared test condition register
+
+A common test condition is one condition that recurs across test
+procedures: the test equipment's calibration and traceability, the
+ambient conditions' stability, the loading discipline, the measuring
+range limits. Each entry declares a title, a description, and a
+reference to the clause that grounds it. A procedure's steps reference
+these entries instead of restating them; the entries are the shared
+vocabulary of the condition anatomy (<<condition-anatomy,clause 10>>).
+
+[[test-report-skeleton-construct]]
+=== test_report_skeleton — the evidence contract
+
+A test report skeleton names the sections of a test report and binds
+each section to the forms that fill it. Each `section` declares a
+number, a title, a description, and its `form` entries; each form entry
+names the form construct, the file that authors it, its title, and when
+it is required. The skeleton is the evidence contract the laboratory
+procedures fill (the separation of evidence from judgment,
+<<evidence-contract,clause 11>>): its sections carry typed content with
+provenance, and a step that records a measurement never records the
+verdict on a requirement.
+
+[[test-report-checklist-construct]]
+=== test_report_checklist — the report completeness register
+
+A test report checklist states the checks a compiled test report must
+pass before it is submitted: one entry per check, with its question and
+its binding. The checklist is the report skeleton's completeness rule
+as data, and the coverage machinery reports an unchecked entry rather
+than silently passing it.
+
+[[certificate-template-construct]]
+=== certificate_template — the print projection contract
+
+A certificate template is the rendering contract of the certificate
+document: the number format of the certificate's identifier, the label
+pattern of the classification designation, and the rendering of
+additional sections. The characteristic list is NOT restated here — it
+generates from the attested promise set (each promise's `certificate`
+print projection). The label pattern's placeholders resolve against the
+declared classification dimensions (C136).
+
+[[aspect-construct]]
+=== aspect — the aspect register
+
+An aspect is a named facet of the instrument's documentary surface: the
+markings, the accompanying document, the application documentation, the
+sealing, the software, the construction. Each aspect declares its kind,
+its definition, the identity slots or attributes it contains, and its
+provenance. Aspects are the qualitative counterpart of the attribute
+register: an aspect states what must be marked, documented, or sealed;
+an attribute states the typed value a characteristic carries.
+
+[[evaluation-profile-construct]]
+=== evaluation_profile — the evaluation preset register
+
+An evaluation profile is a named combination of classification
+dimension values that selects the applicable requirements, tests, and
+calculations: one profile per evaluation preset. Each entry declares
+its dimension bindings and a description. The profiles are the
+evaluation-side applicability axis (the model-side axis is the
+dimension itself, <<dimension-construct,clause 10>>).
+
+[[evaluation-dimensions-construct]]
+=== evaluation_dimensions — the evaluation axis register
+
+An evaluation dimensions register declares the classification axes the
+evaluation keys on and the bindings each axis resolves through, per
+channel of the evaluation. It is the evaluation profile's resolution
+domain: a profile's dimension values resolve through this register to
+the evaluation's applicability decisions.
+
+[[sample-selection-rule-construct]]
+=== sample_selection_rule — the specimen selection register
+
+A sample selection rule is one rule of the specimen-selection
+discipline: the step it realizes, the rule's own wording, its
+rationale, its applicability, its selector expression, and the test
+kind it triggers. The register states the family/group selection
+discipline as data; the procedure references the rules instead of
+restating them.
+
+[[lab-selection-criterion-construct]]
+=== lab_selection_criterion — the laboratory matching register
+
+A laboratory selection criterion is one parameter-to-capability match
+rule the test-design linker resolves: its weight (`required`,
+`preferred`), the parameter type, its label and description, the
+applicability condition, and the match operator with its required
+capability. The register is how a dispatching process chooses between
+accredited laboratories — data, not prose.
+
+[[specimen-governance-rule-construct]]
+=== specimen_governance_rule — the specimen governance register
+
+A specimen governance rule states one rule of the specimen's custody
+during evaluation: receipt, identification, storage, return. Each entry
+declares its weight, its label, its description, and its provenance.
+
+[[calculation-context-construct]]
+=== calculation_context — the evaluation binding register
+
+A calculation context declares the variable bindings the evaluation's
+calculations resolve through: each field names a computation input and
+the source it reads from — a classification dimension, a parameter, or
+a computed expression. A `computed` source carries its expression
+facet; every free identifier of the expression is checked (C133), and
+the closed-derivation rule (C149) applies to the expressions the
+context declares.
+
+[[part-annex-construct]]
+=== part_annex — the annex accountability register
+
+A part annex is one annex of a multi-part publication, accounted for:
+its letter, its title, its obligation (`normative` or `informative`),
+its summary, its realization (how the model realizes the annex's
+content), and its provenance. The register is the coverage machinery's
+checklist for annex content: every annex is modelled or excluded with a
+stated reason.
+
+[[formula-note-construct]]
+=== formula_note — the formula annotation register
+
+A formula note is an annotation on one evaluation formula: the
+condition it applies to, its note text, and its provenance. The
+register carries the R 60-3 worked-formula annotations as data beside
+the symbols they annotate.
+
+[[framework-document-construct]]
+=== framework_document — the governing-document register
+
+A framework document is one document of a certification framework's
+governing hierarchy: its rank in the hierarchy, its document
+designation, its title, the governance organ that approves it, and the
+clause of the framework publication that grounds it. The register
+states the hierarchy as data; the precedence rule
+(<<document-precedence-construct,20.19>>) and the scheme lifecycle's
+entry conditions key on it.
+
+[[auto-inclusion-construct]]
+=== auto_inclusion — the scheme entry-conditions register
+
+An auto-inclusion register states the conditions under which a
+category of measuring instrument enters a certification scheme
+automatically: the grounding clause, the statement, and one `condition`
+entry per requirement the scheme's publication names. The register is
+the scheme lifecycle's automatic-entry premise as data.
+
+[[document-precedence-construct]]
+=== document_precedence — the precedence rule register
+
+A document precedence entry states the conflict rule of a governing
+hierarchy: which document prevails when the provisions of two conflict.
+One entry per rule, with its clause and provenance; the hierarchy of
+<<framework-document-construct,20.17>> is what the rule orders.
+
+[[document-module-construct]]
+=== document_module — the document namespace register
+
+A document module names one publication of a framework's document
+series and claims the requirement namespace its provisions own: the
+document designation, its title, edition, year, and the namespace pin.
+The pin is what the composition machinery enforces
+(<<the-allowlist,clause 16>>'s namespace discipline): a downstream
+package references the module's provisions but never declares
+requirements under its owned namespace.
+
+[[declaration-kind-construct]]
+=== declaration_kind — the declaration register
+
+A declaration kind is one kind of formal declaration a scheme's
+participants sign: its label, the participant kind that holds it, the
+clause and procedure that ground it, and its definition. The
+declaration machinery of the scheme (the signing gate of
+<<declaration-gate-construct,20.22>>) keys on the register.
+
+[[declaration-status-construct]]
+=== declaration_status — the declaration status register
+
+A declaration status is one state of a declaration's lifecycle
+(initiated, signed, recorded) with its description. The register is a
+closed vocabulary; the status that discharges a signing gate is stated
+in the description and referenced by the gate.
+
+[[declaration-gate-construct]]
+=== declaration_gate — the signing-gate register
+
+A declaration gate states the scheme's signing invariant as data: the
+participant kind that must hold a signed declaration, the declaration
+kind required, the grounding clause, the statement, and the abstract
+processes the gate blocks until the declaration is signed. The gate is
+the governance constraint the process model references instead of
+restating.
+
+[[governance-organ-construct]]
+=== governance_organ — the governance register
+
+A governance organ is one organ of a scheme's governance: its label,
+its clause, and its mandate — the decisions it takes, stated as data.
+The decision rules of <<decision-rule-construct,20.29>> name the organ
+that takes them.
+
+[[participant-kind-construct]]
+=== participant_kind — the participation register
+
+A participant kind is one kind of scheme participant: its label, its
+terminology anchor, the clause that defines it, its definition, the
+member kind it belongs to, and its competence requirements. The
+participation pipeline's processes and the declaration register key on
+the kinds.
+
+[[scheme-definition-construct]]
+=== scheme_definition — the scheme register
+
+A scheme definition is one certification scheme of a framework: its
+label, its terminology anchor, its clause, its definition, and its
+demonstration method. The scheme lifecycle
+(<<scheme-lifecycle-construct,20.25>>) moves a category between the
+registered schemes.
+
+[[scheme-lifecycle-construct]]
+=== scheme_lifecycle — the lifecycle register
+
+A scheme lifecycle states how an instrument category moves through the
+schemes: the category it applies to, the initial scheme, and the entry,
+transition, and withdrawal actions with their clauses and their
+automatic or decided character. The lifecycle is data; the governance
+organ that decides a non-automatic transition names it.
+
+[[scheme-type-construct]]
+=== scheme_type — the certification-scheme-type register
+
+A scheme type is one product-certification scheme type of
+ISO/IEC 17067: its label, clause, description, the sampling statement,
+the attestation object, and the determination activities it comprises.
+The register is the vocabulary a certification programme's
+self-classification declares.
+
+[[scheme-activity-kind-construct]]
+=== scheme_activity_kind — the activity register
+
+A scheme activity kind is one activity family of ISO/IEC 17067's
+activity grid (selection, determination, surveillance and attestation
+activities): its family, its grid row, and its label. The scheme
+types' determination blocks reference the kinds instead of restating
+them.
+
+[[decision-rule-construct]]
+=== decision_rule — the governance-decision register
+
+A decision rule states one decision of the scheme's governance as
+data: the organ that takes it, the decision kind, the organ whose
+recommendation it acts on, and the grounding clause. The register is
+the governance processes' decision vocabulary.
+
+[[verification-pathway-construct]]
+=== verification_pathway — the verification register
+
+A verification pathway is one pathway of a Recommendation's
+verification regime (initial, in-service, special): its kind, label,
+description, the visual-inspection discipline, and the conformance
+tests it comprises. The register is how the regime's pathways are
+data; a procedure references the pathway it realizes.
+
+[[informative-annex-construct]]
+=== informative_annex — the informative annex register
+
+An informative annex is one informative annex of a framework document,
+accounted for like a normative annex: the document it belongs to, its
+letter, its title, its summary, and its provenance. The register is
+the coverage machinery's checklist for informative annex content:
+every annex is modelled or excluded with a stated reason.
