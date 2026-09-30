@@ -65,8 +65,10 @@ owned requirement namespaces?
 
 |quantities
 |Does every quantity carry its unit contract, do duals and maps stay
-coherent, and do limits and calculation signatures declare their quantity
-kinds?
+coherent, do limits and calculation signatures declare their quantity
+kinds, and does every derivation reference only declared definitions
+(C149, the closed-derivation rule) and every typed payload conform to
+its declared class (C152)?
 
 |state
 |Do fired transitions and referenced states exist, and do the lifecycle
@@ -76,8 +78,9 @@ and operational families stay separate?
 |Do promises resolve, verify, and stay off bare parameter values?
 
 |artifacts
-|Do artifact definitions carry contracts, instances resolve, and evidence
-stays separate from judgment?
+|Do artifact definitions carry contracts, instances resolve, evidence
+stays separate from judgment, and a derived contract reference resolve
+without restating fields (C153)?
 
 |characteristics
 |Does every characteristic have one home, a behavior link, and declared
@@ -104,6 +107,11 @@ classes leak-free?
 resolve, are its trust anchors shaped, is its governance cited, do its
 policies carry well-formed rules, and do correspondence annotations stay
 unambiguous?
+
+|attestation
+|Do the attestation's subject, promise set, basis, and authority
+references resolve (C150), and does every mandatory claim the certificate
+prints carry its declaration and verdict lineage (C151)?
 |===
 
 [[allowlist]]

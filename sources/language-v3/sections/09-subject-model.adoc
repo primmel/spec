@@ -86,7 +86,15 @@ The facets are: `symbol`, `name`, `definition`, `quantity_kind`, `unit`,
 `value_type`, `origin`, `scope`, `category`, `is_dimension`, `enum` (bind
 to an enumeration), `irdi` (the internationally registrable data
 identifier), `derived` (a derivation expression), `source` / `ref`
-provenance, and `note`. The `origin`, `scope`, and `category` values are
+provenance, and `note`.
+
+A derivation expression names only declared definitions: declared
+calculations, tables, profiles, symbols, measurements, and attributes of
+the model. The checker rejects an expression that references anything
+else and names the missing declaration (C149, the closed-derivation
+rule). The rule is what makes evaluation total and pure: a calculation's
+semantics are its declared inputs and body, so two evaluations of one
+calculation over one input produce one result. The `origin`, `scope`, and `category` values are
 program registers: the parser stores them as texts, and their closed
 vocabularies (for example `design-fixed` versus `declared` for the IS/HAS
 duality of <<is-has-duality,10.4>>) are enforced by the consuming
@@ -281,6 +289,38 @@ contract:
 e_max : { value 2.2 unit t kind mass uncertainty 0.001 tolerance 0.5 }
 ----
 
+[[per-entry-provenance]]
+Every value entry — an instance's attributes and test context, an
+artifact instance's content, a registry record — admits a `provenance`
+block. The block states where the value was read from, in the register's
+own words when the wording differs, and how the value's status came to
+be:
+
+[source,prl]
+----
+e_max : {
+  value 30 unit t
+  provenance {
+    source "OIML certificate NMi-3826124-01, page 1"
+    page 1
+    entry_wording "Max capacity"
+    read_at 2026-09-29T10:00:00Z
+    declaration app-flintec-2025-0314.characteristics
+    verdict /verdicts/mpe
+  }
+}
+----
+
+The facets are `source` (the document, test report and run, or system of
+record), `page`, `entry_wording`, `read_at` (a datetime,
+<<time-primitives,clause 13>>), and the lineage references: the
+`declaration` the value came from and the `verdict` that validated it,
+when the value's status has changed (<<attestation-lineage,clause 19>>).
+Provenance is optional per entry, and it is carried through
+serialization. The register-certificate use case — thousands of documents
+read from scans, each field traceable to its page — is the conformance
+example the suite carries.
+
 Instance scope discipline (which values a sample-level instance may carry)
 is a checker matter (C17), not a parse matter.
 
@@ -323,6 +363,23 @@ artifact_definition enforcement-evidence-file {
   ref derives-from "urn:oiml:pub:r:91-1:2025#clause-6.6"
 }
 ----
+
+An `artifact_definition` whose content is the projection of declared
+claims declares `contract_from` instead of restating fields:
+
+[source,prl]
+----
+artifact_definition certificate-document {
+  contract_from LoadCell.promise_set
+  produced_when on_request
+  ref derives-from "urn:oiml:pub:r:60-a:2021#annex-b"
+}
+----
+
+The contract's field list is then the referenced set's print projection,
+never a restatement of it; the checker requires the reference to resolve
+and rejects a definition that declares both `contract_from` and inline
+contract fields (C153).
 
 An `artifact_instance` records one produced output (the HAS
 `artifact_instances` aspect references these), with `of` (the definition),
@@ -376,7 +433,18 @@ placements: `label`, `scope`, `description`, `cardinality` (`single` or
 provenance, and `values { ... }`, whose values may carry `label`,
 `description`, a `payload { ... }` map (nested blocks allowed),
 `implies { ... }` subsumption links, and `term_ref` (the dimension
-value's terminology anchor). A top-level dimension adds one facet of its
+value's terminology anchor).
+
+A dimension value's payload is typed by declaring `payload_class` with
+the reference of a `class` (<<data-classes,clause 13>>); the payload's
+fields then conform to that class's fields, and the checker validates
+them (C152). The typed payload is the form the language prefers: a
+context-specific definition — an accuracy class with its intervals and
+error tiers — is a value carrying a typed instance of its definition,
+not a symbol pointing at a table and not an untyped string map. The
+untyped `payload { ... }` map remains accepted for compatibility; a
+package that declares `payload_class` retires it (C152 flags a value
+that carries both). A top-level dimension adds one facet of its
 own: `values_of <register>` (0..1) names a program register whose
 members ARE the value domain — the documented register is `capabilities`
 (the merged package's capability register, <<five-entity-kinds,10.1>>),

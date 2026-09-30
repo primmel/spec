@@ -87,6 +87,7 @@ changes no v3.1 construct.
 |`decision_rule` | |decisionRules |v3.3 |20.30
 |`verification_pathway` | |verificationPathways |v3.3 |20.31
 |`informative_annex` | |informativeAnnexes |v3.3 |20.32
+|`attestation` | |attestations |v3.3 |19
 |`role` | |roles |v2 |12
 |`provision` | |provisions |v2 |11
 |`process` | |processes |v2 |12

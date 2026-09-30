@@ -1,0 +1,130 @@
+[[attestation]]
+== The attestation
+
+An attestation states that a third party has verified a subject against a
+declared promise set. The construct exists because the certificate's
+substance is exactly that claim, and no other construct of the language
+carries it: an artifact projection records output, a verdict records a
+decision, and neither names the verifying authority, the evidence basis,
+and the attested promise set together.
+
+[[attestation-construct]]
+=== The attestation construct
+
+[source,prl]
+----
+attestation r60-certificate-claim {
+  subject    ssm-ssb7
+  promises   LoadCell.promise_set
+  basis      test_report "NMi-3826124-01"
+  authority  IssuingAuthority "NMi Certin B.V."
+  statement  "This Certificate attests the conformity of the above
+              identified Type with the requirements of OIML R 60-1:2021"
+  limits     { scope   "the metrological and technical characteristics of
+                        the type"
+               legal    "does not bestow any form of legal international
+                        approval"
+               quotation "partial quotation is not permitted; reproduction
+                          in full is permitted" }
+}
+----
+
+The facets are:
+
+* `subject` (exactly one) — the certified instance, an `instance` id of
+  the subject chain. The attestation never restates the instance's
+  values; it references them.
+* `promises` (exactly one) — the attested promise set, by reference in
+  `Subject.promise_set_id` form. The attestation re-uses the promise
+  set; it never restates a promise.
+* `basis` (0..*) — the evidence the attestation rests on: an evidence
+  kind (a report kind, an evaluation report, an audit) and the
+  evidence's identifier. Every basis entry is a typed reference the
+  checker resolves (C150).
+* `authority` (exactly one) — the verifying party: a role reference
+  (the package's role register) and the authority's name as stated.
+* `statement` (exactly one) — the attestation's own wording, verbatim.
+* `limits` (0..1) — the attestation's stated limits as labelled texts.
+  The labels are free vocabulary of the attestation itself; the
+  checker requires a label and a text per entry (C150).
+
+[[attestation-certificate]]
+=== The certificate as the attestation's document form
+
+The certificate is the document form of an attestation plus the actors
+and the register lifecycle. The language models the document surface
+with the existing artifact constructs: the certificate's print
+projection is an `artifact_definition` whose content contract is
+<<artifact-derivation,derived from>> the attested promise set, and one
+issued certificate is an `artifact_instance` of that definition whose
+entries carry <<per-entry-provenance,per-entry provenance>>. The
+certificate's behaviors (attest, revise, withdraw) are the attesting
+subject's declared behaviors, and the register's snapshot semantics are
+the withdrawal behavior's input: the certificate instance carries the
+register's status and year as provenance-attributed facts.
+
+The `certificate_template` construct (<<certificate-template,15.x>>)
+remains the print projection's rendering contract: its characteristic
+rows resolve by name against the attested promise set, and its
+obligation vocabulary (mandatory rows carry values; conditional rows
+print only when declared) is a closed register.
+
+[[attestation-lineage]]
+=== The data lineage: declared, validated, carried forward
+
+A value whose status changes across the modelling lifecycle keeps its
+lineage as typed references (the kernel's lineage rule). The
+certificate's characteristics are the worked example: the applicant
+declares the characteristics in the application, the promise set
+formalizes what evaluation verifies, the procedures produce the
+evidence, the verdicts record what held, and the attestation carries
+the same data as validated claims. Nothing is re-entered, re-extracted,
+or re-typed between the stages.
+
+The lineage has three stages:
+
+. *Declaration* — the applicant's sought classification, entered in
+  the application, with attribute origin `declared`.
+. *Validation* — the promise set's `verified_by` links name the
+  requirements, conformance tests, and procedures; the evidence is
+  produced; the verdicts record what held.
+. *Carry-forward* — the attestation's claim instantiations reference
+  the application's declared values and the evaluation's verdicts.
+
+The carry-forward stage is declared per promise with a `claims` block.
+Each claim names the promise, the declaration instance whose value is
+carried, and the verdict that validated it:
+
+[source,prl]
+----
+attestation r60-certificate-claim {
+  subject    ssm-ssb7
+  promises   LoadCell.promise_set
+  basis      test_report "NMi-3826124-01"
+  authority  IssuingAuthority "NMi Certin B.V."
+  statement  "This Certificate attests the conformity of the above
+              identified Type with the requirements of OIML R 60-1:2021"
+  claims {
+    accuracy_class {
+      declared     app-flintec-2025-0314.characteristics
+      validated_by /verdicts/mpe
+    }
+    e_max {
+      declared     app-flintec-2025-0314.characteristics
+      validated_by /verdicts/mpe
+    }
+  }
+}
+----
+
+The checker requires every claim's declaration reference and verdict
+reference to resolve (C150), and requires a claim per promise the
+certificate prints as mandatory (C151): a mandatory characteristic on
+the certificate must be carried by a lineage, not restated.
+
+For legacy certificates whose only source is a scanned document, the
+document is the source and <<per-entry-provenance,per-entry
+provenance>> applies: each carried value names the document and the
+page it was read from. A born-digital certificate threads the lineage
+above; a legacy certificate carries document provenance; both are the
+same attestation over the same promise set.
