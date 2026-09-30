@@ -1,0 +1,81 @@
+[[annex-e-v2-bridge]]
+== Annex E (normative): The v2 bridge — where every construct lives
+
+This annex is the bridge the reconfiguration promises: for every
+construct of the parser, it states where its normative definition
+lives, and what status the v2 generation's documents carry. The
+table is generated from <<annex-a-constructs,Annex A>>'s registry
+rows; it is regenerated when the registry regenerates, and it is
+never hand-edited.
+
+The rule the bridge states is the one-home rule: the language part
+of this specification is normative for every construct's definition,
+and the v2 generation's supporting parts — the data-model,
+process-model, compliance, measurement, calculations, forms,
+symbols, terminology, workspace, mapping and state-machines parts,
+shared byte for byte with the MMEL v2 record — remain published as
+the record of the v2 generation. Where a supporting part and this
+specification overlap, this specification governs; a supporting
+part's statement of a construct's grammar is the v2 record, not a
+second normative home.
+
+=== The v2 constructs and their normative homes
+
+[cols="2,3,2,2", options="header"]
+|===
+|Construct |The v2 part that documents it |Normative clause |Generation
+|`role` |the process-model part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`provision` |the compliance part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|`process` |the process-model part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`approval` |the process-model part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`class` |the data-model part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`enum` |the data-model part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`data_registry` |the workspace part (the registry) and the data-model part (the class) |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`variable` |the data-model part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`measurement` |the measurement part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`exclusive_gateway` |the process-model part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`start` |the process-model part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`end` |the process-model part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`signalcatch` |the process-model part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`timer` |the process-model part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`reference` |the specification part |<<annex-a-constructs,Annex A>> clause 14 |v2
+|`canvas` |the process-model part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`note` |the specification part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`table` |the measurement part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`figure` |the specification part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`link` |the specification part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`comment` |the specification part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`map_profile` |the mapping part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`view_profile` |the measurement part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`term` |the terminology part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`form` |the forms part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|`subform` |the forms part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|`symbol` |the calculations part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`calculation` |the calculations part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`verdict` |the compliance part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|`reference_material` |the measurement part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`test_point_set` |the measurement part |<<annex-a-constructs,Annex A>> clause 13 |v2
+|`competence_kind` |the compliance part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|`predicate` |the compliance part |<<annex-a-constructs,Annex A>> clause 14 |v2
+|`constraint` |the compliance part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|`discrepancy_record` |the workspace part |<<annex-a-constructs,Annex A>> clause 14 |v2
+|`state_machine` |the state-machines part |<<annex-a-constructs,Annex A>> clause 12 |v2
+|`requirement` |the compliance part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|`requirement_class` |the compliance part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|`instrument` |a supporting part |<<annex-a-constructs,Annex A>> clause 10 |v2
+|`attribute_definition` |a supporting part |<<annex-a-constructs,Annex A>> clause 10 |v2
+|`capability` |a supporting part |<<annex-a-constructs,Annex A>> clause 10 |v2
+|`behavior` |a supporting part |<<annex-a-constructs,Annex A>> clause 10 |v2
+|`condition_set` |a supporting part |<<annex-a-constructs,Annex A>> clause 10 |v2
+|`conformance_class` |the compliance part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|`conformance_test` |the compliance part |<<annex-a-constructs,Annex A>> clause 11 |v2
+|===
+
+The constructs of the v3 generations (v3, v3.1, v3.2) and the
+platform modules of <<platform-modules,clause 20>> are specified in
+this specification directly; they have no v2 home. The constructs
+the parser carries but Annex A does not yet register carry their
+triage dispositions in the kernel repository's visible
+`registry-triage.prl` list under the construction freeze
+(<<annex-a-constructs,Annex A>>'s preamble states the freeze).
+

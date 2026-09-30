@@ -11,6 +11,13 @@
 :mn-output-extensions: xml,html,pdf,rxl
 :local-cache-only:
 
+// The reconciliation status (phase 1 of the Primmel reconfiguration):
+// this part documents the v2 generation and remains published as the v2
+// record. The construct it documents is defined normatively in the
+// language part of the specification suite (language-v3, at the clause
+// Annex A records); where this part and the language part overlap, the
+// language part governs and this part is the record.
+
 include::sections/01-data-modelling-overview.adoc[]
 include::sections/02-classes.adoc[]
 include::sections/03-enumerations.adoc[]
