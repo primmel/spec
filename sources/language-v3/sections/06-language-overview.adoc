@@ -64,7 +64,23 @@ specification.
 
 ==== The surface and the vocabulary
 
-On that ground, Primmel INHERITS two:
+On that ground, the VOCABULARY comes first from the SMART
+documentation — the original guides that define what every MMEL
+primitive MEANS (normatively cited): the seven node types; the
+process node's fields, whose Input/Output are EVIDENCE; the provision
+(Actor, Modality, Required evidence); the two data units — the
+REGISTRY (a data structure that is also the place records are kept)
+and the DATA CLASS (structure only); the attribute (name, modality,
+cardinality, type, reference); the measurement variable types; the
+gateway and edge semantics; connections; mappings; view profiles. A
+primitive of this specification that the SMART documentation does not
+define is an EXTENSION, and must say so (<<semantic-basis-modes>>,
+below). The EVIDENCE LAW is the documentation's own, made normative:
+a process-test's output is evidence stored as a REGISTRY record, and
+a provision's fulfilment cites that record — no test output floats
+free; no evidence exists outside a register.
+
+On that ground and that vocabulary, Primmel INHERITS two:
 
 * **LutaML** (the LutaML Language Reference, the pinned edition —
   normatively cited in <<normative-references>>) is the data-modeling
@@ -72,7 +88,7 @@ On that ground, Primmel INHERITS two:
   cardinality, value restriction), enumerations, instances in the
   assignment form, references and inclusion, value types, and the
   serialization mappings. Every data-bearing construct in this
-  specification is LutaML's, in one of three declared modes:
+  specification is LutaML's, in one of three declared modes ([[semantic-basis-modes]]):
   **inherited** (the construct IS LutaML's; the clause cites the
   source), **refined** (LutaML's semantics hold with a declared
   refinement), or **extended** (no LutaML counterpart; the rationale

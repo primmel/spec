@@ -7,6 +7,11 @@ references, only the edition cited applies. For undated references, the
 latest edition of the referenced document (including any amendments)
 applies.
 
+* <<SMARTDOCS>>, _The SMART Standard guides_ (Model Specification;
+Modelling Methodology; Measurement Validation; Authoring; Mapping;
+Overview — the documented meanings of the MMEL primitives). The
+vocabulary source of Primmel (<<semantic-basis,6.2>>).
+
 * <<FOUNDATION>>, _The IS–HAS–DOES Modelling System: Foundation
 Volume_ (the eight terms, the operations, the closure rules, and the
 proofs). The semantic ground of Primmel (<<semantic-basis,6.2>>).
