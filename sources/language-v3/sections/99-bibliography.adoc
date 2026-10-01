@@ -1,6 +1,11 @@
 [[bibliography]]
 == Bibliography
 
+* [[LUTAML-LANG]] Ribose, _The LutaML Language Reference_, latest
+edition as pinned by this specification's Annex A.
+https://www.lutaml.com/
+* [[MMEL-SPEC]] Ribose, _MMEL: the Metanorma Element Modeling
+Language_ (the reconciled parts).
 * [[RFC2119]] Bradner, S., _Key words for use in RFCs to Indicate
 Requirement Levels_, BCP 14, RFC 2119, March 1997.
 

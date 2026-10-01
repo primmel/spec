@@ -7,6 +7,16 @@ references, only the edition cited applies. For undated references, the
 latest edition of the referenced document (including any amendments)
 applies.
 
+* <<LUTAML-LANG>>, _The LutaML Language Reference_ (the pinned
+edition recorded in Annex A). The data-modeling basis of Primmel
+(<<semantic-basis,6.2>>): packages, classes, attributes,
+enumerations, instances, references, value types, and the
+serialization mappings.
+* <<MMEL-SPEC>>, _MMEL: the Metanorma Element Modeling Language_
+(the reconciled parts: data model, forms, symbols, calculations,
+state machines, process model, measurement, terminology,
+compliance). The element basis of Primmel (<<semantic-basis,6.2>>).
+
 * <<RFC2119>>, _Key words for use in RFCs to Indicate Requirement Levels_,
 BCP 14, RFC 2119, March 1997.
 * <<RFC8174>>, _Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words_,

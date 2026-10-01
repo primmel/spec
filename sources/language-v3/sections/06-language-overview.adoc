@@ -18,6 +18,50 @@ transitions), never beside them;
 * the document of the standard is a reconstruction from the model, not the
 source of it.
 
+[[semantic-basis]]
+=== The semantic basis: LutaML and MMEL
+
+Primmel is not a new semantics. It INHERITS two:
+
+* **LutaML** (the LutaML Language Reference, the pinned edition —
+  normatively cited in <<normative-references>>) is the data-modeling
+  basis: packages, classes, attributes (name, type, definition,
+  cardinality, value restriction), enumerations, instances in the
+  assignment form, references and inclusion, value types, and the
+  serialization mappings. Every data-bearing construct in this
+  specification is LutaML's, in one of three declared modes:
+  **inherited** (the construct IS LutaML's; the clause cites the
+  source), **refined** (LutaML's semantics hold with a declared
+  refinement), or **extended** (no LutaML counterpart; the rationale
+  is stated).
+* **MMEL** (the MMEL element semantics — the reconciled parts:
+  data model, forms, symbols, calculations, state machines, process
+  model, measurement, terminology, compliance) is the element basis:
+  forms and their binding, symbols and their units, calculations and
+  their typed inputs/outputs and expression discipline, state
+  machines and their transitions and guards, the process dialect,
+  the measurement types, term entries, and provisions with their
+  modality. The same three modes apply, part by part.
+
+What Primmel ADDS — and the only places where this specification
+creates semantics rather than citing them — is the SMART layer:
+the subject anatomies and the definition/instance discipline, the
+evidence plane (attribute definitions with scope and origin,
+provenance, attestations and the certificate lineage), the validation
+plane (verdicts and their chains, conformance tests and their
+executable programs), the quantity and duality discipline, the
+power-type modelling relationships, and the composition and edition
+machinery of packages. Annex A records, for every construct, its
+basis and mode; a construct without a stated basis is a defect of
+this specification.
+
+The discipline the basis imposes: where LutaML or MMEL defines the
+semantics, this specification cites and conforms — it never
+restates in different words and never drifts; where Primmel extends,
+the extension states what it extends and why. The conformance suite
+carries the same discipline: an inherited construct's fixtures are
+the basis language's fixtures where they exist.
+
 [[tier-system]]
 === The tier system
 
