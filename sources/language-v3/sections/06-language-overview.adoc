@@ -80,6 +80,66 @@ a process-test's output is evidence stored as a REGISTRY record, and
 a provision's fulfilment cites that record — no test output floats
 free; no evidence exists outside a register.
 
+[[the-documented-vocabulary]]
+==== The documented vocabulary, realized
+
+Every documented primitive, its documented meaning, and the construct
+that realizes it. (Mode: **inherit** — the construct IS the primitive;
+**refine** — the documented semantics hold with a declared refinement.)
+
+[cols="2,3,2,1"]
+|===
+|Documented primitive |Documented meaning (SMART guides) |Primmel realization |Mode
+
+|Metadata |the model's identity; namespace = the global id |`package` |refine
+|Section |text kept for document generation |`text` blocks |refine
+|Term |term + admitted terms + definition + notes |`term` |inherit
+|Role |actor of a process/approval; approver |`role` |inherit
+|Reference |a clause citation, attachable to provisions, attributes, approvals |`reference` |refine (the URN discipline)
+|Link |URL / repo, with title and description |`link` |inherit
+|Multimedia |figure / video / 3D |`figure` |inherit
+|Table |2D array; the class view's schema IS a class definition |`table` |refine (the schema bridge)
+|Enum |a type's closed value list |`enum` |inherit
+|Mapping |A ⇒ B — fulfilling A satisfies B, not conversely |`map_profile` |inherit
+|Diagram |a model has many; a subprocess is another diagram |`process` (the canvas dialect) |refine
+|Node: Process |a process fulfilling its provisions |`process` |inherit
+|Node: Approval |an approval process |`approval` |inherit
+|Node: Gateway |conditional branching; no conditions = any path fulfils |`exclusive_gateway` |inherit
+|Node: Start event |one per diagram, no incoming |`start` |inherit
+|Node: End event |zero or many; required in an empty gateway path |`end` |inherit
+|Node: Timer event |a time period; with self-connection = repeat within N |`timer` |inherit
+|Node: Signal event |an external happening that triggers |`signalcatch` |inherit (a deprecation candidate — the guides themselves mark it unused)
+|Process field: Actor |the role who runs it |`process` actor → `role` |inherit
+|Process field: Input/Output |relevant EVIDENCE at the input/output phase |process inputs/outputs → registry records |refine (<<evidence-law,6.2.3>>)
+|Process field: Provision |MUST/SHALL/SHOULD/CAN/MAY statements |`provision` |inherit
+|Process field: Note |non-requirement statements |`note` |inherit
+|Process field: Tests |measurement validation |`conformance_test` |refine (the executable programs)
+|Registry |a data structure AND the place records are kept |`data_registry` |inherit
+|Data class |a data structure only |`class` |inherit
+|Attribute |name, modality, cardinality, type, reference |`class` attributes (<<lutaml-surface,12.2>>) |refine
+|Measurement variable |7 types; user-defined vs derived |`variable` + the measurement types |refine
+|View profile |parameterized view — externally set values |`view_profile` |inherit
+|===
+
+A construct of this specification that realizes no documented
+primitive is an EXTENSION (below); the minimalism audit
+(`TODO.reconfigure` file 12) is this table's inverse: every construct
+accounted for as primitive, composition, extension — or retracted.
+
+[[evidence-law]]
+==== The evidence law
+
+A process-test's OUTPUT is EVIDENCE stored as a REGISTRY record, and
+a provision's fulfilment cites that record. The loop is closed and
+total: the provision names its required evidence (Actor, Modality,
+Required evidence — the documented components); the process carries
+the test; the test's output is written as a record of the registry
+the evidence requirement names; the fulfilment cites that record with
+per-value provenance. **No test output floats free; no evidence
+exists outside a register.** The conformance clauses (10), the
+process clauses (11), and the data clauses (12) each carry their leg
+of this law; the checker enforces it.
+
 On that ground and that vocabulary, Primmel INHERITS two:
 
 * **LutaML** (the LutaML Language Reference, the pinned edition —
