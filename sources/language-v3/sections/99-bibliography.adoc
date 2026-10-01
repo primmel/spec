@@ -1,6 +1,10 @@
 [[bibliography]]
 == Bibliography
 
+* [[FOUNDATION]] Ribose, _The IS–HAS–DOES Modelling System: Foundation
+Volume_ — the eight terms (three relations, five sorts), the three
+operations, the three closure rules, and the proofs of closure,
+completeness, and extensibility.
 * [[LUTAML-LANG]] Ribose, _The LutaML Language Reference_, latest
 edition as pinned by this specification's Annex A.
 https://www.lutaml.com/
