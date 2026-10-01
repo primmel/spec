@@ -7,6 +7,10 @@ references, only the edition cited applies. For undated references, the
 latest edition of the referenced document (including any amendments)
 applies.
 
+* <<FOUNDATION>>, _The IS–HAS–DOES Modelling System: Foundation
+Volume_ (the eight terms, the operations, the closure rules, and the
+proofs). The semantic ground of Primmel (<<semantic-basis,6.2>>).
+
 * <<LUTAML-LANG>>, _The LutaML Language Reference_ (the pinned
 edition recorded in Annex A). The data-modeling basis of Primmel
 (<<semantic-basis,6.2>>): packages, classes, attributes,
