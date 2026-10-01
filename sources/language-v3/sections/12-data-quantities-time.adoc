@@ -4,31 +4,72 @@
 [[data-classes]]
 === Data classes, enumerations, and registries
 
-A `class` declares a record shape; the `#data` suffix marks a class as
-registerable:
+[[lutaml-surface]]
+The attribute surface is LUTAML'S (<<semantic-basis,6.2>>, the
+data-modeling surface of the object/property/value axis): an
+attribute is `attribute <name>, <Type> { <facets> }` — the name and
+the type separated by a comma, the facets in a block — with the
+facets LutaML defines plus the two the SMART documentation adds to
+the attribute (modality and reference):
 
 [source,prl]
 ----
-class BeanLot#data {
-  lot_id:           string   { definition "Supplier lot identifier" modality SHALL }
-  received_on:      datetime { definition "Date received" modality SHALL }
-  certified_organic: boolean { definition "Certified organic" modality MAY }
+class LoadCellSample {
+  attribute serial_number, String { definition "The manufacturer's serial number" modality SHALL }
+  attribute e_max, Mass { definition "Maximum capacity" cardinality 1..1 }
+  attribute accuracy_class, AccuracyClass { values AccuracyClass }
 }
-class RoastProfile {
-  target_level: RoastLevel { definition "Target roast level" }
+enum AccuracyClass {
+  value "A" { definition "the special class" }
+  value "B"
+  value "C"
+  value "D"
 }
 ----
 
-A class without `#data` is a helper class: a reusable complex type that
-lives as a field inside other classes and cannot be registered. A field
-declaration is `<name>[: <type>][<cardinality>] { <properties> }`; field
-properties are `definition` and `modality` (<<modality-vocabulary,11.6>>)
-at minimum. The cardinality form is `[<min>..<max>]` with `*` for
-unbounded. An `enum` declares a closed value set, each value with an
-optional `definition` block. A `data_registry` declares a named store of
-records of one data class (facets `title`, `data_class`); processes read
-and write registries through their `reference_data_registry` and `output`
-facets (<<process-subject,12.1>>).
+The facets: `definition` (LutaML), `cardinality <min>..<max>` with `*`
+for unbounded (LutaML), `values` — a closed value set inline or an
+`enum` reference (LutaML), `modality` (the SMART documentation: the
+attribute carries requirement modality), and `reference` (the SMART
+documentation: a clause citation). An attribute of an enumeration
+type renders as the closed set; a quantity-valued attribute names its
+unit and kind through the quantity register.
+
+A class declares a record shape; the `#data` suffix marks a class as
+registerable. A class without `#data` is a helper class: a reusable
+complex type that lives as an attribute inside other classes and
+cannot be registered — the SMART documentation's DATA CLASS. A class
+marked `#data`, or referenced by a `data_registry`, is the
+documentation's REGISTRY data structure: a structure AND the place
+records are kept (<<evidence-law,6.2>>).
+
+An `instance` states values in LUTAML'S ASSIGNMENT FORM — `attribute
+= value`, one per line — with Primmel's instantiation refinements
+riding their declared facets:
+
+[source,prl]
+----
+instance smp-001 {
+  of LoadCellSample
+  serial_number = "HBK-001"
+  e_max = 2.2 t
+  accuracy_class = "C"
+}
+----
+
+[NOTE]
+--
+The v2 field dialect `<name>: <type> [<cardinality>] { … }` migrates
+mechanically to the LutaML form (`name: T [0..1] { … }` →
+`attribute name, T { cardinality 0..1 … }`); the migration tooling
+ships with the kernel (phase 2 of the full flow), and the v2 dialect
+is rejected after the migration window.
+--
+
+A `data_registry` declares a named store of records of one data class
+(facets `title`, `data_class`); processes read and write registries
+through their `reference_data_registry` and `output` facets
+(<<process-subject,12.1>>).
 
 [[field-types]]
 === Field types
