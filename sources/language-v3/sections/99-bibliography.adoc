@@ -1,6 +1,9 @@
 [[bibliography]]
 == Bibliography
 
+* [[SMARTDOCS]] BSI/Ribose, _The SMART Standard guides_, 2021–2022:
+_Model Specification_, _Modelling Methodology_, _Measurement
+Validation_, _Authoring_, _Mapping_, _Overview_.
 * [[FOUNDATION]] Ribose, _The IS–HAS–DOES Modelling System: Foundation
 Volume_ — the eight terms (three relations, five sorts), the three
 operations, the three closure rules, and the proofs of closure,
