@@ -51,105 +51,105 @@ changes no v3.1 construct.
 
 === The construct registry
 
-[cols="2,2,2,1,1", options="header"]
+[cols="2,2,2,1,1,3", options="header"]
 |===
-|Keyword |Aliases |Collection |Since |Clause
+|Keyword |Aliases |Collection |Since |Clause |Basis (mode)
 
-|`promise_set` | |promiseSets |v3.3 |20.1
-|`identity_slot` | |identitySlots |v3.3 |20.2
-|`application_declaration` | |applicationDeclarations |v3.3 |20.3
-|`common_test_condition` | |commonTestConditions |v3.3 |20.4
-|`test_report_skeleton` | |testReportSkeletons |v3.3 |20.5
-|`test_report_checklist` | |testReportChecklists |v3.3 |20.6
-|`certificate_template` | |certificateTemplates |v3.3 |20.7
-|`aspect` | |aspects |v3.3 |20.8
-|`evaluation_profile` | |evaluationProfiles |v3.3 |20.9
-|`evaluation_dimensions` | |evaluationDimensions |v3.3 |20.10
-|`sample_selection_rule` | |sampleSelectionRules |v3.3 |20.11
-|`lab_selection_criterion` | |labSelectionCriteria |v3.3 |20.12
-|`specimen_governance_rule` | |specimenGovernanceRules |v3.3 |20.13
-|`calculation_context` | |calculationContexts |v3.3 |20.14
-|`part_annex` | |partAnnexes |v3.3 |20.15
-|`formula_note` | |formulaNotes |v3.3 |20.16
-|`framework_document` | |frameworkDocuments |v3.3 |20.17
-|`auto_inclusion` | |autoInclusions |v3.3 |20.18
-|`document_precedence` | |documentPrecedences |v3.3 |20.19
-|`document_module` | |documentModules |v3.3 |20.20
-|`declaration_kind` | |declarationKinds |v3.3 |20.21
-|`declaration_status` | |declarationStatuses |v3.3 |20.22
-|`declaration_gate` | |declarationGates |v3.3 |20.23
-|`governance_organ` | |governanceOrgans |v3.3 |20.24
-|`participant_kind` | |participantKinds |v3.3 |20.25
-|`scheme_definition` | |schemeDefinitions |v3.3 |20.26
-|`scheme_lifecycle` | |schemeLifecycles |v3.3 |20.27
-|`scheme_type` | |schemeTypes |v3.3 |20.28
-|`scheme_activity_kind` | |schemeActivityKinds |v3.3 |20.29
-|`decision_rule` | |decisionRules |v3.3 |20.30
-|`verification_pathway` | |verificationPathways |v3.3 |20.31
-|`informative_annex` | |informativeAnnexes |v3.3 |20.32
-|`attestation` | |attestations |v3.3 |19
-|`role` | |roles |v2 |12
-|`provision` | |provisions |v2 |11
-|`process` | |processes |v2 |12
-|`approval` | |approvals |v2 |12
-|`class` | |data classes |v2 |13
-|`enum` | |enums |v2 |13
-|`data_registry` | |registries |v2 |13
-|`variable` | |variables |v2 |13
-|`measurement` | |variables |v2 |13
-|`exclusive_gateway` | |gateways |v2 |12
-|`start` |`start_event` |events |v2 |12
-|`end` |`end_event` |events |v2 |12
-|`signalcatch` |`signal_catch_event` |events |v2 |12
-|`timer` |`timer_event` |events |v2 |12
-|`reference` | |references |v2 |14
-|`canvas` |`subprocess` |pages |v2 |12
-|`note` | |notes |v2 |13
-|`table` | |tables |v2 |13
-|`figure` | |figures |v2 |13
-|`link` | |links |v2 |13
-|`comment` | |comments |v2 |13
-|`map_profile` | |map profiles |v2 |12
-|`view_profile` |`view` |view profiles |v2 |12
-|`term` | |terms |v2 |13
-|`form` | |forms |v2 |11
-|`subform` | |subforms |v2 |11
-|`symbol` | |symbols |v2 |13
-|`calculation` | |calculations |v2 |13
-|`verdict` | |verdicts |v2 |11
-|`reference_material` | |reference materials |v2 |13
-|`test_point_set` | |test point sets |v2 |13
-|`competence_kind` | |competence kinds |v2 |11
-|`predicate` | |predicates |v2 |14
-|`constraint` | |constraints |v2 |11
-|`discrepancy_record` | |discrepancy records |v2 |14
-|`state_machine` | |state machines |v2 |12
-|`requirement` | |requirements |v2 |11
-|`requirement_class` | |requirement classes |v2 |11
-|`instrument` | |instruments |v2 |10
-|`attribute_definition` | |attribute definitions |v2 |10
-|`capability` | |capabilities |v2 |10
-|`behavior` | |behaviors |v2 |10
-|`condition_set` | |condition sets |v2 |10
-|`conformance_class` | |conformance classes |v2 |11
-|`conformance_test` | |conformance tests |v2 |11
-|`subject` | |subjects |v3 |10
-|`instance` | |instances |v3 |10
-|`artifact_definition` | |artifact definitions |v3 |10
-|`artifact_instance` | |artifact instances |v3 |10
-|`quantity_register` | |quantity registers |v3 |13
-|`dual` | |duals |v3 |13
-|`activity_archetype` | |activity archetypes |v3 |12
-|`connector_profile` | |connector profiles |v3 |13
-|`monitor` | |monitors |v3 |13
-|`passport` | |passports |v3 |13
-|`invariant` | |invariants |v3 |13
-|`test_sequence` | |test sequences |v3 |13
-|`formulas_used` | |formulas-used registers |v3 |13
-|`text` | |texts |v3 |15
-|`dataspace` | |dataspaces |v3.1 |19
-|`policy` | |policies |v3.1 |19
-|`dimension` | |dimensions |v3.2 |10
+|`activity_archetype` | | activity archetypes | v3 | 12 | extension: The OIML-CS framework (clause 20)
+|`application_declaration` | | applicationDeclarations | v3.3 | 20.3 | extension: The scheme application documents
+|`approval` | | approvals | v2 | 12 | inherit: MMEL approval node
+|`artifact_definition` | | artifact definitions | v3 | 10 | composition: Rho of a produced output-kind
+|`artifact_instance` | | artifact instances | v3 | 10 | composition: A produced V-bundle
+|`aspect` | | aspects | v3.3 | 20.8 | composition: Named HAS grouping
+|`attestation` | | attestations | v3.3 | 19 | extension: The certificate lineage
+|`attribute_definition` | | attribute definitions | v2 | 10 | extension: The evidence discipline over properties
+|`auto_inclusion` | | autoInclusions | v3.3 | 20.18 | retract-candidate: Expressed by uses composition
+|`behavior` | | behaviors | v2 | 10 | composition: Named DOES grouping
+|`calculation` | | calculations | v2 | 13 | composition: T over values
+|`calculation_context` | | calculationContexts | v3.3 | 20.14 | extension: Clause 20 register
+|`canvas` | `subprocess` | pages | v2 | 12 | inherit: MMEL diagram
+|`capability` | | capabilities | v2 | 10 | composition: Named IS grouping
+|`certificate_template` | | certificateTemplates | v3.3 | 20.7 | extension: The print projection contract
+|`class` | | data classes | v2 | 13 | inherit: LutaML class / MMEL data class
+|`comment` | | comments | v2 | 13 | composition: Attached prose
+|`common_test_condition` | | commonTestConditions | v3.3 | 20.4 | extension: Clause 20 register
+|`competence_kind` | | competence kinds | v2 | 11 | extension: The OIML-CS framework (clause 20)
+|`condition_set` | | condition sets | v2 | 10 | composition: V-restriction
+|`conformance_class` | | conformance classes | v2 | 11 | composition: Provision grouping
+|`conformance_test` | | conformance tests | v2 | 11 | inherit: MMEL measurement validation test
+|`connector_profile` | | connector profiles | v3 | 13 | composition: External interface binding to P/V
+|`constraint` | | constraints | v2 | 11 | composition: Predicate over P/V
+|`data_registry` | | registries | v2 | 13 | inherit: MMEL registry
+|`dataspace` | | dataspaces | v3.1 | 19 | composition: Guard over rho(T)
+|`decision_rule` | | decisionRules | v3.3 | 20.30 | extension: The OIML-CS framework (clause 20)
+|`declaration_gate` | | declarationGates | v3.3 | 20.23 | extension: The OIML-CS framework (clause 20)
+|`declaration_kind` | | declarationKinds | v3.3 | 20.21 | extension: The OIML-CS framework (clause 20)
+|`declaration_status` | | declarationStatuses | v3.3 | 20.22 | retract-candidate: Derivable from the edition register
+|`dimension` | | dimensions | v3.2 | 10 | composition: P with closed V-set (applicability)
+|`discrepancy_record` | | discrepancy records | v2 | 14 | composition: A fact about a fact
+|`document_module` | | documentModules | v3.3 | 20.20 | extension: The OIML-CS framework (clause 20)
+|`document_precedence` | | documentPrecedences | v3.3 | 20.19 | extension: The edition lineage (which document governs)
+|`dual` | | duals | v3 | 13 | extension: Designed/exhibited duality
+|`end` | `end_event` | events | v2 | 12 | inherit: MMEL end event
+|`enum` | | enums | v2 | 13 | inherit: LutaML enum
+|`evaluation_dimensions` | | evaluationDimensions | v3.3 | 20.10 | extension: Clause 20 register
+|`evaluation_profile` | | evaluationProfiles | v3.3 | 20.9 | extension: Clause 20 register
+|`exclusive_gateway` | | gateways | v2 | 12 | inherit: MMEL gateway node
+|`figure` | | figures | v2 | 13 | inherit: MMEL multimedia
+|`form` | | forms | v2 | 11 | composition: MMEL form (element semantics)
+|`formula_note` | | formulaNotes | v3.3 | 20.16 | extension: Clause 20 register
+|`formulas_used` | | formulas-used registers | v3 | 13 | retract-candidate: Derivable
+|`framework_document` | | frameworkDocuments | v3.3 | 20.17 | extension: The OIML-CS framework (clause 20)
+|`governance_organ` | | governanceOrgans | v3.3 | 20.24 | extension: The OIML-CS framework (clause 20)
+|`identity_slot` | | identitySlots | v3.3 | 20.2 | extension: Scheme identity properties
+|`informative_annex` | | informativeAnnexes | v3.3 | 20.32 | extension: The OIML-CS framework (clause 20)
+|`instance` | | instances | v3 | 10 | composition: O with HAS (LutaML assignment form)
+|`instrument` | | instruments | v2 | 10 | composition: Subject (v2 spelling)
+|`invariant` | | invariants | v3 | 13 | composition: Always-holds predicate
+|`lab_selection_criterion` | | labSelectionCriteria | v3.3 | 20.12 | extension: Clause 20 register
+|`link` | | links | v2 | 13 | inherit: MMEL link
+|`map_profile` | | map profiles | v2 | 12 | inherit: MMEL mapping
+|`measurement` | | variables | v2 | 13 | composition: V with provenance
+|`monitor` | | monitors | v3 | 13 | composition: Standing predicate over a trajectory
+|`note` | | notes | v2 | 13 | inherit: MMEL note
+|`part_annex` | | partAnnexes | v3.3 | 20.15 | extension: The OIML-CS framework (clause 20)
+|`participant_kind` | | participantKinds | v3.3 | 20.25 | extension: The OIML-CS framework (clause 20)
+|`passport` | | passports | v3 | 13 | composition: The attestation bundle projection
+|`policy` | | policies | v3.1 | 19 | composition: Guard rules over rho(T)
+|`predicate` | | predicates | v2 | 14 | composition: Predicate
+|`process` | | processes | v2 | 12 | inherit: MMEL process node
+|`promise_set` | | promiseSets | v3.3 | 20.1 | extension: The claim set the certificate projects
+|`provision` | | provisions | v2 | 11 | inherit: MMEL provision
+|`quantity_register` | | quantity registers | v3 | 13 | extension: The quantity type system
+|`reference` | | references | v2 | 14 | inherit: MMEL reference
+|`reference_material` | | reference materials | v2 | 13 | inherit: MMEL reference / table (the reference-material carrier)
+|`requirement` | | requirements | v2 | 11 | composition: MMEL provision + scope
+|`requirement_class` | | requirement classes | v2 | 11 | composition: MMEL provision scope
+|`role` | | roles | v2 | 12 | inherit: MMEL role
+|`sample_selection_rule` | | sampleSelectionRules | v3.3 | 20.11 | extension: Clause 20 register
+|`scheme_activity_kind` | | schemeActivityKinds | v3.3 | 20.29 | extension: The OIML-CS framework (clause 20)
+|`scheme_definition` | | schemeDefinitions | v3.3 | 20.26 | extension: The OIML-CS framework (clause 20)
+|`scheme_lifecycle` | | schemeLifecycles | v3.3 | 20.27 | extension: The OIML-CS framework (clause 20)
+|`scheme_type` | | schemeTypes | v3.3 | 20.28 | extension: The OIML-CS framework (clause 20)
+|`signalcatch` | `signal_catch_event` | events | v2 | 12 | inherit: MMEL signal event (docs: deprecation candidate)
+|`specimen_governance_rule` | | specimenGovernanceRules | v3.3 | 20.13 | extension: Clause 20 register
+|`start` | `start_event` | events | v2 | 12 | inherit: MMEL start event
+|`state_machine` | | state machines | v2 | 12 | composition: T-decomposition of dynamics
+|`subform` | | subforms | v2 | 11 | composition: MMEL subform
+|`subject` | | subjects | v3 | 10 | inherit: IS/HAS/DOES over O
+|`symbol` | | symbols | v2 | 13 | composition: P with unit/kind
+|`table` | | tables | v2 | 13 | inherit: MMEL table
+|`term` | | terms | v2 | 13 | inherit: MMEL term
+|`test_point_set` | | test point sets | v2 | 13 | composition: V-set of operating points
+|`test_report_checklist` | | testReportChecklists | v3.3 | 20.6 | extension: Clause 20 register
+|`test_report_skeleton` | | testReportSkeletons | v3.3 | 20.5 | extension: Clause 20 register
+|`test_sequence` | | test sequences | v3 | 13 | composition: Rho(T)-ordering
+|`text` | | texts | v3 | 15 | inherit: MMEL section
+|`timer` | `timer_event` | events | v2 | 12 | inherit: MMEL timer event
+|`variable` | | variables | v2 | 13 | inherit: MMEL measurement variable
+|`verdict` | | verdicts | v2 | 11 | composition: Re-runnable function over facts
+|`verification_pathway` | | verificationPathways | v3.3 | 20.31 | extension: Clause 20 register
+|`view_profile` | `view` | view profiles | v2 | 12 | inherit: MMEL view profile
 |===
 
 === Registry notes
