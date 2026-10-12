@@ -139,3 +139,53 @@ textual fixed point.
 The fixed-point property is not an aspiration: the reference
 implementation's test suite proves it on the shipped packages, and the
 round-trip gates of the reference usage fail on any drift.
+
+[[wire-mappings]]
+=== Declared wire mappings
+
+The wire form of a class — which element, attribute, or key carries each
+attribute when the model serializes to a data format — is DECLARED, never
+implicit and never hand-coded. The `mapping` construct (LML RS 3001
+§Serialization, RS 3010 §Mapping blocks; <<annex-a-constructs,Annex A>>)
+binds a class to its wire form per format:
+
+[source,prl]
+----
+class Ceramic {
+  datum location : String
+  datum kiln : String
+}
+
+mapping xml Ceramic {
+  element "ceramic"
+  namespace CeramicsNs
+  map_element "location" location
+  map_attribute "kiln" kiln
+  map_content notes
+}
+
+mapping yaml Ceramic {
+  map "full-name" location
+  render_nil false
+}
+----
+
+Rules:
+
+. `Format` is one of `xml`, `yaml`, `json`, `toml`, `csv`; one mapping
+per class per format; a second mapping for the same pair is a checker
+error (C164).
+. the xml facets are the LML surface: `element`, `namespace` (a declared
+namespace name, <<namespace-declarations,9.6>>), `map_element`,
+`map_attribute`, `map_content`, `mixed_content`; the key-value formats
+use `map` (wire name to attribute), `map_key to_instance`,
+`map_value to_instance/as_attribute`, and `render_nil`.
+. the compiler lowers declared mappings into the serialization profile
+the kernel executes; serialization NEVER consults hand-written
+conversion code — the declared mapping is the only wire contract
+(checker rule C164: a class serialized by a format with no declared
+mapping, or by conversion code the checker can see, is an error).
+. this plane is distinct from the model-mapping artifact: a `.prm` file
+(<<prm-format,16.4>>) maps one MODEL to another (the mapper plane); a
+`mapping` block declares one CLASS's wire form (the serialization
+plane). The shared word carries two jobs; the artifacts never mix.

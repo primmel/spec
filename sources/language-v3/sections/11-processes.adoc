@@ -86,6 +86,41 @@ Flow edges chain: `a -> b -> c`. An optional `{ when "ocl{...}" }` body
 conditions the last hop of a chain; at a gateway the first matching edge
 in document order wins, and the unconditioned edge is the default.
 
+==== Step signatures and the executor dissolution
+
+Every step carries a SIGNATURE: named inputs in, named outputs computed.
+The output signature is the step's declared product; later steps and
+calculations consume only named outputs, through the `binding` edge
+(a named source — a step output, a reading field, or a declared
+parameter — to a named input). The process is a typed dataflow, not a
+checklist. A step that never ran has no outputs; a run missing a
+step's outputs is INADMISSIBLE (checker C160, signature coverage).
+
+Step flavors are one primitive distinguished by what the outputs ARE:
+conditioning (named setpoints in, condition assertions out, the
+completion checked over the conditions log; downstream steps `require`
+the assertions), measurement (readings), computation (derived values),
+decision (branches).
+
+The `executor machine | actor` vocabulary is RETIRED. The step names
+its `role` — the accountable actor, which never disappears (a rig's
+verdict is the laboratory's verdict; a service's signature is the
+issuing authority's). The RUN binds an executor that acts-AS the role,
+carrying qualification evidence appropriate to its kind: a person
+carries accreditation, a rig its calibration certificate (the
+`TestRunEquipment` cal-cert precedent), an API a service
+qualification, and a DIGITAL TWIN its twin-validation attestation — a
+twin is itself a subject of <<subject-model,clause 10>> whose claims
+are validated against the physical rig, so the loop applies to its own
+executors. The datum `origin` axis (declared, design-fixed, observed,
+computed) is epistemic and unaffected: a twin-measured reading is
+still observed.
+
+A `binding { from <named-source> to <named-input> }` entry is the one
+dataflow edge; it dissolves the form-level `calculation_bindings`
+rename maps. The `calls { with { in ... out ... } }` form is its
+process-call projection (C74, C75, C76 unchanged).
+
 [[events-and-gateways]]
 === Events and gateways
 
