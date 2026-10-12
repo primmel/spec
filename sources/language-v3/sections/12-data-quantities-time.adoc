@@ -177,13 +177,17 @@ numbers), `profiles { ... }` (named row selections), `dimension` binding,
 `overrides`, and `binding`. A `symbol` declares a typed, unit-aware formal
 symbol: `type` is a closed vocabulary, parse-enforced (`number`,
 `integer`, `string`, `boolean`, `enum`, `collection`, `array`), with
-`unit`, `latex`, `values`, `series`, `kind`, `quantity_kind`, `origin`,
+`unit`, `values`, `series`, `kind`, `quantity_kind`, `origin`,
 and the linking facets `attribute`, `calculation`, and `profile`.
+The `latex` facet is RETIRED: a per-symbol glyph is derived
+presentation the math engine renders, never model semantics.
 
 A `calculation` declares a named computation: `inputs { ... }`,
-`output { ... }`, and one of the calculation forms, `expression`
-(an embedded expression), `lookup` (a table lookup with `key`), or
-`profile` (a profile reference), with
+`output { ... }`, and one of the calculation forms, `math`
+(declared math in a declared notation, <<calculation-math,13.x>> —
+the form all new calculations use), `expression` (the retired OCL
+surface, read-only for the migration window), `lookup` (a table
+lookup with `key`), or `profile` (a profile reference), with
 `params { param <name>: <type> { ... } }`, `variable` bindings, and
 provenance.
 
@@ -381,3 +385,88 @@ access-class content blocks (`public`, `restricted`, `authority`), which
 are fail-closed at parse: an unknown block-valued keyword is a parse
 error, so a misspelt access class never parses into content no class
 serves (C86, C87).
+
+[[calculation-math]]
+==== The calculation math: declared notation, declared symbols
+
+Math is NOT in OCL. A calculation's formula is DECLARED MATH, in a
+declared notation, bound to declared symbols. The `expression "ocl{…}"`
+form is retired for calculations (checks keep OCL — boolean logic is
+logic, not math):
+
+[source,prl]
+----
+symbol load_v {
+  type number
+  quantity_kind si:dimensionless
+  unit si:1
+  render latex "L_{v}"
+  render asciimath "L_v"
+}
+
+symbol mpe {
+  type number
+  quantity_kind si:dimensionless
+  unit si:1
+  render latex "mathrm{MPE}"
+}
+
+calculation mpe_tiers {
+  math {
+    notation asciimath
+    formula "p_LC * factor(load_v)"
+  }
+  inputs {
+    load_v : number { unit si:1 }
+    p_lc : number { unit si:1 }
+  }
+  output : number { unit si:1 symbol mpe }
+  ref derives-from "urn:oiml:pub:r:60-1:2021#clause-5.3.2"
+}
+----
+
+Rules:
+
+. the `math` block carries `notation` — one of `asciimath`, `latex`,
+`unicodemath`, `mathml`, `omml` (parse-enforced) — and `formula`
+(a quoted string; for the XML notations, a block payload). The formula
+MUST parse in its declared notation under a Plurimath-conformant
+engine; the reference engine is plurimath-ts (C166).
+. every identifier appearing in the formula is a DECLARED symbol bound
+to the calculation — an input, the output, or a declared constant
+(C165). The formula's symbols resolve by name; an undeclared
+identifier in math is a checker error, never a silent variable.
+. inputs and output bind the symbol registry: a signature entry's
+`symbol` facet names a declared `symbol` construct (which carries the
+`latex` glyph, `quantity_kind`, `unit`); the entry's own typing facets
+must agree with the symbol's (C115). One output, exactly one; inputs
+one or more.
+. the OUTPUT SYMBOL is the result's address: downstream calculations
+bind it as an input, steps bind it through the binding edge
+(<<process-steps,12.2>>), forms bind it into fields, evidence records
+carry it. Results are read out, reused, and linked BY SYMBOL — the
+symbol is the link.
+. units and quantity kinds reference AUTHORITATIVE registries only:
+`unit unitsdb:degC`, `quantity_kind si:mass` — the namespace prefix is
+a CLOSED, parse-enforced vocabulary: `si` (the digital SI framework /
+D-SI) and `unitsdb` (NIST UnitsDB). No package invents a unit
+namespace; a quantity the registries do not carry is expressed as a
+combination of the units they do (a ratio of masses carries
+`quantity_kind si:dimensionless, unit si:1`), and a genuinely novel
+unit is contributed to the authoritative registry, never declared
+locally (C167). The package-level quantity register no longer DECLARES
+units; it carries the usage set and the correspondences
+(<<correspondence-annotations,19.4>>).
+. rendering HINTS are declared, per notation, with the notation NAMED:
+`render latex "L_{v}"`, `render asciimath "L_v"` — zero or more per
+symbol, the notation parse-enforced. The hint is presentation data
+(it names its notation, so it is useable), consumed by the math engine
+when it renders the formula in that notation; absent hints fall to the
+engine's default rendering of the identifier. The retired bare
+`latex` facet carried no notation and no form — that is why it was a
+primitive smell; the render statement is neither.
+. the declared notation of a formula is authoritative and round-trips
+verbatim; MathML is the interchange pivot.
+. the `lookup` and `profile` calculation forms are unchanged; a
+lookup's tier data and a profile's selections bind symbols the same
+way.

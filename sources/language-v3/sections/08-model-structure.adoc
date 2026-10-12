@@ -45,7 +45,10 @@ Packages carry their version in the manifest (<<package-manifest,9.3>>).
 
 `metadata { ... }`:: the singleton metadata block. Facets: `title`,
 `shortname`, `author`, `schema`, `namespace`, `edition`, each a single
-value.
+value. `schema` is DECLARATIVE — the qualified bare token
+`schema primmel:0.1` (`<registry>:<version>`, no quotes); the quoted
+string form (`schema "Primmel 0.1"`) is retired prose and parses only
+through the migration window.
 
 `package { ... }`:: the package manifest, a singleton block specified in
 <<package-manifest,9.3>>.
@@ -166,3 +169,46 @@ does not register, parses under an older conforming parser with the unknown
 material absent and the known material intact. Authors of documents meant
 for one language version SHOULD validate in strict mode, so that a
 misspelt keyword is caught rather than skipped.
+
+[[namespace-declarations]]
+=== Namespace declarations
+
+A package may declare namespaces — named uri + prefix pairs, the LML
+surface (RS 3001 §Namespacing) — in its scope:
+
+[source,prl]
+----
+namespace CeramicsNs {
+  uri "http://example.com/ceramics"
+  prefix "cer"
+}
+----
+
+Rules:
+
+. a namespace block carries `uri` (1), `prefix` (0..1), and the
+`default` marker (0..1); a prefix-less namespace marked `default` is the
+default namespace of the package's wire forms (<<wire-mappings,16.6>>);
+. the metadata block's `namespace` facet (<<special-declarations,9.2>>)
+remains the model's namespace STRING; when the package also declares
+namespace blocks, the string MUST name one of them (C162) — the string
+is the reference, the block is the declaration;
+. wire mappings reference namespaces by declared name; a mapping that
+references an undeclared namespace is a checker error (C162).
+
+[[prose-quarantine]]
+=== The prose quarantine
+
+Primmel is a data modelling language: semantics are carried only by
+typed, useable fields. Human-language text appears in exactly two
+places: a `label` facet (the short display string — itself data, it is
+what prints) and a `description { ... }` block (the quarantine). The
+bare-string spellings `definition`, `summary`, `statement`,
+`criteria`, and `response` are retired surface forms; their content
+migrates — the structured part into typed fields, the prose part into
+a description block. Citations are never prose: a reference is a typed
+`ref` entry resolving to a urn (<<references-and-relations,clause 14>>);
+a free-text reference is a checker error (C158). The deletion test is
+normative: a package with every description block removed parses,
+checks, links, runs, and attests identically — if any check result
+changes, the package smuggles semantics in prose (C158).

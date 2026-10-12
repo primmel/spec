@@ -468,3 +468,39 @@ text and modality, while a requirement additionally binds subject aspect
 paths, carries a formal limit, and joins the coverage calculus. New
 modelling SHOULD author requirements; provisions remain for the v2
 surface and for standards whose provisions bind nothing.
+
+[[check-primitive]]
+=== The check primitive
+
+"Evaluate an expression and compare" is ONE construct. The surface
+spellings — a requirement's `limit { expression "ocl{…}" }`, an
+acceptance_criteria triple (type/operator/threshold), a process's
+`validate_measurement "…"` string, a form's `pass_fail { pass_if … }`,
+and the `constraint` construct — are consolidated surface forms over
+the one `check`:
+
+[source,prl]
+----
+check within_mpe_check {
+  inputs { errors : number { unit v } mpe : number { unit v } }
+  expression "ocl{every(e | e <= mpe)}"
+  operator lte
+  threshold { symbol mpe }
+  ref derives-from "urn:oiml:pub:r:60-1:2021#clause-5.3.2"
+}
+----
+
+Rules:
+
+. a check declares named inputs (C160: signature coverage — every
+consumed name is produced by a binding source), a boolean expression
+in the OCL dialect (logic, not math — calculations are declared math,
+<<calculation-math,13.x>>), and optionally an operator + threshold
+pair (the acceptance-criteria sugar);
+. every identifier in the expression is a declared input, an output
+of a bound step or calculation, or a declared symbol (C158, C165);
+. the retired spellings parse unchanged and fold into the `checks`
+collection; a conforming serializer emits the canonical `check` form;
+. verdicts and acceptance decisions (<<verdicts,11.4>>,
+<<acceptance-decisions,11.6>>) READ checks; they never re-evaluate
+prose.

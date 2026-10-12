@@ -254,3 +254,50 @@ verdicts issue" — is a reverse-index traversal from the changed element,
 not a walk over the authored trees. Because the projection is one-way, a
 consumer that needs the authored form reads the package; the graph is
 the index, never the source.
+
+[[validation-contract]]
+=== The validation contract and the new-rule register
+
+The checker's mandate is specified, not incidental. Its rule families
+map the LML validation families and exceed them (the exceeded set is
+Primmel's strictly-greater side): attribute constraints (types,
+cardinalities, defaults, nil policy — plus units and quantity kinds),
+class constraints (record shapes, `#data` pairing), reference validity
+(urn resolution, binding closure) — plus provisions, coverage,
+composition, and the loop's own rules. The LML-alignment revision
+adds:
+
+[cols="1,3", options="header"]
+|===
+|Rule |Statement
+
+|C158 |`prose-quarantine`: no bare string field outside a `label`, a
+`description` block, an expression, or a urn; a free-text reference is
+an error; the DELETION TEST is normative (all descriptions removed ⇒
+identical check, link, run, and attest results).
+|C159 |`urn-only-refs`: every reference resolves to a declared urn; the
+`source { doc "…", clause "" }` free-text form is retired.
+|C160 |`signature-closure`: every name an expression, check, step, or
+calculation consumes is produced by a declared output, reading, or
+parameter — across the composed closure.
+|C161 |`check-surface`: the retired boolean spellings fold into the
+`checks` collection; the serializer emits the canonical form.
+|C162 |`namespace-coherence`: the metadata namespace string names a
+declared namespace block; wire mappings reference declared namespaces.
+|C163 |`change-levels`: model-diff output classifies releases — removal
+or rename (class, attribute, enum value), type or cardinality change:
+major; additive: minor; fixtures and documentation: patch — and the
+co-release rule: package version, conformance corpus, and grammar
+artifact agree before a release.
+|C164 |`wire-mapping-coverage`: a class serialized to a format carries
+a declared mapping for that format; serialization never consults
+hand-written conversion.
+|C165 |`math-symbols-declared`: every identifier in a calculation's
+formula is a bound symbol (input, output, or declared constant).
+|C166 |`math-parses`: the formula parses in its declared notation under
+a Plurimath-conformant engine (the reference: plurimath-ts).
+|C167 |`qualified-unit-reference`: a unit or quantity_kind reference
+uses the closed authoritative namespaces `si:` (the digital SI
+framework) or `unitsdb:` (NIST UnitsDB); anything else is a parse
+error. A render hint names its notation.
+|===

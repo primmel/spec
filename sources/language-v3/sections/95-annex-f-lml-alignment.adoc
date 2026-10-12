@@ -1,0 +1,45 @@
+[[annex-f-lml-alignment]]
+== Annex F (normative): The LML alignment — the strict-superset proof
+
+Primmel's data-modelling substrate IS the LutaML Model Language (LML,
+RS 3001 + RS 3010); Primmel strictly extends it with the metrology
+loop's higher constructs. This annex is the proof table: every LML
+construct, its Primmel counterpart, and its status. A status of
+*declined* carries its reason and is final until this annex is
+revised. The registry's Basis column (<<annex-a-constructs,Annex A>>)
+carries the same alignment per construct.
+
+[cols="2,2,2,3", options="header"]
+|===
+|LML construct |LML ref |Primmel counterpart |Status
+
+|package / models scope |lang §Package |`package` (<<model-structure,9>>) |aligned (v2)
+|class |lang §Class |`class` |aligned (v2; inherit)
+|attribute (+ cardinality) |lang §Attribute |`datum` (<<subject-model,10.2>>) |unified this revision (was attribute_definition/identity_slot/parameter/field)
+|attribute `default` + nil policy |decl §Attribute defaults |datum facets `default`, `render_nil` |adopted this revision
+|instance-type override `isa` |decl §isa |`instance` `of` + declared override |adopted this revision (the `of` slot accepts an override entry)
+|value types |lang §Value |`value_types` plane |aligned (v3)
+|enums |lang §Enums |`enum` |aligned (v2; inherit)
+|enum member payloads `member_fields` |decl §Enum member payloads |enum `member_fields` + inline member payloads |adopted this revision
+|table-driven enums `from_table` |decl §Table-driven enums |enum `from_table` (compile-time expansion from a grammar artifact's tables) |adopted this revision
+|derived fields `derive` |decl §Derived fields |DERIVED variables + `calculation` binding |aligned (the computation is a declared calculation — Primmel binds it in-language)
+|grammar-backed string formats `string_format` |decl §String formats |`string_format` (thin artifact reference) |adopted this revision
+|serialization mappings (xml) |lang §Serialization |`mapping xml` (<<serialization,16.2>>) |adopted this revision (compiles to the kernel profile)
+|serialization mappings (key-value) |decl §Mapping blocks |`mapping yaml/json/toml/csv` with `map`/`map_key`/`map_value` |adopted this revision
+|namespaces (uri + prefix) |lang §Namespacing |`namespace` blocks (<<model-structure,9.6>>) |adopted this revision
+|external file inclusion |lang §Reuse |the include directive (<<include-directive,16.2>>) + package merge |aligned (v2)
+|internal references |lang §Reuse |urn references + LutaML Path (below) |aligned + extended this revision
+|LutaML Path expressions |lutaml-path |path expressions over the package (intra-model addressing; urns remain the external citation address) |adopted this revision
+|model register |model-register |the package register (registration, model paths, registrable classes, mixed-version composition rules) |adopted this revision
+|model/value transforms |model-transform |the declared mapping artifact (source/target packages, accepted pairs, value transforms) |adopted this revision
+|model collections |model-collection |package composition (`uses`/`requires`) + collections |aligned (v2)
+|source-declared versions + change levels |model-evolution |package `version` (in source) + change-level rules over model-diff (<<checker,C163>>) |adopted this revision
+|validation rules |lang §Validation |the checker (<<checker,clause 17>>; Annex B) |exceeds — Primmel adds provisions, coverage, composition, the prose quarantine
+|operations (UML round-trip metadata) |decl §Operations |— |DECLINED: Primmel models subjects-and-loops, not class diagrams; XMI-sourced behavior converts to behaviors/processes at adoption time. Revisit only if a corpus source demands the round-trip.
+|===
+
+The higher constructs — subjects, promises, requirements, processes
+with step signatures, conformance tests and runs, evidence, forms,
+attestation — have NO LML counterpart: they are the strictly-greater
+side of the relationship (<<requirements-and-conformance,clauses 11>>
+to <<attestation,20>>).

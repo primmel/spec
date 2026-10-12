@@ -63,7 +63,9 @@ BracketList  ::= ? a token starting with '[', re-accumulated until the
 
 The provenance block, the typed relation, the key-value entry, the
 quantity block, the trust reference, the correspondence entry, and the
-alias list entry recur across constructs:
+alias list entry recur across constructs. The LML-aligned revision adds
+the description block, the mapping block, the member-fields block, the
+string-format block, and the namespace block:
 
 [source,ebnf]
 ----
@@ -92,7 +94,32 @@ AliasKeyword   ::= 'aliases' | 'alt' | 'colloquial' | 'abbreviations'
             (* the term's alias family; the tagged form carries the
                spelling its list is authored in *)
 SpellingCode   ::= BareToken   (* ISO 24229 code; C89 *)
+
+DescriptionBlock ::= 'description' Block
+            (* THE PROSE QUARANTINE (C158): human-language text appears
+               only here, or in a label facet. Every other string field
+               of every construct is useable data — a name, a unit, a
+               code, an expression, or a urn. The deletion test: a
+               package with all description blocks removed parses,
+               checks, links, runs, and attests identically. *)
+
+MappingBlock   ::= 'mapping' Format Identifier Block
+Format         ::= 'xml' | 'yaml' | 'json' | 'toml' | 'csv'
+            (* the declared wire form of one class for one format;
+               clause 16. The block's facets are the LML surface:
+               element, namespace, map_element, map_attribute,
+               map_content, mixed_content, map, map_key, map_value,
+               render_nil. *)
+MemberFieldsBlock ::= 'member_fields' '{' { FieldDecl } '}'
+            (* the typed payload schema shared by an enum's members;
+               clause 10.14 *)
+StringFormatBlock ::= 'string_format' ':' BareToken Block
+            (* the grammar-backed string form of a class: artifact +
+               root; clause 10.15 *)
+NamespaceBlock ::= 'namespace' Identifier Block
+            (* uri + prefix (+ optional default marker); clause 9.6 *)
 ----
+EOF
 
 === What the grammar does not decide
 
