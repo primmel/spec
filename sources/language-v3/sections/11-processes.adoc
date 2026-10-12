@@ -143,6 +143,12 @@ page of process components and edges with layout. A process names its page
 with the `subprocess` facet. The canvas is the visual projection of the
 process graph; the graph is the model.
 
+The LAYOUT is part of the model's data: every flow node carries its
+position — `x <number>` and `y <number>`, the node's diagram
+coordinates in the page's space (the editor's placement, the
+serializer's round-trip). There are no waypoints: an edge's geometry
+is derived by the renderer, never declared.
+
 [[activity-taxonomy]]
 === Activity archetypes and segregation
 
