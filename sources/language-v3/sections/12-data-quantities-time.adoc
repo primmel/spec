@@ -128,7 +128,12 @@ entries (C32, C33). A `series` declaration on a symbol or variable states
 the axes and cell shape of a reading series.
 
 A quantity register is self-contained: its kinds, units, factors, and
-offsets are Primmel's own content. Where a document-side toolchain
+offsets are Primmel's own content. The IDENTIFIER SPELLING of a kind
+or unit is the register's, verbatim: a condition-set entry key, a
+quantity_kind reference, or a unit reference names the register's
+declared identifier exactly — the language carries no
+underscore/hyphen equivalence, and the checker (C33) treats a
+spelling mismatch as incoherence. Where a document-side toolchain
 carries a unit vocabulary (UnitsML is the document format's register),
 the binding rides the correspondence annotation of
 <<correspondence-annotations,19.4>> — a unit or kind entry declares
