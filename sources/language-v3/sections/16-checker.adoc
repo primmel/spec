@@ -307,4 +307,40 @@ through the locator (the target's own content validates the id;
 nothing merges). A bibliographic standard id is not a resolution
 target: the method is a process to be realized, not a document to
 cite. Locator-gated: without a locator the scoped leg stays silent.
+The process bodies' `calls` edges ride the same resolution.
+The process bodies' `calls` edges ride the same resolution.
+The process bodies' `calls` edges ride the same resolution.
+|C169 |`provenance-clause-resolves`: a provenance binding citing a
+SHIPPED document lands on real content of that document — exact,
+subtree, or enclosure. A clause-qualified citation landing nowhere is
+air (an error); a bare subpart citation is unverifiable debt (a
+warning).
+|C170 |`edition-lineage-declared`: a package declaring more than one
+edition carries `edition-mapping.json` (`primmel-edition-mapping/1`)
+naming both edition states — the cross-edition linkage is an artifact,
+never implicit.
+|C169 |`provenance-clause-resolves`: a provenance binding citing a
+SHIPPED document lands on real content of that document — exact,
+subtree, or enclosure. A clause-qualified citation landing nowhere is
+air (an error); a bare subpart citation is unverifiable debt (a
+warning).
+|C170 |`edition-lineage-declared`: a package declaring more than one
+edition carries `edition-mapping.json` (`primmel-edition-mapping/1`)
+naming both edition states — the cross-edition linkage is an artifact,
+never implicit.
+|C169 |`provenance-clause-resolves`: a provenance binding citing a
+SHIPPED document lands on real content of that document — exact,
+subtree, or enclosure. A clause-qualified citation landing nowhere is
+air (an error); a bare subpart citation is unverifiable debt (a
+warning).
+|C170 |`edition-lineage-declared`: a package declaring more than one
+edition carries `edition-mapping.json` (`primmel-edition-mapping/1`)
+naming both edition states — the cross-edition linkage is an artifact,
+never implicit.
+|C171 |`expression-identifiers-resolve`: every identifier inside a
+limit expression, a derivation, or a derive resolves to a declared
+name in scope — the expression's uses list, the test's declared
+variables, or the package's symbols, datums, verdicts, and tables.
+Dotted paths are whole references; a method call rides its declared
+object. The formula is the executable core: nothing in it is air.
 |===
