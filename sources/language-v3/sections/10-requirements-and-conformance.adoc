@@ -544,12 +544,12 @@ applicability guard over its own arguments:
 [source.primmel]
 ----
 requirement /req/metrological/mpe-ranges {
-  limit {
+  limit mpe_low_range {
     args { e <- observable:e ; mu <- table:vehicle_mpe.mpe_low }
     when { e <= 5000 }
     abs(e) <= mu
   }
-  limit {
+  limit mpe_high_range {
     args { e <- observable:e ; mu <- table:vehicle_mpe.mpe_high }
     when { e > 5000 }
     abs(e) <= mu
@@ -557,8 +557,13 @@ requirement /req/metrological/mpe-ranges {
 }
 ----
 
-Multiple limits are a conjunction: every limit whose guard holds must hold. A
-limit with no guard applies over the whole domain. When the bound arguments
+Limits are named. The name is the limit's public handle: a conformance test
+targets it, the coverage and the retrieval projection emit it
+(`/req/metrological/mpe-ranges:limit/mpe_low_range`), the diff and the
+edition mappings cite it, and the checker's diagnostics name the failing
+limit. Multiple limits are a conjunction: every limit whose guard holds must
+hold. A limit with no guard applies over the whole domain; a single unnamed
+limit is accepted as the one-element shorthand. When the bound arguments
 declare their domains, the checker verifies that the guards partition the
 domain — no gap where no limit applies, no overlap where the assertion is
 ambiguous.
