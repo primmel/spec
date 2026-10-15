@@ -187,3 +187,26 @@ through the package locator, with the pinned `<id>@<edition>` form for
 abstract imports, <<composition-rules,7.6>>), and the `reference`
 construct serves the citations that are NOT composition — the standards
 a model cites without merging their content.
+
+== The separator grammar
+
+The name grammar crosses boundaries with three separators, each with exactly
+one meaning:
+
+* **`.`** — *structural descent within one declared thing*: the subject
+  chain (`family.classification.axle_class`), a table's column
+  (`table:vehicle_mpe.mpe_low`). The dot never crosses a package boundary.
+* **`:`** — *one namespace hop between declarations*: the package to its
+  element (`iec-61000-4-6:test-procedure-esd`), the package to its register
+  and the register to its element (`oiml-r134:symbol:e_vehicle` — two hops,
+  two colons), a containment to its member (`member:sealing`). Each colon
+  crosses exactly one named boundary; a hop with no left anchor does not
+  parse.
+* **`::`** — *the resolution context to the source*: the left side is not a
+  package but the locator the package is obtained through
+  (`ribose-registry::iso-iec-17000`). A `::` hop composes with `:` hops:
+  `ribose-registry::iso-iec-17000:symbol:e` obtains the package through the
+  registry, then descends two namespace hops to the symbol.
+
+The document citations (`urn:…` targets) are quoted strings — the URN's own
+syntax inside the citation, not this name grammar.
