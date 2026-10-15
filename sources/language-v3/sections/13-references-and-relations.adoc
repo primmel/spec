@@ -196,12 +196,13 @@ one meaning:
 * **`.`** — *structural descent within one declared thing*: the subject
   chain (`family.classification.axle_class`), a table's column
   (`table:vehicle_mpe.mpe_low`). The dot never crosses a package boundary.
-* **`:`** — *one namespace hop between declarations*: the package to its
-  element (`iec-61000-4-6:test-procedure-esd`), the package to its register
-  and the register to its element (`oiml-r134:symbol:e_vehicle` — two hops,
-  two colons), a containment to its member (`member:sealing`). Each colon
-  crosses exactly one named boundary; a hop with no left anchor does not
-  parse.
+* **`:`** — *the kind-annotated name, and each further colon narrows the
+  scope*. UML's `name : Type` heritage, compacted into the reference
+  position: `symbol:e_vehicle` reads "the symbol named e_vehicle";
+  `member:sealing`, "the member named sealing". The package namespace
+  composes with further colons — `oiml-r134:symbol:e_vehicle`, in the
+  package, the symbol named e_vehicle — each colon crossing exactly one
+  named boundary; a hop with no left anchor does not parse.
 * **`:::`** — *the source hop, outside the namespace system*: the left side
   is not a package but the locator the package is obtained through
   (`ribose-registry:::iso-iec-17000`). A `:::` hop composes with `:` hops:
