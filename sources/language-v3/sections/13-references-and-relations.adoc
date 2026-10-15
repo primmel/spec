@@ -202,11 +202,15 @@ one meaning:
   two colons), a containment to its member (`member:sealing`). Each colon
   crosses exactly one named boundary; a hop with no left anchor does not
   parse.
-* **`::`** — *the resolution context to the source*: the left side is not a
-  package but the locator the package is obtained through
-  (`ribose-registry::iso-iec-17000`). A `::` hop composes with `:` hops:
-  `ribose-registry::iso-iec-17000:symbol:e` obtains the package through the
-  registry, then descends two namespace hops to the symbol.
+* **`:::`** — *the source hop, outside the namespace system*: the left side
+  is not a package but the locator the package is obtained through
+  (`ribose-registry:::iso-iec-17000`). A `:::` hop composes with `:` hops:
+  `ribose-registry:::iso-iec-17000:symbol:e` obtains the package through the
+  registry, then descends two namespace hops to the symbol. The mnemonic:
+  each extra `:` is one step further from the model's own namespace — the
+  structure, the namespace, the source. UML's `::` is deliberately not
+  adopted: the namespace hop is single-colon (the grammar the corpus already
+  carries), and doubling it would be a synonym, not a semantics.
 
 The document citations (`urn:…` targets) are quoted strings — the URN's own
 syntax inside the citation, not this name grammar.
