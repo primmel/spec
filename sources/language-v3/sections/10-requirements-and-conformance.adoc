@@ -504,3 +504,88 @@ collection; a conforming serializer emits the canonical `check` form;
 . verdicts and acceptance decisions (<<verdicts,11.4>>,
 <<acceptance-decisions,11.6>>) READ checks; they never re-evaluate
 prose.
+
+== Limits
+
+Every requirement and requirement class carries its obligation as one or more
+<<limits,limits>>. A limit is a function: it declares its **arguments** — each
+bound to the qualified declaration it reads — and states an **assertion** over
+those arguments. The scope is passed into the limit; nothing is ambient.
+
+=== Argument bindings
+
+[source.primmel]
+----
+requirement /req/metrological/mpe-vehicle-mass {
+  limit {
+    args {
+      e_vehicle <- oiml-r134:symbol:e_vehicle
+      mpe_class <- oiml-r134:table:two_axle_mpe.mpe
+      d         <- oiml-r134:symbol:d
+      n_axles   <- oiml-r134:symbol:n_axles
+    }
+    abs(e_vehicle) <= max(mpe_class, d * n_axles)
+  }
+}
+----
+
+Each `name <- package:kind:id` binding resolves at parse time against the
+named package's declared elements (the same scoped-reference grammar as the
+composition's capability references). An identifier in the assertion that is
+not a declared argument is a parse error: the formula is the executable core,
+and nothing in it is air (<<checker-catalog,C171>>).
+
+=== Multiple limits and applicability guards
+
+A requirement carries a LIST of limits. Real standards bound different
+sub-domains differently; each limit states the sub-domain it applies to as an
+applicability guard over its own arguments:
+
+[source.primmel]
+----
+requirement /req/metrological/mpe-ranges {
+  limit {
+    args { e <- observable:e ; mu <- table:vehicle_mpe.mpe_low }
+    when { e <= 5000 }
+    abs(e) <= mu
+  }
+  limit {
+    args { e <- observable:e ; mu <- table:vehicle_mpe.mpe_high }
+    when { e > 5000 }
+    abs(e) <= mu
+  }
+}
+----
+
+Multiple limits are a conjunction: every limit whose guard holds must hold. A
+limit with no guard applies over the whole domain. When the bound arguments
+declare their domains, the checker verifies that the guards partition the
+domain — no gap where no limit applies, no overlap where the assertion is
+ambiguous.
+
+=== The class law: containment is conjunction
+
+A <<requirement-classes,requirement class>> contains its member
+requirements; containment is conjunction — the class's obligation is its
+members'. The class may state a **law**: a limit whose expression composes
+the members with the logical connectives the source document states in prose
+(and, or, either-or, neither-nor, unless):
+
+[source.primmel]
+----
+requirement_class /req/electronic/software-protection {
+  limit {
+    args {
+      sealing    <- member:sealing
+      signalling <- member:signalling
+    }
+    sealing or signalling
+  }
+}
+----
+
+`member:` names the class's own members. A class with no law is pure
+conjunction. The checker verifies the algebra: the law's identifiers name
+contained members only, every member appears in the law or the class carries
+no law, and a member's modality is never weaker than the class's
+(<<checker-catalog,C172>>).
