@@ -529,9 +529,13 @@ requirement /req/metrological/mpe-vehicle-mass {
 }
 ----
 
-Each `name <- package:kind:id` binding resolves at parse time against the
-named package's declared elements (the same scoped-reference grammar as the
-composition's capability references). An identifier in the assertion that is
+Each `name <- package:kind:id` binding is **fully qualified**: the package,
+the element kind, and the element id — the same three-part scoped-reference
+grammar as the composition's capability references, extended with the kind
+disambiguator and the optional `.column` tail for tabular sources. There is
+no ambient scope: a binding that omits the package does not parse. The
+member bindings of a class law (`member:<id>`) are the one special form —
+the containment itself is the scope declaration. An identifier in the assertion that is
 not a declared argument is a parse error: the formula is the executable core,
 and nothing in it is air (<<checker-catalog,C171>>).
 
@@ -545,13 +549,23 @@ applicability guard over its own arguments:
 ----
 requirement /req/metrological/mpe-ranges {
   limit "mpe-low-range" {
-    args { e <- observable:e ; mu <- table:vehicle_mpe.mpe_low }
-    when { e <= 5000 }
+    args {
+      e  <- oiml-r134:observable:e
+      mu <- oiml-r134:table:vehicle_mpe.mpe_low
+    }
+    when {
+      e <= 5000
+    }
     abs(e) <= mu
   }
   limit "mpe-high-range" {
-    args { e <- observable:e ; mu <- table:vehicle_mpe.mpe_high }
-    when { e > 5000 }
+    args {
+      e  <- oiml-r134:observable:e
+      mu <- oiml-r134:table:vehicle_mpe.mpe_high
+    }
+    when {
+      e > 5000
+    }
     abs(e) <= mu
   }
 }
