@@ -78,7 +78,8 @@ texts in the ISO 8601 formats specified in <<time-primitives,13.6>>.
 [[embedded-expressions]]
 === Embedded expressions
 
-An expression payload is written with the `ocl{ ... }` marker:
+An expression payload has two carriers. The quoted carrier is written
+with the `ocl{ ... }` marker:
 
 [source,prl]
 ----
@@ -91,9 +92,15 @@ the tokenizer splits the payload at interior whitespace. A parser
 recognizes a token starting with `ocl{` and re-accumulates tokens until the
 braces balance; the accumulated text, single-spaced, is the expression.
 Both the quoted spelling and the inline spelling parse to the same value.
-The expression language inside the payload is not specified in this
-document; it is bound to a dialect by the consuming program, and the
-payload is opaque text to a conforming parser.
+
+The inline carrier (v3.3) is a delimited block — the raw formula, never
+quoted, parsed at load (`expression { ... }`; the facet's own grammar
+and its argument scope are specified with the limit,
+<<limit-expressions,11.1.4>>). A string value and a block value never
+mix in one facet: the value's shape is the carrier decision. The quoted
+payload remains opaque text to a conforming parser, bound by the
+consuming program; the inline block is the language's own expression
+syntax and carries the resolution doctrine of <<limit-expressions,11.1.4>>.
 
 [[bracket-lists]]
 === Balanced bracket lists

@@ -66,13 +66,14 @@ and `bind` (the aspect path the parameter instantiates from;
 <<instance-parameters,11.1.3>>).
 
 |`limit { ... }`
-|The formal limit: `expression` (an embedded expression,
-<<embedded-expressions,8.6>>), `uses` (the free variables), `modality`,
-`relative_to`, `notes`, `quantity { kind unit }` (the derived quantity's
-typing; <<limit-quantities,11.1.2>>), `accepts` (the
-verdict binding: `verdict`, `op`,
-`limit`, an optional `source_discrepancy`), and `acceptance`
-(<<acceptance-decisions,11.5>>).
+|The formal limit: `expression` (a quoted OCL payload,
+<<embedded-expressions,8.6>>, or the inline block,
+<<limit-expressions,11.1.4>>), `args` (the inline body's scope,
+<<limit-expressions,11.1.4>>), `uses` (the legacy form's free
+variables), `modality`, `relative_to`, `notes`, `quantity { kind unit }`
+(the derived quantity's typing; <<limit-quantities,11.1.2>>), `accepts`
+(the verdict binding: `verdict`, `op`, `limit`, an optional
+`source_discrepancy`), and `acceptance` (<<acceptance-decisions,11.5>>).
 
 |`applicability { ... }`
 |Dimension-keyed applicability entries; a value is a bare id, a quoted
@@ -220,6 +221,88 @@ register (reported as a warning by the reference toolchain during the
 v3.2 rollout — the estate declares units no register carries yet; the
 leg tightens to an error when the registers catch up,
 TODO.primmel/11d), and a range's `min` never exceeds its `max`.
+
+[[limit-expressions]]
+==== The limit: the expression body and its arguments
+
+The limit's machine-executable predicate has two carriers. The *legacy*
+carrier is a quoted OCL payload, `expression "ocl{...}"`, whose free
+variables ride the `uses { ... }` list. The *inline* carrier (v3.3) is a
+delimited block, `expression { ... }`: the raw formula, never quoted,
+parsed at load. The legacy string and the inline block never mix in one
+limit — the value's shape (a string or a block) is the entire decision.
+
+The inline limit is a *function*: it takes declarative arguments, and the
+scope is passed into it. An `args { ... }` block binds each local name to
+its declaration — one binding per line, `name <- source`:
+
+[source,prl]
+----
+limit {
+  args {
+    e_vehicle  <- symbol:e_vehicle
+    mpe_class  <- table:vehicle_mpe.mpe_initial
+    d          <- attribute:scale_interval
+    n_axles    <- observable:n_axles
+  }
+  expression {
+    abs(e_vehicle) <= max(mpe_class, 1 * d * n_axles)
+  }
+  notes "Table 2 percentage of the conventional value (6.7)."
+}
+----
+
+The block order is canonical: `args`, the expression, then the
+documentation and acceptance facets (`modality`, `relative_to`, `notes`,
+`quantity`, `accepts`, `acceptance`, `source_discrepancy`).
+
+The binding sources:
+
+[cols="1,3"]
+|===
+|Form |Binds to
+
+|`symbol:<id>`, `table:<id>`, `datum:<id>`, `verdict:<id>`, `attribute:<id>`
+|A declaration of this package's own registries. A dotted id rides the
+declared object (`table:vehicle_mpe.mpe_initial` names a column of the
+declared table).
+
+|`observable:<id>`
+|The dispatch context — the readings the run observes.
+
+|`self.<path>`
+|The subject aspect the requirement constrains.
+
+|`<package>:<kind>:<id>`
+|A declaration across a `uses` edge; the composed closure resolves it.
+|===
+
+The *resolution doctrine*: the body's identifiers are the args and
+nothing else — an identifier naming no argument is air inside the
+formula and is rejected (C171, `expression-identifiers-resolve`). Three
+exceptions are context, never ambient scope: a path rooted at `self`; a
+path rooted at one of the dispatch-context roots (`sample`, `family`,
+`group`, `model`, `instrument`, `specimen`) — the pronouns of the
+dispatch, allowed as path roots, never as bare scalars; and the closed
+function vocabulary — `abs`, `max`, `min`, `floor`, `ceil`, `round`,
+`sqrt`, `exp`, `ln`, `log`, `mod`, `sum`, `count`, `exists`, `forall`.
+A call whose target is a dotted path (`table.permits(a, b)`) or a bound
+argument (a table lookup) rides its declared object — the root is the
+check, the method is the object's own interface.
+
+The expression grammar binds the usual precedence, loosest first:
+`implies`, then `or`, `xor`, `and`, the comparisons (`<= >= < > = ≠`),
+the additive operators, the multiplicative operators, unary `-` and
+`not`, then the primaries — the bound names, the calls, the numeric
+literals, and the parenthesised groups. The serialized form is
+canonical: the dumper re-emits the parsed tree's canonical source, and
+the canonical source reparses to the same tree.
+
+A `requirement_class`'s law (<<class-law>>) carries the
+inline form with the args OPTIONAL: the class's containment is itself
+the declared scope, and the law's identifiers are the members. An
+explicit `args` block on the law adds bindings, each of which must name
+a contained member (C172, `requirement-algebra-resolves`).
 
 [[conformance-test-construct]]
 === Conformance classes and conformance tests
@@ -587,6 +670,7 @@ declare their domains, the checker verifies that the guards partition the
 domain — no gap where no limit applies, no overlap where the assertion is
 ambiguous.
 
+[[class-law]]
 === The class law: containment is conjunction
 
 A <<requirement-classes,requirement class>> contains its member
@@ -599,17 +683,20 @@ the members with the logical connectives the source document states in prose
 ----
 requirement_class /req/electronic/software-protection {
   limit {
-    args {
-      sealing    <- member:sealing
-      signalling <- member:signalling
+    expression {
+      sealing or signalling
     }
-    sealing or signalling
   }
+  requirement sealing { ... }
+  requirement signalling { ... }
 }
 ----
 
-`member:` names the class's own members. A class with no law is pure
-conjunction. The checker verifies the algebra: the law's identifiers name
+The containment is the law's scope: the law's identifiers are the
+contained members, and the body takes the inline form
+(<<limit-expressions>>). An explicit `args` block binds additional
+names, each of which must name a contained member. A class with no law
+is pure conjunction. The checker verifies the algebra: the law's identifiers name
 contained members only, every member appears in the law or the class carries
 no law, and a member's modality is never weaker than the class's
 (<<checker-catalog,C172>>).
