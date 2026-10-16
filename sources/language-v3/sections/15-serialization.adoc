@@ -189,3 +189,16 @@ mapping, or by conversion code the checker can see, is an error).
 (<<prm-format,16.4>>) maps one MODEL to another (the mapper plane); a
 `mapping` block declares one CLASS's wire form (the serialization
 plane). The shared word carries two jobs; the artifacts never mix.
+
+[[fmt]]
+=== The canonical form as a command
+
+`primmel fmt [--check] <package-dir>` is the canonical serialization as
+a command: each content file loads, dumps, and — when the bytes differ —
+is written back in the canon. The fixpoint is the safety: the canonical
+text re-loads to itself, verified before any write, and a file that
+does not round-trip byte-stably is reported, never rewritten. The
+author's facet order yields to the canonical order — the canon is the
+save-back contract: the kernel owns the serialized form, and an
+editor's save rides the same dump. `--check` reports and exits
+non-zero without writing (the CI gate).
