@@ -340,7 +340,19 @@ never implicit.
 |C171 |`expression-identifiers-resolve`: every identifier inside a
 limit expression, a derivation, or a derive resolves to a declared
 name in scope — the expression's uses list, the test's declared
-variables, or the package's symbols, datums, verdicts, and tables.
-Dotted paths are whole references; a method call rides its declared
-object. The formula is the executable core: nothing in it is air.
+variables, or the package's symbols, datums, verdicts, tables,
+attribute definitions, and calculations. Dotted paths are whole
+references; a method call rides its declared object. The inline
+carriers (the `expression { … }`, `derive { … }`, `derivation { … }`,
+`check { … }` blocks) walk the parsed AST — the exact resolution; the
+legacy strings keep the registry walk. The formula is the executable
+core: nothing in it is air.
+|C177 |`kind-coherence`: a comparison in an inline expression sets
+operands of the same declared quantity kind — the kinds come from the
+args' declared sources (`symbol:`/`attribute:` quantity kinds, verdict
+quantities, table column types). An operand of unknown kind or a bare
+number never conflicts: the check is exact where the declarations are,
+silent everywhere else. The kind rides the arithmetic and the kinded
+calls; the unit algebra is the evaluation plane's (<<embedded-expressions,8.6>>),
+never the checker's.
 |===

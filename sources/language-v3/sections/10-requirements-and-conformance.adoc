@@ -304,6 +304,18 @@ the declared scope, and the law's identifiers are the members. An
 explicit `args` block on the law adds bindings, each of which must name
 a contained member (C172, `requirement-algebra-resolves`).
 
+The inline carrier is the language's for every machine-executable
+payload: the verdict's canonical derivation (`derive { … }`), the test
+variable's derivation (`derivation { … }`), the run-validity check of a
+precondition and the constraint's invariant (`check { … }`) — the same
+string-vs-block carrier decision, the same canonical serialization, the
+same AST-exact resolution (C171). A comparison inside an inline
+expression sets operands of the same declared quantity kind (C177,
+`kind-coherence`): the kinds come from the args' declared sources, an
+operand of unknown kind or a bare number never conflicts, and the unit
+algebra stays with the evaluation plane — the checker names the kinds,
+it does not compute them.
+
 [[conformance-test-construct]]
 === Conformance classes and conformance tests
 
