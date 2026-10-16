@@ -294,7 +294,12 @@ The expression grammar binds the usual precedence, loosest first:
 `implies`, then `or`, `xor`, `and`, the comparisons (`<= >= < > = ≠`),
 the additive operators, the multiplicative operators, unary `-` and
 `not`, then the primaries — the bound names, the calls, the numeric
-literals, and the parenthesised groups. The serialized form is
+literals, the single-quoted string literals, and the parenthesised
+groups. The collection navigation (register 24) rides the postfix
+position: `collection -> forAll(v | body)`, `-> exists(v | body)`,
+`-> select(v | body)` — the lambda parameter scopes the body exactly
+like an argument binds the limit's, and the iteration predicate's
+truth is the navigation's value. The serialized form is
 canonical: the dumper re-emits the parsed tree's canonical source, and
 the canonical source reparses to the same tree.
 
