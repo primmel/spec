@@ -342,7 +342,9 @@ limit expression, a derivation, or a derive resolves to a declared
 name in scope — the expression's uses list, the test's declared
 variables, or the package's symbols, datums, verdicts, tables,
 attribute definitions, and calculations. Dotted paths are whole
-references; a method call rides its declared object. The inline
+references; a method call rides its declared object; the series
+aggregations (`max_of`, `min_of`, `mean_of`, `stddev_of`, `count_of`)
+are the type-A vocabulary the evaluation plane computes. The inline
 carriers (the `expression { … }`, `derive { … }`, `derivation { … }`,
 `check { … }` blocks) walk the parsed AST — the exact resolution; the
 legacy strings keep the registry walk. The formula is the executable
@@ -355,4 +357,9 @@ number never conflicts: the check is exact where the declarations are,
 silent everywhere else. The kind rides the arithmetic and the kinded
 calls; the unit algebra is the evaluation plane's (<<embedded-expressions,8.6>>),
 never the checker's.
+|C178 |`legacy-carrier-deprecated`: a package declaring the deprecation
+generation carries no quoted `ocl{…}` expression carriers — the inline
+blocks (<<limit-expressions,11.1.4>>) are the only forward form. The
+generation constant is inert until the release declares it; the
+ratchet activates on the bump.
 |===
