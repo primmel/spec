@@ -362,4 +362,10 @@ generation carries no quoted `ocl{…}` expression carriers — the inline
 blocks (<<limit-expressions,11.1.4>>) are the only forward form. The
 generation constant is inert until the release declares it; the
 ratchet activates on the bump.
+|C179 |`uncertainty-budget-resolves`: an uncertainty budget targets a
+declared verdict; a Type A component names a declared captured series,
+a Type B component states its distribution and half-width; the
+coverage factor is a positive number. The propagation law is the
+evaluation plane's — the checker resolves the declaration, it never
+computes the uncertainty.
 |===

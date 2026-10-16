@@ -463,6 +463,49 @@ requirements and tests carries the same vocabulary in lower case
 (`shall`, `should`, `may`) as data; the value is stored as text and
 program linkers check it.
 
+[[uncertainty-budget]]
+=== The uncertainty budget
+
+An `uncertainty_budget` declares the GUM components of one measured
+quantity's standard uncertainty and the coverage factor of its
+expansion. The budget is a DECLARATION — the propagation law
+(u_c = √(Σ uᵢ²), U = k·u_c) is the GUM's, computed by the evaluation
+plane; the model names the components, their kinds, and their
+provenance, never the arithmetic:
+
+[source,prl]
+----
+uncertainty_budget u_creep_reference {
+  target twin_creep_drift_indication
+  coverage k 2
+  component u_std {
+    type B
+    distribution rectangular
+    half_width 0.25
+    unit "kg"
+    source { doc "urn:oiml:pub:cs:twin-1:2027" clause "6" }
+    description "The force standard's certificate half-width."
+  }
+  component u_pair {
+    type A
+    series reference_pair_error
+  }
+}
+----
+
+The facets are `target` (the declared verdict whose measured quantity
+the budget backs), `coverage k` (the expansion factor; the GUM's
+default 2 applies when omitted), and the `component` entries. A Type A
+component evaluates the statistics of a captured series — its `series`
+names a declared test variable carrying the series shape. A Type B
+component states a `distribution` (rectangular, triangular, normal,
+ushape — the GUM's input models; the divisor rule is the evaluation
+plane's) around its `half_width`. The checker verifies the resolution:
+the target is a declared verdict, a Type A series is a declared
+captured series, a Type B component states its distribution and
+half-width, and the coverage factor is a positive number
+(<<checker-catalog,C179>>).
+
 [[constraint-construct]]
 === Constraints
 

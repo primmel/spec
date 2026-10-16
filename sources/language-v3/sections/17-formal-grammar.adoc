@@ -111,9 +111,6 @@ CarrierKeyword ::= 'expression' | 'derive' | 'derivation' | 'check'
                block is the key's block value — the explicit exception
                to the construct reservation; a carrier keyword followed
                by a bare token still heads a construct *)
-ConformanceTestKeyword ::= 'conformance_test' | 'conformance test'
-            (* the corpus spells the space form; one keyword, two
-               spellings *)
 
 MappingBlock   ::= 'mapping' Format Identifier Block
 Format         ::= 'xml' | 'yaml' | 'json' | 'toml' | 'csv'
