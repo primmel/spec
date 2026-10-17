@@ -70,7 +70,7 @@ changes no v3.1 construct.
 |`canvas` | `subprocess` | pages | v2 | 12 | inherit: MMEL diagram
 |`capability` | | capabilities | v2 | 10 | composition: Named IS grouping
 |`certificate_template` | | certificateTemplates | v3.3 | 20.7 | extension: The print projection contract
-|`check` | | checks | ?? (fill before merge) | ?? (fill before merge) | ?? (basis missing — map it)
+|`check` | | checks | v3.3 | 11.10 | composition: Evaluate-and-compare — the consolidated surface forms over one construct
 |`class` | | data classes | v2 | 13 | inherit: LutaML class / MMEL data class
 |`comment` | | comments | v2 | 13 | composition: Attached prose
 |`common_test_condition` | | commonTestConditions | v3.3 | 20.4 | extension: Clause 20 register
@@ -112,10 +112,10 @@ changes no v3.1 construct.
 |`lab_selection_criterion` | | labSelectionCriteria | v3.3 | 20.12 | extension: Clause 20 register
 |`link` | | links | v2 | 13 | inherit: MMEL link
 |`map_profile` | | map profiles | v2 | 12 | inherit: MMEL mapping
-|`mapping` | | wireMappings | ?? (fill before merge) | ?? (fill before merge) | ?? (basis missing — map it)
+|`mapping` | | wireMappings | v3.2 | 19.6 | composition: The LML mapping surface — one class's declared wire form per format
 |`measurement` | | variables | v2 | 13 | composition: V with provenance
 |`monitor` | | monitors | v3 | 13 | composition: Standing predicate over a trajectory
-|`namespace` | | namespaces | ?? (fill before merge) | ?? (fill before merge) | ?? (basis missing — map it)
+|`namespace` | | namespaces | v3.2 | 9.6 | composition: The LML namespacing surface — named uri + prefix pairs
 |`note` | | notes | v2 | 13 | inherit: MMEL note
 |`part_annex` | | partAnnexes | v3.3 | 20.15 | extension: The OIML-CS framework (clause 20)
 |`participant_kind` | | participantKinds | v3.3 | 20.25 | extension: The OIML-CS framework (clause 20)
