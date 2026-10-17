@@ -160,6 +160,38 @@ The `designed` side is the IS role (carrying `tolerance`); the
 `exhibited` side is the HAS role (carrying `uncertainty`). At least one
 side is present; when both are stated they must be kind-coherent (C34).
 
+[[datum-construct]]
+=== The datum
+
+A `datum` declares one typed, unit-bearing value of the model's data
+registry — the declared facts a formula, a limit, or an evaluation
+reads. The datum is the duality's registry face: where `dual` relates a
+quantity's two roles, the datum is the declared record a role's value
+resolves against.
+
+[source,prl]
+----
+datum reference_volume : number {
+  label "Reference volume"
+  unit "m3"
+  quantity_kind volume
+  origin observed
+  scope type_evaluation
+  description "The reference volume of the test run (3.2.1)."
+  render latex "V_{\mathrm{a}}"
+}
+----
+
+The facets: the type rides the head (`datum <id> : <type>`); `label`
+and `description` carry the human surface (the description may be a
+block); `unit` and `quantity_kind` declare the measure — a value stated
+for a declared quantity carries its unit (C32); `origin` is a closed
+vocabulary, parse-enforced: `declared`, `design-fixed`, `observed`,
+`computed`; `scope` names the regime the datum belongs to; and each
+`render` pair declares the datum's presentation in a declared math
+notation. Declared datums join the checker's identifier registries: an
+expression argument may bind `datum:<id>` (<<limit-expressions,11.1.4>>).
+
 [[time-primitives]]
 === Time primitives
 

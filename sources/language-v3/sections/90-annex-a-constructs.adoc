@@ -82,7 +82,7 @@ changes no v3.1 construct.
 |`constraint` | | constraints | v2 | 11 | composition: Predicate over P/V
 |`data_registry` | | registries | v2 | 13 | inherit: MMEL registry
 |`dataspace` | | dataspaces | v3.1 | 19 | composition: Guard over rho(T)
-|`datum` | | datums | ?? (fill before merge) | ?? (fill before merge) | ?? (basis missing — map it)
+|`datum` | | datums | v3.3 | 15.4 | composition: The duality's registry face — one typed, unit-bearing declared value
 |`decision_rule` | | decisionRules | v3.3 | 20.30 | extension: The OIML-CS framework (clause 20)
 |`declaration_gate` | | declarationGates | v3.3 | 20.23 | extension: The OIML-CS framework (clause 20)
 |`declaration_kind` | | declarationKinds | v3.3 | 20.21 | extension: The OIML-CS framework (clause 20)
@@ -140,7 +140,7 @@ changes no v3.1 construct.
 |`specimen_governance_rule` | | specimenGovernanceRules | v3.3 | 20.13 | extension: Clause 20 register
 |`start` | `start_event` | events | v2 | 12 | inherit: MMEL start event
 |`state_machine` | | state machines | v2 | 12 | composition: T-decomposition of dynamics
-|`string_format` | | stringFormats | ?? (fill before merge) | ?? (fill before merge) | ?? (basis missing — map it)
+|`string_format` | | stringFormats | v3.2 | 20 | composition: The grammar-backed string form of one artifact class
 |`subform` | | subforms | v2 | 11 | composition: MMEL subform
 |`subject` | | subjects | v3 | 10 | inherit: IS/HAS/DOES over O
 |`symbol` | | symbols | v2 | 13 | composition: P with unit/kind
