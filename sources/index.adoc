@@ -31,6 +31,10 @@ programme, and an audit target.
 |link:workspace/[Workspace and runtime] |Workspace state files (`.sws`), runtime data flow
 |link:authoring-guide/[Authoring guide] |How to author Primmel models
 |link:methodology-guide/[Methodology guide] |How to model standards with Primmel
+|link:forms/[Forms] |Forms and subforms: fields, bind channels, evidence capture
+|link:symbols/[Symbols] |The symbol registry: typed declarations for formulae
+|link:calculations/[Calculations] |Declared math: signatures, formulae, lookup tables
+|link:state-machines/[State machines] |Operational and lifecycle state
 |===
 
 == Examples

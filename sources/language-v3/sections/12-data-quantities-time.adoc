@@ -238,6 +238,50 @@ retrieval ("limits expressed in mV/V") and the trustworthy execution of
 a retrieved calculation both read this signature; they never parse the
 expression text for units.
 
+[[uncertainty-budget]]
+=== The uncertainty budget
+
+An `uncertainty_budget` declares one measured quantity's uncertainty
+components and the coverage factor of the expansion — the language side
+of the GUM plane. The budget is a DECLARATION: the propagation law is
+the GUM's, computed by the evaluation plane; the model names the
+components, their kinds, and their provenance, never the arithmetic.
+
+[source,prl]
+----
+uncertainty_budget u_ref {
+  target mpe_error
+  coverage k 2
+  component u_cal {
+    type B
+    distribution rectangular
+    half_width 0.5
+    unit "kg"
+    source { doc "urn:example:cert:2026" clause "5.1" }
+    description "The force standard's certificate half-width."
+  }
+  component u_rep {
+    type A
+    series reference_pair_error
+  }
+}
+----
+
+The facets: `target` names the verdict whose quantity the budget
+expands; `coverage k` states the coverage factor of the expansion; each
+`component` carries an id and its kind — `type A` evaluates the
+statistics of a captured `series` (a conformance test's declared series
+variable), `type B` states a `distribution` (`rectangular`,
+`triangular`, `normal`, `ushape` — a closed vocabulary, parse-enforced)
+with its `half_width` and `unit`. Components and the budget itself take
+`source` provenance and `description`. One component per uncertainty
+contribution; Type A and Type B components mix freely in one budget.
+
+The checker resolves the budget's references (C179,
+`uncertainty-budget-resolves`): the target names a declared verdict,
+every Type A series names a captured series variable, and every Type B
+component states both its distribution and its half-width.
+
 [[test-point-sets]]
 === Test point sets and reference materials
 

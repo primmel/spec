@@ -126,6 +126,26 @@ fails, even at the strict level;
 was fixed and the entry must die;
 * a malformed entry is an error (C56).
 
+The entry grammar — every field required, every entry one of the
+registry's rule identifiers:
+
+[source,prl]
+----
+allowlist_entry {
+  rule C169
+  match "provenance binding urn:oiml:pub:r:60-3:2021#table-* names no fragment or sentence of the shipped document*"
+  reason "Bare subpart citations of the r60-3 tables: the clause-only harvest cannot verify table-level fragments."
+  audit_ref "TODO.external-refs — the r60-3 re-harvest queue"
+}
+----
+
+`rule` names the rule id; `match` is a glob over the finding message
+(anchored whole-string — a pattern not starting with `*` matches only
+from the message's head); `reason` states the debt in one sentence;
+`audit_ref` names the register entry that tracks the queue the entry
+declares. A missing field is C56; a rule-inactive entry matching
+nothing is C57.
+
 Two budgets cap the audit-level coverage warnings: `coverage_budget` for
 the test-evidence and form-judgment audits (C51, C52, enforced by C55) and
 `text_coverage_budget` for the uncovered-normative-sentence audit (C71,
@@ -308,26 +328,6 @@ nothing merges). A bibliographic standard id is not a resolution
 target: the method is a process to be realized, not a document to
 cite. Locator-gated: without a locator the scoped leg stays silent.
 The process bodies' `calls` edges ride the same resolution.
-The process bodies' `calls` edges ride the same resolution.
-The process bodies' `calls` edges ride the same resolution.
-|C169 |`provenance-clause-resolves`: a provenance binding citing a
-SHIPPED document lands on real content of that document — exact,
-subtree, or enclosure. A clause-qualified citation landing nowhere is
-air (an error); a bare subpart citation is unverifiable debt (a
-warning).
-|C170 |`edition-lineage-declared`: a package declaring more than one
-edition carries `edition-mapping.json` (`primmel-edition-mapping/1`)
-naming both edition states — the cross-edition linkage is an artifact,
-never implicit.
-|C169 |`provenance-clause-resolves`: a provenance binding citing a
-SHIPPED document lands on real content of that document — exact,
-subtree, or enclosure. A clause-qualified citation landing nowhere is
-air (an error); a bare subpart citation is unverifiable debt (a
-warning).
-|C170 |`edition-lineage-declared`: a package declaring more than one
-edition carries `edition-mapping.json` (`primmel-edition-mapping/1`)
-naming both edition states — the cross-edition linkage is an artifact,
-never implicit.
 |C169 |`provenance-clause-resolves`: a provenance binding citing a
 SHIPPED document lands on real content of that document — exact,
 subtree, or enclosure. A clause-qualified citation landing nowhere is
