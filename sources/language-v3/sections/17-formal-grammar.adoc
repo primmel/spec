@@ -51,9 +51,17 @@ facet entries:
 ----
 FacetEntry   ::= FacetKeyword FacetValue
 FacetKeyword ::= ? a facet keyword of the construct ?
-FacetValue   ::= QuotedString | Block | BareToken | Expression | BracketList
-Expression   ::= ? a token starting with 'ocl{', re-accumulated until the
-                   braces balance ?
+FacetValue   ::= QuotedString | Block | BareToken | ExpressionCarrier | BracketList
+ExpressionCarrier ::= ExpressionString | ExpressionBlock
+ExpressionString  ::= ? a token starting with 'ocl{', re-accumulated until the
+                   braces balance ? (* the legacy carrier; C178 deprecates *)
+ExpressionBlock   ::= 'expression' Block | 'derive' Block | 'derivation' Block
+                    | 'check' Block
+(* The block's body is FIRST-CLASS EXPRESSION SYNTAX (<<expression-language>>):
+   the precedence grammar below, harvested by the checker's identifier
+   resolution — never a quoted string. The grammar applies no expression
+   tokenization to the block: the body is the raw span the expression
+   parser reads. *)
 BracketList  ::= ? a token starting with '[', re-accumulated until the
                    accumulated text contains ']' ?
 ----
@@ -129,6 +137,49 @@ NamespaceBlock ::= 'namespace' Identifier Block
             (* uri + prefix (+ optional default marker); clause 9.6 *)
 ----
 EOF
+
+=== The expression grammar
+
+The inline carriers' body is the language's own expression syntax — a
+precedence grammar over the tokens of <<lexical-grammar>>, one
+expression per carrier, harvested by the checker's identifier
+resolution (<<checker,16>>):
+
+[source,ebnf]
+----
+Expression   ::= ImpliesExpr
+ImpliesExpr  ::= OrExpr { 'implies' OrExpr }
+OrExpr       ::= XorExpr { 'or' XorExpr }
+XorExpr      ::= AndExpr { 'xor' AndExpr }
+AndExpr      ::= CompareExpr { 'and' CompareExpr }
+CompareExpr  ::= AddExpr { ('=' | '!=' | '≠' | '<' | '>' | '<=' | '>=') AddExpr }
+AddExpr      ::= MulExpr { ('+' | '-') MulExpr }
+MulExpr      ::= Unary { ('*' | '/') Unary }
+Unary        ::= [ 'not' | '-' ] Primary
+Primary      ::= Number | String | 'true' | 'false'
+               | '(' Expression ')'
+               | PathOrCall
+               | Navigation
+               | Conditional
+PathOrCall   ::= DottedPath [ '(' [ Expression { ',' Expression } ] ')' ]
+DottedPath   ::= BareToken { '.' BareToken }
+Navigation   ::= DottedPath '->' Iterator '(' BareToken '|' Expression ')'
+Iterator     ::= 'forAll' | 'exists' | 'select' | 'collect'
+Conditional  ::= 'if' Expression 'then' Expression 'else' Expression 'endif'
+----
+
+The precedence is the listing's order: `implies` binds loosest, the
+arithmetic tightest; every binary level is left-associative. The
+conditional's `endif` delimits, so a branch needs no parentheses at any
+precedence — a branch may itself be a conditional. The navigation's
+lambda parameter scopes its body exactly like a limit's `args` binding
+(<<limit-expressions,11.1.4>>). The iterators' values: `forAll` and
+`exists` yield booleans; `select` yields a subcollection of its source;
+`collect` projects — a collection of the body's element kind. The
+boolean literals are kindless leaves. The same grammar is implemented a
+second time, independently, by the conformance suite's second checker
+(conformance/checker2-rules.json): the two implementations agreeing is
+the grammar's conformance proof.
 
 === What the grammar does not decide
 

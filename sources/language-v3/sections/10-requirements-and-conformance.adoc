@@ -24,8 +24,13 @@ requirement /req/metrological/mpe {
     param n_runs: integer { description "..." default 20 range { min 0 max 100 } }
   }
   limit {
-    expression "ocl{...}"
-    uses { mpe accuracy_class p_lc }
+    args {
+      mpe   <- symbol:mpe
+      p_lc  <- symbol:p_lc
+    }
+    expression {
+      abs(p_lc * n_runs) <= mpe
+    }
     modality should
     relative_to reference_speed
     notes "..."
@@ -185,8 +190,13 @@ requirement /req/metrological/mpe {
     }
   }
   limit {
-    expression "ocl{...}"
-    uses { mpe accuracy_class }
+    args {
+      mpe    <- symbol:mpe
+      e_max  <- attribute:e_max
+    }
+    expression {
+      abs(served - nominal) <= mpe
+    }
     quantity { kind mass unit kg }
     accepts { verdict mpe_error op lte limit "ocl{...}" }
   }
@@ -273,6 +283,12 @@ declared table).
 |`self.<path>`
 |The subject aspect the requirement constrains.
 
+|`process:<p>.<step>[.<io>]`
+|The step plane (register 19): a declared process, one of its steps,
+or one of the step's declared signature inputs or outputs. The dot
+descends the declared structure; the leaf names a declared io (C173,
+`step-plane-refs-resolve`, checks the descent).
+
 |`<package>:<kind>:<id>`
 |A declaration across a `uses` edge; the composed closure resolves it.
 |===
@@ -349,12 +365,16 @@ conformance_test /conf/metrological-tests/mpe-test {
     variable applied_load { type mass unit kg source measured
       provenance { channel reference_instrument ref eq-013 observed_at t_log } }
     variable e_l { type mass unit kg source derived
-      derivation "ocl{indication - applied_load}" }
+      derivation {
+        indication - applied_load
+      } }
   }
   observables { observable indication_series { quantity_kind mass unit kg } }
   preconditions {
     precondition warmed-up {
-      check "ocl{self.state = #ready}"
+      check {
+        self.state = #ready
+      }
       description "An unwarmed run is invalid, never a fail."
       on_violation invalid
     }
@@ -399,7 +419,9 @@ once, reference everywhere.
 ----
 verdict drift_error {
   quantity { kind volume-fraction unit "ppm" }
-  derive "ocl{indication - cgm_certified_value}"
+  derive {
+    indication - cgm_certified_value
+  }
   inputs { indication cgm_certified_value }
   series_reduction max_abs_over_window
   ref derives-from "urn:oiml:pub:r:144-2:2013#clause-4.8"
@@ -522,7 +544,9 @@ subject, distinct from a requirement, which is an external obligation):
 constraint e-max-bound {
   name "Applied load within capacity"
   stereotype inv
-  check "ocl{self.applied_load <= self.e_max}"
+  check {
+    self.applied_load <= self.e_max
+  }
   on_violation invalid
   violation_meaning "A run above capacity is not a test result."
   source { doc "urn:oiml:pub:r:60-2:2021" clause "2.3" }
@@ -616,7 +640,7 @@ surface and for standards whose provisions bind nothing.
 === The check primitive
 
 "Evaluate an expression and compare" is ONE construct. The surface
-spellings — a requirement's `limit { expression "ocl{…}" }`, an
+spellings — a requirement's `limit { expression { ... } }`, an
 acceptance_criteria triple (type/operator/threshold), a process's
 `validate_measurement "…"` string, a form's `pass_fail { pass_if … }`,
 and the `constraint` construct — are consolidated surface forms over
@@ -626,7 +650,9 @@ the one `check`:
 ----
 check within_mpe_check {
   inputs { errors : number { unit v } mpe : number { unit v } }
-  expression "ocl{every(e | e <= mpe)}"
+  expression {
+    errors -> forAll(e | e <= mpe)
+  }
   operator lte
   threshold { symbol mpe }
   ref derives-from "urn:oiml:pub:r:60-1:2021#clause-5.3.2"
@@ -672,11 +698,13 @@ requirement /req/metrological/mpe-vehicle-mass {
 }
 ----
 
-Each `name <- package:kind:id` binding is **fully qualified**: the package,
-the element kind, and the element id — the same three-part scoped-reference
-grammar as the composition's capability references, extended with the kind
-disambiguator and the optional `.column` tail for tabular sources. There is
-no ambient scope: a binding that omits the package does not parse. The
+A binding's source is **qualified by its kind**: `kind:id` names a
+declaration of this package's own registries; `package:kind:id` — the
+three-part scoped-reference grammar of the composition's capability
+references, extended with the kind disambiguator and the optional
+`.column` tail for tabular sources — crosses a `uses` edge, and the
+composed closure resolves it. There is no ambient scope: an identifier
+outside the args is air, whatever the binding's reach. The
 member bindings of a class law (`member:<id>`) are the one special form —
 the containment itself is the scope declaration. An identifier in the assertion that is
 not a declared argument is a parse error: the formula is the executable core,

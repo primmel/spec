@@ -90,6 +90,18 @@ URNs (C79; coherence across the closure: C113,
 <<edition-lineage,9.3.1>>).
 |`validity { from ... to ... }` |0..1 |The validity window of the edition
 (C78).
+|`language` |0..1 |The language revision the package is written
+against (e.g. `v3.4`). Under the strict parse mode the declaration is
+the gate: a parser older than the declared revision rejects the
+package instead of silently skipping its newer constructs (C176,
+`language-declared-wellformed`); the deprecated-carrier ratchet (C178)
+counts the composed standard against it (<<checker,16>>).
+|`license_key`, `license_holder` |0..1 each |The entitlement facet
+pair: the entitlement-catalog key the platform's license gate reads
+(`std:<slug>` — C144 checks the shape, C145 the at-most-one rule), and
+the content's copyright holder (required with the key, C146). A
+package without a key is public content; a bare holder is attribution
+without an entitlement claim.
 |`default_spelling` |0..1 |The ISO 24229 spelling code every inline prose
 string is authored in (<<multilinguality,clause 15>>; the `defaultSpelling`
 spelling is accepted).
