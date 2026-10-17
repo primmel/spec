@@ -92,6 +92,7 @@ changes no v3.1 construct.
 |`document_module` | | documentModules | v3.3 | 20.20 | extension: The OIML-CS framework (clause 20)
 |`document_precedence` | | documentPrecedences | v3.3 | 20.19 | extension: The edition lineage (which document governs)
 |`dual` | | duals | v3 | 13 | extension: Designed/exhibited duality
+|`uncertainty_budget` | | uncertainty budgets | v3.3 | 11.9a | extension: The GUM plane's declaration — the components and the coverage, never the arithmetic
 |`end` | `end_event` | events | v2 | 12 | inherit: MMEL end event
 |`enum` | | enums | v2 | 13 | inherit: LutaML enum
 |`evaluation_dimensions` | | evaluationDimensions | v3.3 | 20.10 | extension: Clause 20 register
