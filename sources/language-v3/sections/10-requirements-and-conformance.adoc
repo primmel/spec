@@ -727,7 +727,9 @@ requirement /req/metrological/mpe-ranges {
     when {
       e <= 5000
     }
-    abs(e) <= mu
+    expression {
+      abs(e) <= mu
+    }
   }
   limit "mpe-high-range" {
     args {
@@ -737,7 +739,9 @@ requirement /req/metrological/mpe-ranges {
     when {
       e > 5000
     }
-    abs(e) <= mu
+    expression {
+      abs(e) <= mu
+    }
   }
 }
 ----
