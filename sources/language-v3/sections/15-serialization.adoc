@@ -191,6 +191,29 @@ mapping, or by conversion code the checker can see, is an error).
 plane). The shared word carries two jobs; the artifacts never mix.
 
 [[fmt]]
+[[string-formats]]
+=== The grammar-backed string formats
+
+A `string_format` registers a named string form for one artifact
+class — the grammar-backed serialization an artifact's textual
+projection uses. The format name carries the colon sigil of LML's
+registered formats; a bare name is a parse error.
+
+[source,prl]
+----
+string_format :pubid_iso {
+  artifact "pubid"
+  root "international-standard"
+}
+----
+
+The facets: `artifact` names the artifact class the format renders, and
+`root` names the root element of the format's grammar. The registration
+is the contract between the model and the serializer: the wire mappings
+(<<wire-mappings>>) declare which elements ride which format,
+and the format declares the artifact and root the rendered document
+carries.
+
 === The canonical form as a command
 
 `primmel fmt [--check] <package-dir>` is the canonical serialization as
