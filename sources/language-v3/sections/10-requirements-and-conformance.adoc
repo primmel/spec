@@ -669,9 +669,27 @@ lifecycle is the language's own closed vocabulary — `performed`,
 `completed`, `invalid`, `aborted` — not a facet: `invalid` is the
 run whose setup was wrong (the precondition doctrine), never a fail.
 
+The run also carries the applied-input contract: `inputs` names the
+test's declared-source variables whose values the run applies — the
+scheme-set corners, dwell loads, classes, and factors the laboratory
+sets before it probes. A measured variable is an OUTPUT of the run —
+it can never be an applied input. The run consumes what the author
+declares and produces what the instruments measure.
+
+[source,prl]
+----
+run {
+  performed_by laboratory
+  store probe-records
+  trajectory run_states
+  inputs { envelope_temperature_min envelope_temperature_max }
+}
+----
+
 The checker resolves the plane (C180 `run-plane-shape`, C181
 `run-store-binds`): the store names a declared registry, the
-trajectory names a declared machine, and the registry's data class is
+trajectory names a declared machine, the applied inputs name the
+test's declared-source variables, and the registry's data class is
 the record forms' data class — the output records and the store hold
 the same shape.
 

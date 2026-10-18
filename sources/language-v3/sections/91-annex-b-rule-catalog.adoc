@@ -4,7 +4,7 @@
 This annex is the catalog of every rule the checker runs. It reproduces,
 without paraphrase, the machine-readable registry of the reference
 implementation (`packages/primmel/src/check-rules.ts` of primmel-ts at
-version 1.21.16), which `primmel check --rules` prints. The toolchain
+version 1.21.18), which `primmel check --rules` prints. The toolchain
 registry is the operative form; this annex is its publication. A
 discrepancy between this annex and the toolchain registry is a defect in
 one of them, and the verification is one command:

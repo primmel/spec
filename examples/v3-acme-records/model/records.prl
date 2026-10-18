@@ -59,8 +59,10 @@ conformance_test /conf/indication-check {
   run {
     performed_by laboratory
     store indication-runs
+    inputs { applied_load }
   }
   variables {
+    variable applied_load { type number unit "kg" source declared description "The load point the laboratory applies for this check" }
     variable e { type number unit "kg" source measured description "The indicated error" }
   }
   acceptance_criteria {
