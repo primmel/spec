@@ -4,7 +4,7 @@
 This annex is the catalog of every rule the checker runs. It reproduces,
 without paraphrase, the machine-readable registry of the reference
 implementation (`packages/primmel/src/check-rules.ts` of primmel-ts at
-version 1.21.13), which `primmel check --rules` prints. The toolchain
+version 1.21.16), which `primmel check --rules` prints. The toolchain
 registry is the operative form; this annex is its publication. A
 discrepancy between this annex and the toolchain registry is a defect in
 one of them, and the verification is one command:
@@ -14,7 +14,7 @@ one of them, and the verification is one command:
 primmel check --rules
 ----
 
-Each rule has an identifier (C1 to C179, with reserved gaps; the
+Each rule has an identifier (C1 to C181, with reserved gaps; the
 numbering is historical and not contiguous by family), a name used in findings, a family, a default
 severity, and a level:
 
@@ -51,49 +51,49 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C1 |`attribute-bind-scope` |error |normal
-|C2 |`reference-targets-resolve` |error |normal
-|C3 |`dimension-enums` |error |normal
-|C4 |`store-uniqueness` |error |normal
-|C5 |`req-test-coverage` |warning |normal
-|C56 |`allowlist-malformed` |error |normal
-|C57 |`allowlist-stale` |error |normal
-|C158 |`prose-quarantine` |error |normal
-|C159 |`urn-only-refs` |error |normal
-|C160 |`signature-closure` |error |normal
-|C161 |`check-surface` |error |normal
-|C162 |`namespace-coherence` |error |normal
-|C163 |`change-levels` |error |normal
-|C164 |`wire-mapping-coverage` |error |normal
-|C169 |`provenance-clause-resolves` |error |normal
-|C170 |`edition-lineage-declared` |error |normal
-|C171 |`expression-identifiers-resolve` |error |normal
-|C172 |`requirement-algebra-resolves` |error |normal
-|C176 |`language-declared-wellformed` |error |normal
-|C179 |`uncertainty-budget-resolves` |error |normal
-|C177 |`kind-coherence` |error |normal
-|C178 |`legacy-carrier-deprecated` |warning |normal
-|C124 |`pair-list-shape` |error |normal
-|C125 |`formula-variant-shape` |error |normal
-|C127 |`common-test-condition-shape` |error |normal
-|C128 |`part-annex-shape` |error |normal
-|C89 |`spelling-code-wellformed` |error |normal
-|C90 |`invariant-shape` |error |normal
-|C91 |`invariant-enforcement-grammar` |error |normal
-|C92 |`test-sequence-shape` |error |normal
-|C93 |`test-sequence-integrity` |error |normal
-|C147 |`test-program-shape` |error |normal
-|C148 |`test-program-duration` |error |normal
-|C154 |`construct-deprecated` |warning |normal
-|C94 |`formulas-used-shape` |error |normal
-|C96 |`duplicate-id` |error |normal
-|C97 |`program-maps-resolves` |error |normal
-|C98 |`program-surveillance-required` |warning |normal
-|C103 |`declared-predicate` |error |normal
-|C110 |`term-alias-shape` |error |normal
-|C111 |`dimension-shape` |error |normal
-|C112 |`reference-identity` |error |normal
-|C118 |`requirement-parameter-shape` |error |normal
+|C1 |`attribute-bind-scope` |normal |error
+|C2 |`reference-targets-resolve` |normal |error
+|C3 |`dimension-enums` |normal |error
+|C4 |`store-uniqueness` |normal |error
+|C5 |`req-test-coverage` |normal |warning
+|C56 |`allowlist-malformed` |normal |error
+|C57 |`allowlist-stale` |normal |error
+|C158 |`prose-quarantine` |normal |error
+|C159 |`urn-only-refs` |normal |error
+|C160 |`signature-closure` |normal |error
+|C161 |`check-surface` |normal |error
+|C162 |`namespace-coherence` |normal |error
+|C163 |`change-levels` |normal |error
+|C164 |`wire-mapping-coverage` |normal |error
+|C169 |`provenance-clause-resolves` |normal |error
+|C170 |`edition-lineage-declared` |normal |error
+|C171 |`expression-identifiers-resolve` |normal |error
+|C172 |`requirement-algebra-resolves` |normal |error
+|C176 |`language-declared-wellformed` |normal |error
+|C179 |`uncertainty-budget-resolves` |normal |error
+|C177 |`kind-coherence` |normal |error
+|C178 |`legacy-carrier-deprecated` |normal |warning
+|C124 |`pair-list-shape` |normal |error
+|C125 |`formula-variant-shape` |normal |error
+|C127 |`common-test-condition-shape` |normal |error
+|C128 |`part-annex-shape` |normal |error
+|C89 |`spelling-code-wellformed` |normal |error
+|C90 |`invariant-shape` |normal |error
+|C91 |`invariant-enforcement-grammar` |normal |error
+|C92 |`test-sequence-shape` |normal |error
+|C93 |`test-sequence-integrity` |normal |error
+|C147 |`test-program-shape` |normal |error
+|C148 |`test-program-duration` |normal |error
+|C154 |`construct-deprecated` |normal |warning
+|C94 |`formulas-used-shape` |normal |error
+|C96 |`duplicate-id` |normal |error
+|C97 |`program-maps-resolves` |normal |error
+|C98 |`program-surveillance-required` |normal |warning
+|C103 |`declared-predicate` |normal |error
+|C110 |`term-alias-shape` |normal |error
+|C111 |`dimension-shape` |normal |error
+|C112 |`reference-identity` |normal |error
+|C118 |`requirement-parameter-shape` |normal |error
 |===
 
 === anatomy
@@ -103,11 +103,11 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C6 |`anatomy-family` |error |normal
-|C7 |`anatomy-characteristic-derivation` |error |normal
-|C8 |`anatomy-behavior-resolves` |error |normal
-|C9 |`subject-extends-resolves` |warning |normal
-|C84 |`constraint-shape` |error |normal
+|C6 |`anatomy-family` |normal |error
+|C7 |`anatomy-characteristic-derivation` |normal |error
+|C8 |`anatomy-behavior-resolves` |normal |error
+|C9 |`subject-extends-resolves` |normal |warning
+|C84 |`constraint-shape` |normal |error
 |===
 
 === process
@@ -117,21 +117,21 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C10 |`process-one-start` |error |normal
-|C11 |`process-terminal-end` |error |normal
-|C12 |`process-flow-names-resolve` |error |normal
-|C13 |`process-signature-realized` |error |normal
-|C14 |`process-timer-recurrence` |error |normal
-|C15 |`process-timer-period` |error |normal
-|C16 |`process-step-ids-unique` |error |normal
-|C58 |`activity-kind-resolves` |error |normal
-|C59 |`segregation-members-resolve` |error |normal
-|C74 |`process-io-type-coherence` |error |normal
-|C75 |`process-flow-io-cover` |error |normal
-|C76 |`subprocess-signature-bound` |error |normal
-|C168 |`method-ref-resolves` |error |normal
-|C173 |`step-plane-refs-resolve` |error |normal
-|C121 |`abstract-process-references-resolve` |error |normal
+|C10 |`process-one-start` |normal |error
+|C11 |`process-terminal-end` |normal |error
+|C12 |`process-flow-names-resolve` |normal |error
+|C13 |`process-signature-realized` |normal |error
+|C14 |`process-timer-recurrence` |normal |error
+|C15 |`process-timer-period` |normal |error
+|C16 |`process-step-ids-unique` |normal |error
+|C58 |`activity-kind-resolves` |normal |error
+|C59 |`segregation-members-resolve` |normal |error
+|C74 |`process-io-type-coherence` |normal |error
+|C75 |`process-flow-io-cover` |normal |error
+|C76 |`subprocess-signature-bound` |normal |error
+|C168 |`method-ref-resolves` |normal |error
+|C173 |`step-plane-refs-resolve` |normal |error
+|C121 |`abstract-process-references-resolve` |normal |error
 |===
 
 === instantiation
@@ -141,13 +141,13 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C17 |`instance-scope` |error |normal
-|C18 |`instance-version-pin` |error |normal
-|C19 |`chain-acyclic` |error |normal
-|C20 |`instance-of-resolves` |error |normal
-|C155 |`power-type-chain` |error |normal
-|C156 |`class-extends-resolves` |warning |normal
-|C157 |`registry-dataclass-resolves` |error |normal
+|C17 |`instance-scope` |normal |error
+|C18 |`instance-version-pin` |normal |error
+|C19 |`chain-acyclic` |normal |error
+|C20 |`instance-of-resolves` |normal |error
+|C155 |`power-type-chain` |normal |error
+|C156 |`class-extends-resolves` |normal |warning
+|C157 |`registry-dataclass-resolves` |normal |error
 |===
 
 === mapping
@@ -157,12 +157,12 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C21 |`mapping-resolves` |error |normal
-|C22 |`mapping-direction` |error |normal
-|C23 |`mapping-calculus-consistency` |error |normal
-|C24 |`import-not-mapping` |error |normal
-|C25 |`mapping-description` |warning |audit
-|C26 |`view-read-only` |error |normal
+|C21 |`mapping-resolves` |normal |error
+|C22 |`mapping-direction` |normal |error
+|C23 |`mapping-calculus-consistency` |normal |error
+|C24 |`import-not-mapping` |normal |error
+|C25 |`mapping-description` |audit |warning
+|C26 |`view-read-only` |normal |error
 |===
 
 === composition
@@ -172,30 +172,30 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C27 |`uses-resolves` |error |normal
-|C28 |`uses-no-redefine` |error |normal
-|C29 |`uses-cycle` |error |normal
-|C30 |`provides-consumed-or-waived` |warning |normal
-|C31 |`requires-satisfied` |error |normal
-|C119 |`namespace-pin-violation` |error |normal
-|C120 |`framework-references-resolve` |error |normal
-|C122 |`scheme-type-resolves` |error |normal
-|C123 |`document-module-references-resolve` |error |normal
-|C126 |`formula-note-targets-resolve` |error |normal
-|C130 |`identity-and-aspect-references` |error |normal
-|C131 |`promise-certificate-projection` |error |normal
-|C132 |`application-declaration-references` |error |normal
-|C133 |`calculation-context-references` |error |normal
-|C134 |`evaluation-dimension-references` |error |normal
-|C135 |`evaluation-profile-coherence` |error |normal
-|C136 |`certificate-template-references` |error |normal
-|C137 |`workflow-config-references` |error |normal
-|C138 |`verification-pathway-references` |error |normal
-|C139 |`selection-rule-references` |error |normal
-|C140 |`test-report-skeleton-references` |error |normal
-|C141 |`checklist-entry-shape` |error |normal
-|C142 |`gateway-edges-resolve` |error |normal
-|C143 |`approval-references-resolve` |error |normal
+|C27 |`uses-resolves` |normal |error
+|C28 |`uses-no-redefine` |normal |error
+|C29 |`uses-cycle` |normal |error
+|C30 |`provides-consumed-or-waived` |normal |warning
+|C31 |`requires-satisfied` |normal |error
+|C119 |`namespace-pin-violation` |normal |error
+|C120 |`framework-references-resolve` |normal |error
+|C122 |`scheme-type-resolves` |normal |error
+|C123 |`document-module-references-resolve` |normal |error
+|C126 |`formula-note-targets-resolve` |normal |error
+|C130 |`identity-and-aspect-references` |normal |error
+|C131 |`promise-certificate-projection` |normal |error
+|C132 |`application-declaration-references` |normal |error
+|C133 |`calculation-context-references` |normal |error
+|C134 |`evaluation-dimension-references` |normal |error
+|C135 |`evaluation-profile-coherence` |normal |error
+|C136 |`certificate-template-references` |normal |error
+|C137 |`workflow-config-references` |normal |error
+|C138 |`verification-pathway-references` |normal |error
+|C139 |`selection-rule-references` |normal |error
+|C140 |`test-report-skeleton-references` |normal |error
+|C141 |`checklist-entry-shape` |normal |error
+|C142 |`gateway-edges-resolve` |normal |error
+|C143 |`approval-references-resolve` |normal |error
 |===
 
 === quantities
@@ -205,18 +205,18 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C165 |`math-symbols-declared` |warning |normal
-|C166 |`math-parses` |warning |normal
-|C167 |`qualified-unit-reference` |error |normal
-|C32 |`inv1-no-bare-quantity` |error |normal
-|C33 |`quantity-coherence` |error |normal
-|C34 |`duality-coherence` |error |normal
-|C35 |`time-format` |error |normal
-|C36 |`map-type` |error |normal
-|C149 |`closed-derivation-references-declared` |error |normal
-|C152 |`payload-typed-by-class` |error |normal
-|C114 |`limit-quantity-coherence` |error |normal
-|C115 |`calculation-signature-shape` |error |normal
+|C165 |`math-symbols-declared` |normal |warning
+|C166 |`math-parses` |normal |warning
+|C167 |`qualified-unit-reference` |normal |error
+|C32 |`inv1-no-bare-quantity` |normal |error
+|C33 |`quantity-coherence` |normal |error
+|C34 |`duality-coherence` |normal |error
+|C35 |`time-format` |normal |error
+|C36 |`map-type` |normal |error
+|C149 |`closed-derivation-references-declared` |normal |error
+|C152 |`payload-typed-by-class` |normal |error
+|C114 |`limit-quantity-coherence` |normal |error
+|C115 |`calculation-signature-shape` |normal |error
 |===
 
 === state
@@ -226,13 +226,13 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C37 |`state-fires-resolve` |error |normal
-|C38 |`state-family-separation` |error |normal
-|C39 |`state-machine-states-referenced` |error |normal
-|C40 |`anatomy-state-resolves` |error |normal
-|C41 |`precondition-on-violation-known` |warning |normal
-|C95 |`cascade-transition-resolve` |error |normal
-|C109 |`state-machine-initial-present` |error |normal
+|C37 |`state-fires-resolve` |normal |error
+|C38 |`state-family-separation` |normal |error
+|C39 |`state-machine-states-referenced` |normal |error
+|C40 |`anatomy-state-resolves` |normal |error
+|C41 |`precondition-on-violation-known` |normal |warning
+|C95 |`cascade-transition-resolve` |normal |error
+|C109 |`state-machine-initial-present` |normal |error
 |===
 
 === promises
@@ -242,9 +242,9 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C42 |`promise-target-resolves` |error |normal
-|C43 |`promise-verifiable` |warning |normal
-|C44 |`promise-not-bare-value` |error |normal
+|C42 |`promise-target-resolves` |normal |error
+|C43 |`promise-verifiable` |normal |warning
+|C44 |`promise-not-bare-value` |normal |error
 |===
 
 === artifacts
@@ -254,10 +254,10 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C45 |`artifact-def-contract` |error |normal
-|C46 |`artifact-instance-resolves` |error |normal
-|C47 |`artifact-evidence-separation` |error |normal
-|C153 |`artifact-contract-derivation` |error |normal
+|C45 |`artifact-def-contract` |normal |error
+|C46 |`artifact-instance-resolves` |normal |error
+|C47 |`artifact-evidence-separation` |normal |error
+|C153 |`artifact-contract-derivation` |normal |error
 |===
 
 === characteristics
@@ -267,11 +267,11 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C48 |`characteristic-one-home` |error |normal
-|C49 |`characteristic-behavior-link` |error |normal
-|C50 |`characteristic-derivation-inputs` |error |normal
-|C116 |`verdict-inputs-resolve` |error |normal
-|C117 |`verdict-chain-acyclic` |error |normal
+|C48 |`characteristic-one-home` |normal |error
+|C49 |`characteristic-behavior-link` |normal |error
+|C50 |`characteristic-derivation-inputs` |normal |error
+|C116 |`verdict-inputs-resolve` |normal |error
+|C117 |`verdict-chain-acyclic` |normal |error
 |===
 
 === twins
@@ -281,21 +281,21 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C60 |`serve-targets-resolve` |error |normal
-|C61 |`payload-schema-quantity` |error |normal
-|C62 |`access-scope-covers-serves` |error |normal
-|C63 |`freshness-required-on-live-bindings` |error |normal
-|C64 |`endpoint-profile-resolves` |error |normal
-|C65 |`monitor-subject-resolves` |error |normal
-|C66 |`monitor-trigger-wellformed` |error |normal
-|C67 |`monitor-evaluate-resolves` |error |normal
-|C68 |`monitor-fail-escalation` |warning |normal
-|C69 |`monitor-escalation-resolves` |error |normal
-|C70 |`monitor-emit-sinks` |error |normal
-|C99 |`variable-provenance-channel` |error |normal
-|C100 |`composition-components-resolve` |error |normal
-|C101 |`composition-decomposition-covers` |error |normal
-|C102 |`composition-state-rule-closed` |error |normal
+|C60 |`serve-targets-resolve` |normal |error
+|C61 |`payload-schema-quantity` |normal |error
+|C62 |`access-scope-covers-serves` |normal |error
+|C63 |`freshness-required-on-live-bindings` |normal |error
+|C64 |`endpoint-profile-resolves` |normal |error
+|C65 |`monitor-subject-resolves` |normal |error
+|C66 |`monitor-trigger-wellformed` |normal |error
+|C67 |`monitor-evaluate-resolves` |normal |error
+|C68 |`monitor-fail-escalation` |normal |warning
+|C69 |`monitor-escalation-resolves` |normal |error
+|C70 |`monitor-emit-sinks` |normal |error
+|C99 |`variable-provenance-channel` |normal |error
+|C100 |`composition-components-resolve` |normal |error
+|C101 |`composition-decomposition-covers` |normal |error
+|C102 |`composition-state-rule-closed` |normal |error
 |===
 
 === coverage
@@ -305,14 +305,16 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C51 |`coverage-test-evidence` |warning |audit
-|C52 |`coverage-form-judgment` |warning |audit
-|C53 |`coverage-uses-bound` |error |normal
-|C54 |`coverage-lookup-table-exists` |error |normal
-|C55 |`coverage-budget` |error |audit
-|C71 |`text-coverage-sentence-uncovered` |warning |audit
-|C72 |`text-coverage-budget` |error |audit
-|C73 |`text-coverage-config` |error |normal
+|C180 |`run-plane-shape` |normal |error
+|C181 |`run-store-binds` |normal |error
+|C51 |`coverage-test-evidence` |audit |warning
+|C52 |`coverage-form-judgment` |audit |warning
+|C53 |`coverage-uses-bound` |normal |error
+|C54 |`coverage-lookup-table-exists` |normal |error
+|C55 |`coverage-budget` |audit |error
+|C71 |`text-coverage-sentence-uncovered` |audit |warning
+|C72 |`text-coverage-budget` |audit |error
+|C73 |`text-coverage-config` |normal |error
 |===
 
 === edition
@@ -322,12 +324,12 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C77 |`edition-status` |error |normal
-|C78 |`edition-validity-window` |error |normal
-|C79 |`edition-supersedes-resolves` |error |normal
-|C80 |`edition-pin-resolves` |error |normal
-|C113 |`edition-lineage-coherent` |error |normal
-|C85 |`baseurn-wellformed` |error |normal
+|C77 |`edition-status` |normal |error
+|C78 |`edition-validity-window` |normal |error
+|C79 |`edition-supersedes-resolves` |normal |error
+|C80 |`edition-pin-resolves` |normal |error
+|C113 |`edition-lineage-coherent` |normal |error
+|C85 |`baseurn-wellformed` |normal |error
 |===
 
 === dataspace
@@ -337,29 +339,11 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C104 |`dataspace-references-resolve` |error |normal
-|C105 |`dataspace-trust-anchor-shape` |error |normal
-|C106 |`dataspace-governance-provenance` |warning |normal
-|C107 |`policy-shape` |error |normal
-|C108 |`correspondence-shape` |error |normal
-|===
-
-=== supply chain
-
-
-[cols="1,3,1,1", options="header"]
-|===
-|Rule |Name |Default severity |Level
-
-|C81 |`product-maps-resolves` |error |normal
-|C82 |`product-unmapped-promises` |warning |normal
-|C83 |`abstract-import-pinned` |error |normal
-|C144 |`license-key-shape` |error |normal
-|C145 |`license-key-unique` |error |normal
-|C146 |`license-holder-required` |error |normal
-|C86 |`passport-content-resolves` |error |normal
-|C87 |`passport-access-leak` |error |normal
-|C88 |`passport-upi-scheme` |error |normal
+|C104 |`dataspace-references-resolve` |normal |error
+|C105 |`dataspace-trust-anchor-shape` |normal |error
+|C106 |`dataspace-governance-provenance` |normal |warning
+|C107 |`policy-shape` |normal |error
+|C108 |`correspondence-shape` |normal |error
 |===
 
 === attestation
@@ -369,6 +353,24 @@ its error leg (clause PKG-06).
 |===
 |Rule |Name |Default severity |Level
 
-|C150 |`attestation-references-resolve` |error |normal
-|C151 |`attestation-claim-lineage` |error |normal
+|C150 |`attestation-references-resolve` |normal |error
+|C151 |`attestation-claim-lineage` |normal |error
+|===
+
+=== supply chain
+
+
+[cols="1,3,1,1", options="header"]
+|===
+|Rule |Name |Default severity |Level
+
+|C81 |`product-maps-resolves` |normal |error
+|C82 |`product-unmapped-promises` |normal |warning
+|C83 |`abstract-import-pinned` |normal |error
+|C144 |`license-key-shape` |normal |error
+|C145 |`license-key-unique` |normal |error
+|C146 |`license-holder-required` |normal |error
+|C86 |`passport-content-resolves` |normal |error
+|C87 |`passport-access-leak` |normal |error
+|C88 |`passport-upi-scheme` |normal |error
 |===
