@@ -31,3 +31,7 @@ jobs:
         run: yarn workspace @primmel/primmel annex-a --check
         env:
           PRIMMEL_SPEC_SOURCES: ${{ github.workspace }}/sources
+      - name: The v3 examples parse and check clean (the kernel checkout)
+        run: npx --yes tsx scripts/check-v3-examples.mjs
+        env:
+          PRIMMEL_TS_ROOT: ${{ github.workspace }}/primmel-ts

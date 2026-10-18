@@ -1,0 +1,64 @@
+# The fictional demonstration: the v3 constructs in one small model —
+# the args-bound limits with a when-guard, the block carriers, the
+# collection navigation. Every name is invented for teaching.
+
+symbol served_load {
+  type number
+  quantity_kind mass
+  unit "kg"
+}
+
+verdict indication_error {
+  quantity { kind mass unit "kg" }
+  derive {
+    abs(served_load - reference_load)
+  }
+  inputs { reference_load }
+}
+
+requirement /req/metrology/indication {
+  name "Indication error across the range"
+  limit "low-range" {
+    args {
+      e  <- observable:e
+      mu <- symbol:served_load
+    }
+    when {
+      e <= 100
+    }
+    expression {
+      e <= mu
+    }
+  }
+  limit "high-range" {
+    args {
+      e  <- observable:e
+      mu <- symbol:served_load
+    }
+    when {
+      e > 100
+    }
+    expression {
+      e <= mu
+    }
+  }
+  verification { method testing }
+}
+
+conformance_test /conf/indication-check {
+  name "The indication check"
+  type Testing
+  targets { /req/metrology/indication }
+  result_forms { indication-record }
+  variables {
+    variable reference_load { type number unit "kg" source measured }
+    variable readings { type collection source measured description "The paired readings" }
+    variable all_within { type boolean source derived derivation {
+      readings -> forAll(r | r.error <= r.allowed)
+    } }
+  }
+  acceptance_criteria {
+    type composite
+    pass_if "ocl{all_within}"
+  }
+}
