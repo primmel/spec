@@ -3,7 +3,7 @@
 // checks CLEAN through the kernel checkout the parity job provides
 // (critique §40: the examples were never machine-checked). Fictional
 // content only (the examples README's rule).
-import { readdirSync, existsSync } from 'node:fs';
+import { readdirSync, existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,6 +17,26 @@ const { checkPackage } = await import(
 const examples = readdirSync(join(ROOT, 'examples')).filter(e =>
   /^v3-/.test(e),
 );
+
+// The locator: the v3 examples compose each other — a package's uses
+// edge resolves against the sibling v3-* examples by declared id.
+const idOf = dir => {
+  const m = readFileSync(join(dir, 'package.primmel'), 'utf8').match(
+    /^package \{[\s\S]*?\bid ([\w-]+)/m,
+  );
+  return m ? m[1] : null;
+};
+const byId = new Map();
+for (const e of examples) {
+  const dir = join(ROOT, 'examples', e);
+  if (existsSync(join(dir, 'package.primmel'))) {
+    const id = idOf(dir);
+    if (id) {
+      byId.set(id, dir);
+    }
+  }
+}
+const resolvePackage = id => byId.get(id);
 if (examples.length === 0) {
   console.error('check-v3-examples: no v3-* examples found');
   process.exit(2);
@@ -27,7 +47,9 @@ for (const e of examples.sort()) {
   if (!existsSync(join(dir, 'package.primmel'))) {
     continue;
   }
-  const errors = checkPackage(dir).filter(i => i.severity === 'error');
+  const errors = checkPackage(dir, { resolvePackage }).filter(
+    i => i.severity === 'error',
+  );
   if (errors.length === 0) {
     console.log(`  ✓ ${e}: loads and checks clean`);
   } else {

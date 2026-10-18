@@ -1,0 +1,7 @@
+package {
+  id acme-base
+  title "Acme base — the fictional v3 demonstration (the used package)"
+  version "2026.1"
+  language v3.4
+  provides { acme-base tolerance-register }
+}

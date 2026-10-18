@@ -1,0 +1,16 @@
+# The composing package: the requirement binds the used package's
+# declaration across the uses edge — the three-part scoped reference.
+
+requirement /req/composite/indication {
+  name "The composed indication bound across the uses edge"
+  limit {
+    args {
+      e <- observable:e
+      mu <- acme-base:symbol:tolerance
+    }
+    expression {
+      e <= mu
+    }
+  }
+  verification { method testing }
+}

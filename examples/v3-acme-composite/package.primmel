@@ -1,0 +1,8 @@
+package {
+  id acme-composite
+  title "Acme composite — the fictional v3 demonstration (the composition)"
+  version "2026.1"
+  language v3.4
+  uses { acme-base }
+  requires { acme-base }
+}

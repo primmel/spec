@@ -201,3 +201,24 @@ The most relevant sections for these examples:
 * The `view profile`, `multimedia`, `term_entry`, and `figure` constructs
   exist in the language but are not exercised here. They are documented in
   the spec.
+
+
+== The v3 generation (`v3-*`)
+
+The `v3-*` directories are the current language's teaching packages —
+fictional, checked CLEAN by the kernel on every CI run
+(`scripts/check-v3-examples.mjs` composes them with a locator):
+
+* `v3-acme-base` + `v3-acme-composite` — the composition: a uses edge,
+  the provides/requires pairing, and the three-part scoped reference
+  (`acme-base:symbol:tolerance`) binding across it;
+* `v3-acme-loadcells` — the args-bound named limits with `when`
+  guards, the inline block carriers, the collection navigation;
+* `v3-acme-thermal` — the uncertainty budget (the Type A series and the
+  Type B certificate component over the coverage k) and the operational
+  state machine;
+* `v3-acme-records` — the forms plane: fields with their bind channels,
+  the pass/fail judgment, and the result record the test names.
+
+The `.mmel` artifacts above teach the MMEL 0.1 generation and remain
+for the v2 bridge; the `v3-*` packages are the language of record.
