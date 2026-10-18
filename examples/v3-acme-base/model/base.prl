@@ -1,0 +1,9 @@
+# The used package: the tolerance register the composite binds across
+# the uses edge. Every name is invented.
+
+symbol tolerance {
+  type number
+  quantity_kind mass
+  unit "g"
+  origin declared
+}
