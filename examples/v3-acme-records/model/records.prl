@@ -1,0 +1,50 @@
+# The fictional demonstration: the forms plane — fields with their bind
+# channels, the pass/fail judgment, and the result record a conformance
+# test names. Every name is invented.
+
+attribute_definition reference_load {
+  name "Reference load"
+  definition "The reference mass the comparison applies."
+  value_type number
+  unit "kg"
+  origin declared
+}
+
+form indication-record {
+  name "The indication record"
+  conformance_process /conf/indication-check
+  field meter_id : string { description "The meter under test" required true }
+  field reference_mass : number { unit "kg" measurement_method direct bind model.attributes.reference_load }
+  field indicated_mass : number { unit "kg" measurement_method direct }
+  field error : number { unit "kg" measurement_method derived }
+  field within_tolerance : boolean { required true measurement_method evaluated targets { /req/metrology/indication } }
+  pass_fail { criteria "The indicated error stays within the class tolerance." pass_if "ocl{within_tolerance}" }
+}
+
+requirement /req/metrology/indication {
+  name "The indication tolerance"
+  limit {
+    args {
+      e  <- observable:e
+      mu <- attribute:reference_load
+    }
+    expression {
+      e <= mu / 1000
+    }
+  }
+  verification { method testing }
+}
+
+conformance_test /conf/indication-check {
+  name "The indication check"
+  type Testing
+  targets { /req/metrology/indication }
+  result_forms { indication-record }
+  variables {
+    variable e { type number unit "kg" source measured description "The indicated error" }
+  }
+  acceptance_criteria {
+    type composite
+    pass_if "ocl{e > 0 -> false else true}"
+  }
+}
