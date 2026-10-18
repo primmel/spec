@@ -636,6 +636,45 @@ paths, carries a formal limit, and joins the coverage calculus. New
 modelling SHOULD author requirements; provisions remain for the v2
 surface and for standards whose provisions bind nothing.
 
+[[run-plane]]
+=== The run: input, output, store
+
+A conformance test's execution is a first-class shape — the **run** —
+and the chain it closes is input ⇒ output ⇒ store: the run is the
+INPUT (who performs it, against which trajectory), the test's result
+forms are the OUTPUT records collected from the run, and the store
+names the data registry those records land in. The form is never the
+run: it is the record the run produces.
+
+[source,prl]
+----
+conformance_test /conf/x {
+  name "X"
+  type Testing
+  targets { /req/x }
+  result_forms { probe }
+  run {
+    performed_by laboratory
+    store probe-records
+    trajectory run_states
+  }
+}
+----
+
+The facets: `performed_by` is a closed vocabulary, parse-enforced
+(`laboratory` | `manufacturer`); `store` names a declared
+`data_registry`; `trajectory` names a declared operational
+`state_machine` whose fired transitions the run folds. The run's
+lifecycle is the language's own closed vocabulary — `performed`,
+`completed`, `invalid`, `aborted` — not a facet: `invalid` is the
+run whose setup was wrong (the precondition doctrine), never a fail.
+
+The checker resolves the plane (C180 `run-plane-shape`, C181
+`run-store-binds`): the store names a declared registry, the
+trajectory names a declared machine, and the registry's data class is
+the record forms' data class — the output records and the store hold
+the same shape.
+
 [[check-primitive]]
 === The check primitive
 

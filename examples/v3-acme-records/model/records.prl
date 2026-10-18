@@ -10,6 +10,22 @@ attribute_definition reference_load {
   origin declared
 }
 
+class IndicationRecord#data {
+  meter_id: string {
+    modality SHALL
+    definition "The meter under test"
+  }
+  error: string {
+    modality SHALL
+    definition "The indicated error"
+  }
+}
+
+data_registry indication-runs {
+  title "The indication runs"
+  data_class IndicationRecord#data
+}
+
 form indication-record {
   name "The indication record"
   conformance_process /conf/indication-check
@@ -40,6 +56,10 @@ conformance_test /conf/indication-check {
   type Testing
   targets { /req/metrology/indication }
   result_forms { indication-record }
+  run {
+    performed_by laboratory
+    store indication-runs
+  }
   variables {
     variable e { type number unit "kg" source measured description "The indicated error" }
   }
