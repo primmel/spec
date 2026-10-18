@@ -1,0 +1,6 @@
+package {
+  id acme-records
+  title "Acme records — the fictional v3 demonstration (forms and evidence)"
+  version "2026.1"
+  language v3.4
+}

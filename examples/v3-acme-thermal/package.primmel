@@ -1,0 +1,6 @@
+package {
+  id acme-thermal
+  title "Acme thermal chamber — the fictional v3 demonstration (the GUM plane)"
+  version "2026.1"
+  language v3.4
+}

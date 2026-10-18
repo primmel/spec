@@ -1,0 +1,93 @@
+# The fictional demonstration: the uncertainty budget (the GUM plane's
+# declaration — the components and the coverage, never the arithmetic)
+# and the operational state machine. Every name is invented.
+
+verdict drift_error {
+  quantity { kind temperature_diff unit "K" }
+  derive {
+    abs(served_temp - reference_temp)
+  }
+  inputs { reference_temp }
+}
+
+symbol reference_temp {
+  type number
+  quantity_kind temperature
+  unit "degC"
+}
+
+symbol served_temp {
+  type number
+  quantity_kind temperature
+  unit "degC"
+}
+
+requirement /req/thermal/drift {
+  name "The chamber drift bound"
+  limit {
+    args {
+      d  <- observable:d
+      mu <- symbol:served_temp
+    }
+    expression {
+      d <= mu / 10
+    }
+  }
+  verification { method testing }
+}
+
+uncertainty_budget u_drift {
+  target drift_error
+  coverage k 2
+  component u_cal {
+    type B
+    distribution rectangular
+    half_width 0.25
+    unit "K"
+    source { doc "urn:example:cert:2026" clause "4.2" }
+    description "The calibration certificate's half-width."
+  }
+  component u_rep {
+    type A
+    series chamber_drift_series
+  }
+}
+
+conformance_test /conf/drift-check {
+  name "The chamber drift check"
+  type Testing
+  targets { /req/thermal/drift }
+  result_forms { drift-record }
+  variables {
+    variable reference_temp { type number unit "degC" source measured }
+    variable served_temp { type number unit "degC" source measured }
+    variable chamber_drift_series { type number unit "K" source measured
+      series {
+        axis time { unit "s" }
+        cell chamber_drift_series { unit "K" }
+      }
+    }
+  }
+  acceptance_criteria {
+    type composite
+    pass_if "ocl{true}"
+  }
+}
+
+state_machine chamber_states {
+  kind operational
+  initial idle
+  state idle
+  state running
+  transition heat_up {
+    from idle
+    to running
+  }
+}
+
+subject thermal_chamber {
+  name "The thermal chamber"
+  has {
+    state chamber_states
+  }
+}
