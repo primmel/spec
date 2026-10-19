@@ -75,7 +75,6 @@ changes no v3.1 construct.
 |`comment` | | comments | v2 | 13 | composition: Attached prose
 |`common_test_condition` | | commonTestConditions | v3.3 | 20.4 | extension: Clause 20 register
 |`competence_kind` | | competence kinds | v2 | 11 | extension: The OIML-CS framework (clause 20)
-|`condition_set` | | condition sets | v2 | 10 | composition: V-restriction
 |`conformance_class` | | conformance classes | v2 | 11 | composition: Provision grouping
 |`conformance_test` | | conformance tests | v2 | 11 | inherit: MMEL measurement validation test
 |`connector_profile` | | connector profiles | v3 | 13 | composition: External interface binding to P/V

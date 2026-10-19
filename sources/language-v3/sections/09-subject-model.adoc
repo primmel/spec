@@ -141,35 +141,14 @@ model (<<process-subject,12.1>>): the declaration names it and states its
 stimulus-response contract, and the process anatomy carries the executable
 detail.
 
-==== condition_set: an operating envelope
+==== condition_set: RETIRED (the typed table is the register)
 
-[source,prl]
-----
-condition_set load-cell-reference {
-  role reference
-  entries {
-    temperature { value 20 unit degC tolerance 1 }
-  }
-}
-----
-
-The `role` facet states the condition tier. The documented tier vocabulary
-is `reference`, `rated`, `limiting`, and `actual` (the designed tiers are
-IS content; the actual tier is HAS content, <<is-has-duality,10.4>>); the
-parser stores the role as text and the tier discipline is program-side.
-Each entry of `entries { ... }` names a quantity with `value`, `unit`, and
-`tolerance`.
-
-The condition register is DEPRECATED in favor of the typed table
-(<<data-classes-enumerations-registries,12.1>>): a register is a table
-with typed columns and typed rows — `table <id> { columns { quantity:
-string value: number tolerance: number unit: string } data { ... } }` —
-so the values that decide testing BIND in limits and checks via
-`table:<id>.<column>` instead of living as prose components. The legacy
-spelling keeps parsing as visible debt and warns under C154
-(construct-deprecated); the migration moves the register's numeric
-components into typed columns (a range states `low` and `high`), keeps
-genuinely prose entries as prose, and the round trip is the proof.
+The `condition_set` construct is RETIRED: the corpus's fourteen
+registers migrated to the typed table (§12.1, the wave of 2026-10-19 —
+each register split by its values' shape), and the construct's parse
+support is removed. A model still carrying the spelling fails at
+parse. The typed table is the register; the values bind via
+`table:<id>.<column>`.
 
 [[subject-construct]]
 === The subject construct and the IS/HAS/DOES anatomy
