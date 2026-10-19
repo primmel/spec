@@ -160,6 +160,17 @@ parser stores the role as text and the tier discipline is program-side.
 Each entry of `entries { ... }` names a quantity with `value`, `unit`, and
 `tolerance`.
 
+The condition register is DEPRECATED in favor of the typed table
+(<<data-classes-enumerations-registries,12.1>>): a register is a table
+with typed columns and typed rows — `table <id> { columns { quantity:
+string value: number tolerance: number unit: string } data { ... } }` —
+so the values that decide testing BIND in limits and checks via
+`table:<id>.<column>` instead of living as prose components. The legacy
+spelling keeps parsing as visible debt and warns under C154
+(construct-deprecated); the migration moves the register's numeric
+components into typed columns (a range states `low` and `high`), keeps
+genuinely prose entries as prose, and the round trip is the proof.
+
 [[subject-construct]]
 === The subject construct and the IS/HAS/DOES anatomy
 

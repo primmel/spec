@@ -141,6 +141,25 @@ the binding rides the correspondence annotation of
 the document projections and never imports the register's semantics
 (<<expression-layer,19.5>>).
 
+[[numeric-semantics]]
+=== Numeric semantics
+
+A surface numeric literal is an EXACT DECIMAL. The authored form of a
+quantity value — its value, its uncertainty, its tolerance — is part of
+the value: `2.10 kg` is a precision statement (two decimals —
+significant figures), never a misspelling of `2.1 kg`. A quantity value
+whose authored literal carries information the number alone loses
+(trailing zeros, an explicit exponent form) preserves that literal
+verbatim on the wire; the conforming serializer emits it unchanged, and
+the round trip is the proof. Auxiliary numerics — register factors,
+offsets, column defs, orders — have no precision statement to carry and
+canonicalize to the number. Comparisons (limits, checks, acceptance
+decisions) evaluate in binary double precision (IEEE 754); the corpus's
+acceptance bounds are coarse by doctrine (MPE apportioning, class
+tables), never parked at a representable edge, and a scheme that needs
+exact-decimal adjudication declares it in the check rather than in the
+number.
+
 [[dual-construct]]
 === The value duality: dual
 
