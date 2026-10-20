@@ -263,7 +263,7 @@ authored trees without a mapping step;
 (element → the edges that target it), the two views of the same edge
 set;
 * every edge carrying its kind and its source facet, and the clause
-provenance (`source { doc clause }` / `ref derives-from`) of the
+provenance (the canonical `ref derives-from` line) of the
 edge-bearing element where the element declares one.
 
 The consumption win is the reverse-index read: the F6 change-impact
@@ -296,7 +296,9 @@ adds:
 an error; the DELETION TEST is normative (all descriptions removed ⇒
 identical check, link, run, and attest results).
 |C159 |`urn-only-refs`: every reference resolves to a declared urn; the
-`source { doc "…", clause "" }` free-text form is retired.
+retired `source { doc …, clause "" }` spelling no longer parses — a
+free-text citation is a canonical `ref derives-from` whose target is the
+designation whole.
 |C160 |`signature-closure`: every name an expression, check, step, or
 calculation consumes is produced by a declared output, reading, or
 parameter — across the composed closure.

@@ -92,7 +92,6 @@ its error leg (clause PKG-06).
 |C103 |`declared-predicate` |normal |error
 |C110 |`term-alias-shape` |normal |error
 |C111 |`dimension-shape` |normal |error
-|C112 |`reference-identity` |normal |error
 |C118 |`requirement-parameter-shape` |normal |error
 |===
 

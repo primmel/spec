@@ -65,10 +65,10 @@ keywords);
 . the `MMEL_MAP` type spelling of a `.prm` file is read as an alias of
 `Primmel_MAP`, and v2 files keep their v2 spellings across a load/dump
 cycle (<<prm-format,16.4>>);
-. the legacy citation spellings (`source { doc clause }`,
-`references { <role> { ... } }`, `specification_reference "..."`) keep
-parsing and fold into the same model channels as the canonical `ref`
-forms (<<provenance-forms,14.3>>);
+. the legacy citation spellings (`source { doc clause }`, the
+`reference { doc clause }` blocks, `references { <role> { ... } }`,
+`specification_reference "..."`) are retired — they no longer parse
+(<<provenance-forms,14.3>>);
 . the deprecated manifest facet `extends` is read as a one-element
 `uses` (<<package-manifest,9.3>>);
 . the `version` declaration line is accepted

@@ -510,7 +510,7 @@ uncertainty_budget u_creep_reference {
     distribution rectangular
     half_width 0.25
     unit "kg"
-    source { doc "urn:oiml:pub:cs:twin-1:2027" clause "6" }
+    ref derives-from "urn:oiml:pub:cs:twin-1:2027#clause-6"
     description "The force standard's certificate half-width."
   }
   component u_pair {
@@ -549,7 +549,7 @@ constraint e-max-bound {
   }
   on_violation invalid
   violation_meaning "A run above capacity is not a test result."
-  source { doc "urn:oiml:pub:r:60-2:2021" clause "2.3" }
+  ref derives-from "urn:oiml:pub:r:60-2:2021#clause-2.3"
 }
 ----
 
@@ -619,15 +619,13 @@ requirement with RFC 2119 modality, traceable to source clauses.
 provision MoistureRecorded {
   condition "Every roast batch shall have its moisture content recorded"
   modality SHALL
-  reference {
-    BFS-4-2
-  }
+  ref cites "urn:fmv:std:bfs:4:2022#clause-4.2"
 }
 ----
 
 The facets are `condition` (the requirement text), `modality`
-(<<modality-vocabulary,11.6>>), and `reference { ... }` (the cited
-reference constructs, <<provenance-forms,14.3>>). Processes bind
+(<<modality-vocabulary,11.6>>), and `ref cites "<document anchor>"`
+(<<provenance-forms,14.3>>). Processes bind
 provisions with `validate_provision { ... }`
 (<<process-subject,12.1>>). In a v3 model the `requirement` construct
 (<<requirement-construct,11.1>>) is the binding form: a provision states
