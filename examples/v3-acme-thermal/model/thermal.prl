@@ -44,7 +44,7 @@ uncertainty_budget u_drift {
     distribution rectangular
     half_width 0.25
     unit "K"
-    source { doc "urn:example:cert:2026" clause "4.2" }
+    ref derives-from "urn:example:cert:2026#clause-4.2"
     description "The calibration certificate's half-width."
   }
   component u_rep {

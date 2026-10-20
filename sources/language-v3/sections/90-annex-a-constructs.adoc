@@ -125,7 +125,6 @@ changes no v3.1 construct.
 |`promise_set` | | promiseSets | v3.3 | 20.1 | extension: The claim set the certificate projects
 |`provision` | | provisions | v2 | 11 | inherit: MMEL provision
 |`quantity_register` | | quantity registers | v3 | 13 | extension: The quantity type system
-|`reference` | | references | v2 | 14 | inherit: MMEL reference
 |`reference_material` | | reference materials | v2 | 13 | inherit: MMEL reference / table (the reference-material carrier)
 |`requirement` | | requirements | v2 | 11 | composition: MMEL provision + scope
 |`requirement_class` | | requirement classes | v2 | 11 | composition: MMEL provision scope

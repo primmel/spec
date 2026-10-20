@@ -78,7 +78,7 @@ attribute_definition e_max {
   enum humidity_class
   irdi "0172-a/123"
   derived "ocl{...}"
-  source { doc "urn:oiml:pub:r:60-1:2021" clause "3.5.5" }
+  ref derives-from "urn:oiml:pub:r:60-1:2021#clause-3.5.5"
 }
 ----
 
@@ -130,7 +130,7 @@ behavior creep {
   kind temporal
   stimulus force
   response "Indication drift under constant load."
-  source { doc "urn:oiml:pub:r:60-1:2021" clause "3.7.1" }
+  ref derives-from "urn:oiml:pub:r:60-1:2021#clause-3.7.1"
   verified_by { /conf/metrological-tests/creep-test }
 }
 ----

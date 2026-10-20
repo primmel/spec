@@ -29,7 +29,7 @@ promise_set LoadCell {
     target accuracy_class
     statement "The type holds its declared accuracy class."
     verified_by { /req/metrological/mpe /conf/metrological-tests/measurement-error }
-    source { doc "urn:oiml:pub:r:60-1:2021" clause "5.1.1" }
+    ref derives-from "urn:oiml:pub:r:60-1:2021#clause-5.1.1"
     certificate { dimension accuracy_class type string label "Accuracy class" obligation mandatory }
   }
 }
