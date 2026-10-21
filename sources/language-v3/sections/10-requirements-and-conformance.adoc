@@ -667,6 +667,38 @@ lifecycle is the language's own closed vocabulary — `performed`,
 `completed`, `invalid`, `aborted` — not a facet: `invalid` is the
 run whose setup was wrong (the precondition doctrine), never a fail.
 
+[[abort-transition]]
+==== The abort transition
+
+`invalid` rides the precondition doctrine (the violated precondition
+names itself). `aborted` rides the ABORT TRANSITION (spec#56), which
+the language owns end to end:
+
+* **Who may fire it** — the run's own performer (its `performed_by`
+actor: the laboratory's or manufacturer's operational stop) or the
+scheme operator (the DIRECTED stop). The two carry different
+evidential weight: the performer's stop is an operational event, while
+a scheme-directed stop is itself a candidate finding the SCHEME
+records — it is never a laboratory failure.
+* **The evidence** — the transition is mandatory-evidenced: the actor
+(the closed vocabulary `laboratory | manufacturer | scheme`) and a
+NON-EMPTY reason. An abort without its reason is an unrecorded stop;
+`invalid` names its violated precondition, and `aborted` names its
+reason in the same breath. The transition, when the consumer's clock
+is authoritative, carries its `at` stamp (ISO 8601).
+* **The transition fires once** — an already-aborted run refuses a
+second abort: the first reason is the run's record.
+* **The store doctrine** — an aborted run's captured records LAND in
+the declared registry (the record is the record): the store holds what
+was captured, marked by the run's terminal state; the abort deletes
+nothing.
+
+The runtime contract carries the same shape (the `Run` record's
+`abort { by, reason, at? }` terminal, `abortRun`'s validation): a
+conforming implementation cannot record an abort without its actor and
+reason, cannot fire the transition twice, and cannot unstore the
+partial records.
+
 The run also carries the applied-input contract: `inputs` names the
 test's declared-source variables whose values the run applies — the
 scheme-set corners, dwell loads, classes, and factors the laboratory
