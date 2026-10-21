@@ -330,7 +330,13 @@ redefine them (C28, no-redefine);
 . every import MUST resolve through the package locator in use (C27);
 . capability tokens (`provides`, `requires`) are matched across the
 closure: an unsatisfied `requires` is an error (C31); a `provides` that
-nothing consumes is a warning unless waived (C30);
+nothing consumes is a warning unless waived (C30). The scoped form
+`pkg:token` names a capability carried by a package OUTSIDE the closure —
+`requires` never content-merges: the token resolves against that
+package's declared `provides`, from every reading posture (the composed
+locator and the manifest-only sibling resolution alike), so a package's
+capability dependencies are explicit in its own manifest without its
+closure growing;
 . a version-pinned entry `id@edition` is an abstract import of a product
 reference package: located and checked (C83), never content-merged.
 . a requirement namespace — a requirement class identifier path, e.g.

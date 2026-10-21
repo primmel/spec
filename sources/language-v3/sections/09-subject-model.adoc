@@ -268,8 +268,12 @@ instance smp-001 {
 
 The facets are: `of` (the subject reference), `level` (the chain level),
 the upward chain links (`model`, `family`, `group`, `reference`),
-`definition_versions { ... }` (the edition pins, resolved against the
-manifest's edition register by C80), and `has { ... }` with `attributes`,
+`definition_versions { ... }` (the edition pins, resolved by C80 against
+the edition register — under composition, the union the closure
+explicitly declares: every composed package's manifest register joins the
+root's, so an instance pins against its declaring package's register,
+and a pin to an edition no composed manifest declares still fails),
+and `has { ... }` with `attributes`,
 `dimensions`, and `test_context` value maps. A value entry is
 `key : value [unit]`, or the quantity block form carrying the full value
 contract:
