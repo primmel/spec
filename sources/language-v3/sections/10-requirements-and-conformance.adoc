@@ -723,6 +723,31 @@ test's declared-source variables, and the registry's data class is
 the record forms' data class — the output records and the store hold
 the same shape.
 
+The record form binds its applied-input slice DECLARATIVELY (spec#57):
+`run_inputs` names the owning test's `run.inputs` members the record
+reflects as fields — the record reflects the run by construction, not
+by convention, and the consuming application renders the applied
+inputs off the form alone:
+
+[source,prl]
+----
+form probe {
+  data_class ProbeRecord#data
+  conformance_process /conf/x
+  run_inputs { envelope_temperature_min envelope_temperature_max }
+}
+----
+
+The slice is machine-checked end to end (C183 `record-run-inputs`):
+every name must appear in the owning test's `run.inputs` — the form's
+`conformance_process` binding resolves the owner (each of
+`conformance_process_ids` when the form covers several tests) — AND be
+a field of the form's data class: a record cannot carry what the run
+does not apply, and the record's slice must be the record's shape. A
+form declaring no slice is untouched (the linkage is opt-in; the
+per-store projection spelling was rejected because the per-form
+binding composes with subforms).
+
 [[check-primitive]]
 === The check primitive
 
