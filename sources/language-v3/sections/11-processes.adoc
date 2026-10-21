@@ -177,10 +177,12 @@ state_machine Application {
     from { DRAFT }
     to SUBMITTED
     guard "ocl{self.is_complete}"
-    cascade {
-      set status "under_review"
-      create ReviewTask { with { application : self.id } }
-      notify ia_officer via email
+    cascade ReviewTask {
+      create { application : self.id }
+    }
+    cascade AuditEvent {
+      action record
+      with { entity_type: "applications" }
     }
   }
 }
@@ -189,11 +191,21 @@ state_machine Application {
 The `kind` facet is a closed vocabulary, parse-enforced: `lifecycle`
 (workflow entities; the default) or `operational` (a subject's HAS state).
 The two families are kept separate (C38). A transition carries `from`,
-`to`, `action`, an optional `guard` expression, and an optional `cascade`
-of side effects: `set`, `where`, `create`, `via`, and the semantic cascade
+`to`, `action`, an optional `guard` expression, and optional `cascade`
+blocks of side effects — each naming its target entity and carrying
+`set`, `where`, `create`, `via`, and the semantic cascade
 actions `lock`, `submit`, `notify`, `record` (a closed vocabulary,
 parse-enforced). Cascade transition resolution is checker-enforced (C95),
 and every referenced state must exist (C39).
+
+States and transitions each carry two spellings: the states may be a
+`states { … }` list or bare `state <name>` declarations (a machine mixing
+the two canonicalizes to declarations on the first dump), and a
+transition may be the named form shown above or the arrow form
+`transition <From> -> <To> [action <n>] { … }` — multi-source lists
+(`from { A B }`, `[A, B]`) fan out to one transition per source in both.
+Each machine's authored spelling is what the serializer replays: the
+round trip is a fixpoint.
 
 [[roles-and-approvals]]
 === Roles and approvals
