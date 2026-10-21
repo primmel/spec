@@ -146,12 +146,65 @@ from the message's head); `reason` states the debt in one sentence;
 declares. A missing field is C56; a rule-inactive entry matching
 nothing is C57.
 
+Two OPTIONAL facets carry the deprecation ladder's audit vocabulary
+(spec#58) — present means well-formed, absent means the entry is not
+ladder debt:
+
+[source,prl]
+----
+allowlist_entry {
+  rule C5
+  match "requirement /req/no-such-req:*"
+  reason "Fixed already."
+  audit_ref "TODO.roadmap/17"
+  migrated_by "model-library#84"
+  retires_with "1.21.22"
+}
+----
+
+`migrated_by` names the PR or wave that carries the fix the entry
+dates; `retires_with` names the release or wave whose landing lets the
+entry die. Tooling reads both to audit the debt uniformly and to flag
+entries whose stated wave has landed; a STALE entry that declared
+`retires_with` names it in the C57 message, closing the loop between
+the plan and the ratchet. An empty facet is C56.
+
 Two budgets cap the audit-level coverage warnings: `coverage_budget` for
 the test-evidence and form-judgment audits (C51, C52, enforced by C55) and
 `text_coverage_budget` for the uncovered-normative-sentence audit (C71,
 enforced by C72). A budget carries an integer and a recorded reason, and
 it only shrinks: a package at full coverage declares zero, and any
 regression fails.
+
+[[deprecation-ladder]]
+=== The deprecation ladder
+
+A construct retires through a NORMATIVE lifecycle (spec#58; the
+condition_set precedent, retired at 1.21.20, is the worked example):
+
+. **Arm** — the construct's definition carries a migration note: the
+TARGET construct and the binding form, in one sentence (`deprecated:
+use table with column bindings`). The parser warns on every use of the
+construct (C154 `construct-deprecated`), and `primmel check --rules`
+renders every armed note, so an adopter reading a C154 warning finds
+the migration path without hunting this spec. The warning is the arm,
+never the gate: a package still on the construct checks clean at every
+level.
+. **Dated debt** — packages that cannot move in the arm window record
+allowlist entries (<<allowlist,17.4>>) with the ladder vocabulary:
+`reason`, `audit_ref`, and — where the debt is a planned wave —
+`migrated_by` and `retires_with`. The entries are the wave's receipt.
+. **Parse-refuse** — a later release REMOVES the parse support: the
+legacy spelling becomes a parse error, the construct leaves the Annex A
+registry, and the checker rule burns down to empty (C154 stays in the
+catalog, idle, as the next retirement's hook). The removal release's
+corpus gate is green first: no adopter crosses the refusal by surprise,
+because the arm already named the path and the wave.
+
+The ladder's steps are RELEASES, not flags: there is no compat shim, no
+dual read, no transition window beyond the arm. A construct that jumps
+the ladder (refusal without an armed note) is a spec violation of this
+section.
 
 [[coverage-audits]]
 === The coverage audits
