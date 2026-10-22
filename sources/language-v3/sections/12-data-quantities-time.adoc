@@ -165,7 +165,12 @@ whose authored literal carries information the number alone loses
 verbatim on the wire; the conforming serializer emits it unchanged, and
 the round trip is the proof. Auxiliary numerics — register factors,
 offsets, column defs, orders — have no precision statement to carry and
-canonicalize to the number. Comparisons (limits, checks, acceptance
+canonicalize to the number. An expression literal carries the same
+precision statement: the canonicalizer replays the authored number
+token verbatim — `2.10` stays `2.10`, `.5` stays `.5`, an exponent form
+stays the exponent form — while the evaluator reads every accepted
+spelling (integer, fraction, leading dot, exponent) as the number it
+denotes. Comparisons (limits, checks, acceptance
 decisions) evaluate in binary double precision (IEEE 754); the corpus's
 acceptance bounds are coarse by doctrine (MPE apportioning, class
 tables), never parked at a representable edge, and a scheme that needs
