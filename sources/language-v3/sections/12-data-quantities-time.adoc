@@ -141,6 +141,18 @@ the binding rides the correspondence annotation of
 the document projections and never imports the register's semantics
 (<<expression-layer,19.5>>).
 
+A unit may also pin the UnitsDB release directly — `unitsdb { nist
+"<id>" unitsml "<id>" }` — the machine-readable register the corpus's
+stem blocks carry UnitsML markup for. The DB is authoritative for the
+decomposition STRUCTURE (the si_derived_bases walk to the SI bases,
+the prefixes, the measurement scale); the register keeps its authored
+conversion numbers, and the checker verifies the pin against a
+supplied UnitsDB snapshot (C185 unitsdb-binding-coherent) — the
+interval-scale offsets (degree Celsius's 273.15) live in the register,
+never in the DB. The retrieval export carries the pin's identifiers
+and the resolved SI structure onto the emitted units when the export
+is given the snapshot.
+
 [[numeric-semantics]]
 === Numeric semantics
 

@@ -309,6 +309,7 @@ its error leg (clause PKG-06).
 |C182 |`series-record-fields` |normal |error
 |C183 |`record-run-inputs` |normal |error
 |C184 |`field-range-order` |normal |error
+|C185 |`unitsdb-binding-coherent` |quantities |error
 |C51 |`coverage-test-evidence` |audit |warning
 |C52 |`coverage-form-judgment` |audit |warning
 |C53 |`coverage-uses-bound` |normal |error
