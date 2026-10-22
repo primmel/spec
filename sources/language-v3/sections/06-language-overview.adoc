@@ -346,6 +346,55 @@ reference its provisions but MUST NOT declare a requirement class or a
 requirement whose identifier sits at or under an owned namespace (C119,
 namespace-pin-violation; the exact-identifier case is C28).
 
+[[module-slot-overlays]]
+=== Module-slot overlays
+
+A module package may declare a PARAMETER SURFACE: the manifest lists
+its slots with `with_slots { <slot> { skeleton "<path>" target "<path>"
+[each] } … }` — `skeleton` names the template file the module ships,
+`target` the path the bound copy materializes at in the CONSUMING
+package, and `each` marks a family slot (a LIST of binding maps, the
+skeleton materializing once per entry). A slot without a target is the
+documented parameter surface only: it substitutes inside the module's
+own content and materializes nothing.
+
+The consumer binds slots ON the uses entry — the binding map rides the
+entry, keeping the import graph and its parameterization in one place:
+
+[source,prl]
+----
+uses {
+  module-emc-disturbances with {
+    forms { severity_a { label "…" clause "…" } … }
+    scheme "B"
+  }
+}
+----
+
+At composition time a bound target slot MATERIALIZES: the skeleton's
+content is copied to the target path with `${{ <slot> }}` placeholders
+substituted from the binding map (per entry for `each` slots). The
+ownership doctrine is the skeleton's: the template owns the pattern
+interface (field names, types, measurement methods, derivations),
+while the consumer's overlay at the target path binds the flavored
+content (units, calculation ids, clause URNs, enum values, labels) —
+a multilingual-array key is owned by exactly one side per field, and
+the no-redefine rule (C28) holds between the materialized skeleton and
+the overlay. Unbound target slots are a composition error, as is a
+binding naming no declared slot; a target path the consuming package
+already declares is the no-redefine collision, not a merge.
+
+This construct mirrors the deployed YAML-side doctrine (the module
+skeletons the smart platform's linker materializes with `with:` maps
+and `${{ }}` substitution): the spec defines its PRL-shape
+preservation. The conformance clauses and the corpus scenarios land
+with the kernel wave that implements the parse, the materialization,
+and the checks — the grammar here is the decision this section makes:
+the binding map rides the uses entry (the side-band `binds:` form is
+rejected; the parameterization reads with the import it parameterizes,
+and the no-redefine and namespace-ownership rules keep one owner per
+path without a second registry to reconcile).
+
 Editions are the package lifecycle: a manifest registers its `editions`,
 the lifecycle `status` (`current`, `preview`, `superseded`, `withdrawn`),
 the `validity` window, and the `supersedes`/`replaces`/`superseded_by`
