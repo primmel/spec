@@ -63,7 +63,6 @@ changes no v3.1 construct.
 |`aspect` | | aspects | v3.3 | 20.8 | composition: Named HAS grouping
 |`attestation` | | attestations | v3.3 | 19 | extension: The certificate lineage
 |`attribute_definition` | | attribute definitions | v2 | 10 | extension: The evidence discipline over properties
-|`auto_inclusion` | | autoInclusions | v3.3 | 20.18 | retract-candidate: Expressed by uses composition
 |`behavior` | | behaviors | v2 | 10 | composition: Named DOES grouping
 |`calculation` | | calculations | v2 | 13 | composition: T over values
 |`calculation_context` | | calculationContexts | v3.3 | 20.14 | extension: Clause 20 register
@@ -85,7 +84,6 @@ changes no v3.1 construct.
 |`decision_rule` | | decisionRules | v3.3 | 20.30 | extension: The OIML-CS framework (clause 20)
 |`declaration_gate` | | declarationGates | v3.3 | 20.23 | extension: The OIML-CS framework (clause 20)
 |`declaration_kind` | | declarationKinds | v3.3 | 20.21 | extension: The OIML-CS framework (clause 20)
-|`declaration_status` | | declarationStatuses | v3.3 | 20.22 | retract-candidate: Derivable from the edition register
 |`dimension` | | dimensions | v3.2 | 10 | composition: P with closed V-set (applicability)
 |`discrepancy_record` | | discrepancy records | v2 | 14 | composition: A fact about a fact
 |`document_module` | | documentModules | v3.3 | 20.20 | extension: The OIML-CS framework (clause 20)
@@ -100,7 +98,6 @@ changes no v3.1 construct.
 |`figure` | | figures | v2 | 13 | inherit: MMEL multimedia
 |`form` | | forms | v2 | 11 | composition: MMEL form (element semantics)
 |`formula_note` | | formulaNotes | v3.3 | 20.16 | extension: Clause 20 register
-|`formulas_used` | | formulas-used registers | v3 | 13 | retract-candidate: Derivable
 |`framework_document` | | frameworkDocuments | v3.3 | 20.17 | extension: The OIML-CS framework (clause 20)
 |`governance_organ` | | governanceOrgans | v3.3 | 20.24 | extension: The OIML-CS framework (clause 20)
 |`identity_slot` | | identitySlots | v3.3 | 20.2 | extension: Scheme identity properties
