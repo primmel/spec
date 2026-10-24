@@ -209,17 +209,7 @@ governing hierarchy: its rank in the hierarchy, its document
 designation, its title, the governance organ that approves it, and the
 clause of the framework publication that grounds it. The register
 states the hierarchy as data; the precedence rule
-(<<document-precedence-construct,20.19>>) and the scheme lifecycle's
-entry conditions key on it.
-
-[[auto-inclusion-construct]]
-=== auto_inclusion — the scheme entry-conditions register
-
-An auto-inclusion register states the conditions under which a
-category of measuring instrument enters a certification scheme
-automatically: the grounding clause, the statement, and one `condition`
-entry per requirement the scheme's publication names. The register is
-the scheme lifecycle's automatic-entry premise as data.
+(<<document-precedence-construct,20.19>>) keys on it.
 
 [[document-precedence-construct]]
 === document_precedence — the precedence rule register
@@ -248,14 +238,6 @@ participants sign: its label, the participant kind that holds it, the
 clause and procedure that ground it, and its definition. The
 declaration machinery of the scheme (the signing gate of
 <<declaration-gate-construct,20.22>>) keys on the register.
-
-[[declaration-status-construct]]
-=== declaration_status — the declaration status register
-
-A declaration status is one state of a declaration's lifecycle
-(initiated, signed, recorded) with its description. The register is a
-closed vocabulary; the status that discharges a signing gate is stated
-in the description and referenced by the gate.
 
 [[declaration-gate-construct]]
 === declaration_gate — the signing-gate register

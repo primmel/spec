@@ -379,9 +379,7 @@ bare marker `aspirational`; the grammar and the marker discipline are
 checker-enforced, C90, C91). A `test_sequence` declares a required test
 ordering: step entries `step <n> { test <ref> role <r> depends_on <m> }`
 with the step role (`baseline` or `follow_up`), `sample_applicability`,
-and provenance (shape and integrity: C92, C93). A `formulas_used` block,
-keyed by a conformance-test reference, lists the evaluation formulas a
-test derives (the `formulas` facet), with provenance (shape: C94).
+and provenance (shape and integrity: C92, C93).
 
 [[terminology-construct]]
 === Terminology

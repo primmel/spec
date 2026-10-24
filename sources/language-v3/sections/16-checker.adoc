@@ -294,7 +294,6 @@ target id resolves.
 |`form` |`requirements` |evidence scope |requirement
 |`form` |`calculation_context` |derivation context |calculation
 |`form` |field `bind` / `verdict` / `targets` |binding |attribute path, verdict, requirement
-|`form` |`formulas_used` |derivation |calculation
 |`dimension` |value `implies` |subsumption |dimension value
 |`instance` |`of` / `model` / `family` |instantiation |the instantiated element
 |manifest |`uses` / `maps_to` |composition |package
