@@ -402,12 +402,33 @@ variables; the `source` vocabulary is `declared`, `measured`, `derived`,
 `provenance` probe channel, <<probe-channels,11.4>>), `observables`,
 `preconditions` (a gate with `check`, `description`, and `on_violation`),
 `design` (the test design: selection rules, counts, phases, specimens,
-test points, and the validation facets), `instances` (per-classification
+test points, and the validation facets), `procedure` (the execution
+skeleton — see below), `instances` (per-classification
 parameter values), `acceptance_criteria` and `pass_if` (the decision),
 `acceptance` (<<acceptance-decisions,11.5>>), and the output anchors
 (`result_forms`, `produces_artifacts`, `report_rows`,
 `reference_materials`, `required_competence`). `inherits_from` reuses
 another test's definition; `dependencies` orders.
+
+The declared procedure carries the test's execution skeleton. The named
+typed step is the one form, and the declaration order is the sequence:
+
+[source,prl]
+----
+procedure {
+  step check_test_conditions "Review the test conditions" inputs { reference_conditions }
+  step apply_test_load_points "Apply the test loads" outputs { e_l e_r }
+  step record_indications
+}
+----
+
+A step carries its id, optional prose, `inputs` and `outputs`. The ids
+are unique within the procedure (C147) — a procedure mixing the typed
+form with the retired numbered facet is ambiguous and rejected. The
+executable programs ride beside the skeleton: `preparation { … }` (the
+ordered warm-up/preload/zero-check discipline) and `stimulus { … }`
+(the ordered measurement program with drive, hold, freshness, and
+per-point acceptance).
 
 [[verdict-construct]]
 === Verdicts
