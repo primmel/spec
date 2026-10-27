@@ -244,6 +244,13 @@ designators in order and optional decimal fractions;
 [[tables-symbols-calculations]]
 === Tables, symbols, and calculations
 
+The table/class doctrine: **`table`** carries a closed key→value
+register consulted by rules — typed columns, data rows, profiles;
+**`class` + `instance`** carries subject-bound data with provenance and
+edition pins. The choice is a stated rule, not a taste: rule-consulted
+registers are tables; subject-bound, edition-pinned facts are classes
+and instances.
+
 A `table` declares structured tabular data: typed `columns { ... }` with
 optional units, `data { ... }` rows (numeric-looking cells coerce to
 numbers), `profiles { ... }` (named row selections), `dimension` binding,
