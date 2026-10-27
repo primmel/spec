@@ -136,7 +136,11 @@ behavior creep {
 ----
 
 The facets are `kind`, `stimulus`, `response`, `source` / `ref`
-provenance, and `verified_by`. A behavior is a process in the semantic
+provenance, `verified_by`, and `realized_by` — the explicit
+C2-resolved processes that realize the behavior. The realization is
+declared, never id-matched: a process whose id names a declared
+behavior MUST be listed in that behavior's `realized_by` (C186). A
+behavior is a process in the semantic
 model (<<process-subject,12.1>>): the declaration names it and states its
 stimulus-response contract, and the process anatomy carries the executable
 detail.
