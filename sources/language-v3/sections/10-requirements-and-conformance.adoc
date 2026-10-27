@@ -425,8 +425,7 @@ procedure {
 A step carries its id, optional prose, `inputs` and `outputs`. The ids
 are unique within the procedure (C147). The legacy spellings — the
 numbered facet (`1 "action"`) and the bare `procedure_steps` id list —
-are DEPRECATED: the checker warns (C154) until the realized models
-migrate, then both refuse at parse — the ids live on the steps
+are RETIRED: both refuse at parse — the ids live on the steps
 themselves. The executable programs ride beside the skeleton: `preparation { … }` (the
 ordered warm-up/preload/zero-check discipline) and `stimulus { … }`
 (the ordered measurement program with drive, hold, freshness, and
