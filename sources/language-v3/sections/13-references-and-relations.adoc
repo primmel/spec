@@ -56,6 +56,28 @@ model (`targets`, `dependencies`, `inherits_from`, `extends`, `maps_to`,
 The v2 `reference` construct — the registry of named citation targets —
 retired with the legacy spellings: cite the document anchor directly.
 
+[[document-mapping]]
+=== The document mapping
+
+The citation plane is the model→document counterpart of the
+serialization mapping: one mapping concept, two target spaces. The
+`mapping` construct binds a class to its wire form — model→wire
+(<<wire-mappings,19.6>>); a provenance binding binds a model element to
+a location in a source document — model→document. That binding is the
+*document mapping*, and the document anchor it carries is its selector,
+composed from the locator grammar: the document URN names the document
+and its edition state (`urn:oiml:pub:r:60-1:2021` — the year is the
+edition), the `clause-` path names the clause in the document's own
+numbering, and the optional fragment narrows to the part.
+
+The edition axis composes with the edition-mapping artifacts: a
+document mapping cites one edition state, and the linkage between two
+states is never implicit — `edition-mapping.json`
+(`primmel-edition-mapping/1`) declares it (C170). One resolution rule
+governs the plane (C169): every document mapping's target resolves in
+the mapped document — a mapping naming content the mapped document does
+not carry is linked to air.
+
 [[predicate-registry]]
 === The predicate registry
 
