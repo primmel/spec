@@ -21,8 +21,8 @@ process creep_test {
     out { indication_series : mass_series }
   }
   invariants { "ocl{self.applied_load <= self.e_max}" }
-  preconditions {
-    precondition warmed-up {
+  gates {
+    entry_condition warmed-up {
       check "ocl{self.state = #ready}"
       description "An unwarmed run is invalid, never a fail."
       on_violation invalid
@@ -55,12 +55,13 @@ The v2 process facets remain: `name`, `actor`, `modality`,
 `validate_measurement { ... }`, `subprocess` (the canvas page), `links`,
 `note`, `table`, and `figure`. The v3 facets add:
 `signature { in { ... } out { ... } }`, `invariants { ... }`,
-`preconditions { ... }`, `executor`, `registers { ... }`, `state` (the
-bound operational state machine), `instances { by <dimension>
-values { ... } }`, `does { ... }`, `child_composition` (`all` or
-`gateway`, parse-enforced; how children combine for the coverage
-calculus), `activity_kind { ... }` (<<activity-taxonomy,12.5>>), and
-`segregation { constraint <id> { ... } }` (<<activity-taxonomy,12.5>>).
+`gates { ... }` (<<gate-facet>>), `executor`, `registers { ... }`,
+`state` (the bound operational state machine), `instances { by
+<dimension> values { ... } }`, `does { ... }`, `child_composition`
+(`all` or `gateway`, parse-enforced; how children combine for the
+coverage calculus), `activity_kind { ... }` (<<activity-taxonomy,12.5>>),
+and `segregation { constraint <id> { ... } }`
+(<<activity-taxonomy,12.5>>).
 
 [[steps-and-flow]]
 === Steps and flow
@@ -152,6 +153,74 @@ coordinates in the page's space — are derivation output awaiting the
 migration, never model content: there are no waypoints (an edge's
 geometry is derived by the renderer, never declared), and the carrier's
 removal follows the corpus migration through the deprecation ladder.
+
+[[gate-facet]]
+=== The gate facet
+
+The process's gating surface is ONE primitive with kind-discriminated
+entries (a `gates { ... }` block; repeatable, entries accumulate in
+declaration order). The entry keyword IS the kind; each kind keeps the
+content grammar of the facet it unified — the SPELLING unified, never
+the content:
+
+[source,prl]
+----
+process gated {
+  gates {
+    entry_condition { check "Application.status = SUBMITTED" on_violation invalid }
+    entry_condition warmed-up {
+      check "ocl{self.state = #ready}"
+      description "An unwarmed run is invalid, never a fail."
+      on_violation invalid
+    }
+    window lodging_window {
+      kind max_elapsed
+      clause "PD-01, 8.2/8.3"
+      anchor informed_at
+      applies_to lodged_at
+      window { months 1 }
+      breach rule_inadmissible
+      description "The written appeal reaches the Executive Secretary within one month."
+    }
+    discharge declaration-signed-before-issuance
+    machine_service { verdict_computation evaluation_aggregation }
+  }
+}
+----
+
+The kinds:
+
+* `entry_condition` — the may-only-run-when declaration: an OCL Boolean
+  `check`, a `description`, and the violation outcome `on_violation`
+  (the only known outcome is `invalid` — a violated entry condition
+  voids the RUN, it never fails the instrument; C41 warns otherwise).
+  The id is OPTIONAL: an ANONYMOUS entry (no id) carries an opaque,
+  never-evaluated criterion — the form the workflow gate criteria
+  (`guard "..."`) folded into when the facet unified. State gates in a
+  named entry's check resolve against the process's bound machine
+  (C39).
+* `window` — a calendar window constraining the process's records:
+  `kind` is `max_elapsed` (a deadline) or `min_elapsed` (a cooling-off;
+  C121 checks the vocabulary), the duration reuses the scheme_lifecycle
+  window sub-grammar (exactly one of `years`/`months`), `anchor` and
+  `applies_to` name the record date fields opening resp. constrained by
+  the window (field resolution is the consumer's business), and
+  `breach` names the state-machine action a breach fires.
+* `discharge` — the `declaration_gate` id the process discharges; it
+  resolves against the framework register (C121). The
+  `declaration_gate` CONSTRUCT itself declares at the framework level
+  beside the declaration kinds and statuses — it is the declaration
+  kind's GATE-SIDE home, the referent the discharge entries point at.
+* `machine_service` — the engine-run services the process binds, a
+  documentary id list: the ids name services, not model elements, so no
+  check leg resolves them (resolution is the runtime's business).
+
+The five per-kind spellings this facet unified — `guard "..."`,
+`preconditions { precondition ... }`, `windows { window ... }`,
+`discharges_gate <id>`, and `machine_steps { ... }` — are retired parse
+errors naming the gate facet. The conformance_test's `preconditions`
+block is a DIFFERENT, run-plane facet (the test's run-validity gates)
+and stays.
 
 [[activity-taxonomy]]
 === Activity archetypes and segregation
