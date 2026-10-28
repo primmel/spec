@@ -143,11 +143,15 @@ page of process components and edges with layout. A process names its page
 with the `subprocess` facet. The canvas is the visual projection of the
 process graph; the graph is the model.
 
-The LAYOUT is part of the model's data: every flow node carries its
-position — `x <number>` and `y <number>`, the node's diagram
-coordinates in the page's space (the editor's placement, the
-serializer's round-trip). There are no waypoints: an edge's geometry
-is derived by the renderer, never declared.
+The canvas is the DEPRECATED carrier of that projection (C154): the
+layout is the presentation sidecar's cargo — the canvas file beside the
+model (the v2 bridge's domain) carries the pages and their geometry, and
+the model language stops carrying it. The node coordinates the carrier
+still parses — `x <number>` and `y <number>`, the node's diagram
+coordinates in the page's space — are derivation output awaiting the
+migration, never model content: there are no waypoints (an edge's
+geometry is derived by the renderer, never declared), and the carrier's
+removal follows the corpus migration through the deprecation ladder.
 
 [[activity-taxonomy]]
 === Activity archetypes and segregation
@@ -247,4 +251,7 @@ agree with the computed coverage calculus (C23), and that a mapping
 without a description is documented at audit level (C25). A `view_profile`
 (alias `view`) declares a read-only projection of a model for a set of
 roles (facets `against`, `roles`, `visible`, `description`); views never
-write (C26).
+write (C26). The view profile is likewise the presentation sidecar's
+cargo — the projection is declared beside the model, never in it — and
+rides the same deprecation rung as the canvas carrier (C154,
+<<canvases,13.4>>).

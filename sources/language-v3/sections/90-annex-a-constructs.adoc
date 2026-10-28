@@ -164,6 +164,11 @@ forms; the two forms of one event kind share one parser.
 process's `subprocess` facet (<<process-subject,12.1>>) names the page it
 renders on; the two uses of the word are one reference.
 . `view` is the legacy spelling of `view_profile`.
+. `canvas` and `view_profile` are the presentation sidecar's ladder rung
+(<<canvases,13.4>>): the layout and the read-only projection are the
+canvas file beside the model's cargo — the model language stops carrying
+geometry; the constructs warn C154 until the corpus migration removes
+them.
 . The include directive (<<include-directive,16.2>>) is a preprocessor
 directive, not a construct; it never reaches the parser.
 . The checker allowlist file `.primmel-allowlist.prl` is package metadata
