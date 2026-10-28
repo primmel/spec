@@ -7,7 +7,11 @@ loop's higher constructs. This annex is the proof table: every LML
 construct, its Primmel counterpart, and its status. A status of
 *declined* carries its reason and is final until this annex is
 revised. The registry's Basis column (<<annex-a-constructs,Annex A>>)
-carries the same alignment per construct.
+carries the same alignment per construct. Each row names the
+implemented carrier or the recorded refusal; the LML-alignment
+register (TODO.lang-gaps/09–19) carries the full disposition and the
+reopen trigger, and is the authority this table is reconciled to
+(the 2026-10-28 audit).
 
 [cols="2,2,2,3", options="header"]
 |===
@@ -15,22 +19,22 @@ carries the same alignment per construct.
 
 |package / models scope |lang §Package |`package` (<<model-structure,9>>) |aligned (v2)
 |class |lang §Class |`class` |aligned (v2; inherit)
-|attribute (+ cardinality) |lang §Attribute |`datum` (<<subject-model,10.2>>) |unified this revision (was attribute_definition/identity_slot/parameter/field)
-|attribute `default` + nil policy |decl §Attribute defaults |datum facets `default`, `render_nil` |adopted this revision
-|instance-type override `isa` |decl §isa |`instance` `of` + declared override |adopted this revision (the `of` slot accepts an override entry)
+|attribute (+ cardinality) |lang §Attribute |`datum` (<<subject-model,10.2>>); `attribute_definition`, `identity_slot`, capability parameters and form fields remain the plane-specific carriers |adopted: the `datum` construct; the four-plane carrier unification is TODO.lang-gaps/04
+|attribute `default` + nil policy |decl §Attribute defaults |`default` on `attribute_definition`; `render_nil` on wire mappings |implemented on the existing carriers; no separate datum facets (TODO.lang-gaps/10 — no corpus demand)
+|instance-type override `isa` |decl §isa |— |DECLINED (TODO.lang-gaps/10 — zero corpus use; reopen on the first corpus demand)
 |value types |lang §Value |`value_types` plane |aligned (v3)
 |enums |lang §Enums |`enum` |aligned (v2; inherit)
-|enum member payloads `member_fields` |decl §Enum member payloads |enum `member_fields` + inline member payloads |adopted this revision
-|table-driven enums `from_table` |decl §Table-driven enums |enum `from_table` (compile-time expansion from a grammar artifact's tables) |adopted this revision
+|enum member payloads `member_fields` |decl §Enum member payloads |`enum_values` + `payload_class` payloads (dimension-bound profiles) |implemented by the existing shape; the separate `member_fields` block spelling DECLINED (TODO.lang-gaps/12)
+|table-driven enums `from_table` |decl §Table-driven enums |dimension-bound table profiles |DECLINED (TODO.lang-gaps/12 — a compile-time table expansion inverts the artifact direction)
 |derived fields `derive` |decl §Derived fields |DERIVED variables + `calculation` binding |aligned (the computation is a declared calculation — Primmel binds it in-language)
 |grammar-backed string formats `string_format` |decl §String formats |`string_format` (thin artifact reference) |adopted this revision
 |serialization mappings (xml) |lang §Serialization |`mapping xml` (<<serialization,16.2>>) |adopted this revision (compiles to the kernel profile)
 |serialization mappings (key-value) |decl §Mapping blocks |`mapping yaml/json/toml/csv` with `map`/`map_key`/`map_value` |adopted this revision
 |namespaces (uri + prefix) |lang §Namespacing |`namespace` blocks (<<model-structure,9.6>>) |adopted this revision
 |external file inclusion |lang §Reuse |the include directive (<<include-directive,16.2>>) + package merge |aligned (v2)
-|internal references |lang §Reuse |urn references + LutaML Path (below) |aligned + extended this revision
-|LutaML Path expressions |lutaml-path |path expressions over the package (intra-model addressing; urns remain the external citation address) |adopted this revision
-|model register |model-register |the package register (registration, model paths, registrable classes, mixed-version composition rules) |adopted this revision
+|internal references |lang §Reuse |urn references + the expression language's internal navigation (lang-spec/18, /24) |aligned + extended
+|LutaML Path expressions |lutaml-path |internal navigation in the expression language; urns for external citation |DECLINED as a separate path syntax (TODO.lang-gaps/14 — expressions navigate internally, urns cite externally; two address owners already)
+|model register |model-register |the workspace locator plane (`.primmel/locators.prl`, qualified imports, the closure report — lang-spec/15) + registration and mixed-version composition rules |adopted (1.21.41; C187/C188)
 |model/value transforms |model-transform |the declared mapping artifact (source/target packages, accepted pairs, value transforms) |adopted this revision
 |model collections |model-collection |package composition (`uses`/`requires`) + collections |aligned (v2)
 |source-declared versions + change levels |model-evolution |package `version` (in source) + change-level rules over model-diff (<<checker,C163>>) |adopted this revision
