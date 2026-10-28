@@ -622,12 +622,17 @@ derivations), and `report_rows { ... }`. A
 (the verdict the field derives, <<verdict-construct,11.3>>), `targets`,
 `dimension`, `enum`, `pattern`, `required` or `required_when` (a
 conditional-requiredness expression), `default`, `values` /
-`enum_values`, `evaluation`, `calculation_bindings`,
-`measurement_method`, `items` / `fields` (nested structure), `min_items` /
+`enum_values`, `evaluation`, `measurement_method`, `items` / `fields` (nested structure), `min_items` /
 `max_items`, `min` / `max` (the scalar numeric range — the
 entry-validation facet for measured fields: each bound a numeric literal
 or a template, and a numerically bounded pair is ordered min ≤ max
-(C184 field-range-order)), `subform_ref`, and provenance.
+(C184 field-range-order)), `subform_ref`, and provenance. A field
+whose `calculation` takes inputs binds each through its own
+`binding { from <source> to <input> }` edge (<<executor-dissolution,11.2>>
+— the one dataflow edge; a named source, a sibling field or a dot-path
+into one, feeds a named calculation input). The retired
+`calculation_bindings` rename map is a PARSE ERROR naming the edge
+(TODO.lang-gaps/01).
 
 A `subform` declares a reusable parameterized row shape:
 `parameters { ... }`, `type`, `default`, `mapping`, and the same `field`
