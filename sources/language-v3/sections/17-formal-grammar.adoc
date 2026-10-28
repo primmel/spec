@@ -127,9 +127,6 @@ Format         ::= 'xml' | 'yaml' | 'json' | 'toml' | 'csv'
                element, namespace, map_element, map_attribute,
                map_content, mixed_content, map, map_key, map_value,
                render_nil. *)
-MemberFieldsBlock ::= 'member_fields' '{' { FieldDecl } '}'
-            (* the typed payload schema shared by an enum's members;
-               clause 10.14 *)
 StringFormatBlock ::= 'string_format' ':' BareToken Block
             (* the grammar-backed string form of a class: artifact +
                root; clause 10.15 *)

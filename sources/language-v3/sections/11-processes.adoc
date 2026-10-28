@@ -37,10 +37,10 @@ process creep_test {
   }
   does {
     start_event s
-    action stabilize  { executor actor role lab_technician capture stab_form write { conditions_log } }
-    action apply_load { executor actor role lab_technician read { applied_load } }
-    action hold       { executor machine wait duration }
-    action record     { executor machine read { applied_load } write { indication_series } }
+    action stabilize  { role lab_technician capture stab_form write { conditions_log } }
+    action apply_load { role lab_technician read { applied_load } }
+    action hold       { role lab wait duration }
+    action record     { role lab read { applied_load } write { indication_series } }
     end_event e
     flow {
       s -> stabilize -> apply_load -> hold -> record -> e
@@ -55,7 +55,8 @@ The v2 process facets remain: `name`, `actor`, `modality`,
 `validate_measurement { ... }`, `subprocess` (the canvas page), `links`,
 `note`, `table`, and `figure`. The v3 facets add:
 `signature { in { ... } out { ... } }`, `invariants { ... }`,
-`gates { ... }` (<<gate-facet>>), `executor`, `registers { ... }`,
+`gates { ... }` (<<gate-facet>>), `executor` (the process-level
+default executor — a role id or `machine`), `registers { ... }`,
 `state` (the bound operational state machine), `instances { by
 <dimension> values { ... } }`, `does { ... }`, `child_composition`
 (`all` or `gateway`, parse-enforced; how children combine for the
@@ -71,8 +72,10 @@ kinds are `action`, `approval`, `gateway`, `parallel_gateway`,
 `start_event`, `end_event`, `timer_event`, and `signal_event`. A step may
 carry:
 
-* `executor machine` or `executor actor` (a closed vocabulary,
-parse-enforced), with `role <id>` for actor steps;
+* `role <id>` — the accountable actor of the step (the `executor
+machine | actor` KIND vocabulary is retired; see
+<<executor-dissolution>> — the executor that performs the step is
+bound by the RUN, acting as the role);
 * `read { ... }` / `write { ... }` register access, `capture <form>`,
 `wait <duration>`;
 * `fires <transition>`: on completion the step takes the named transition
@@ -87,6 +90,7 @@ Flow edges chain: `a -> b -> c`. An optional `{ when "ocl{...}" }` body
 conditions the last hop of a chain; at a gateway the first matching edge
 in document order wins, and the unconditioned edge is the default.
 
+[[executor-dissolution]]
 ==== Step signatures and the executor dissolution
 
 Every step carries a SIGNATURE: named inputs in, named outputs computed.
@@ -116,6 +120,11 @@ are validated against the physical rig, so the loop applies to its own
 executors. The datum `origin` axis (declared, design-fixed, observed,
 computed) is epistemic and unaffected: a twin-measured reading is
 still observed.
+
+The retired per-step spelling is a PARSE ERROR naming this clause; the
+process-level `executor` facet remains (the process's default executor:
+a role id or the literal `machine`), because it names the default RUN
+binding, not a step kind.
 
 A `binding { from <named-source> to <named-input> }` entry is the one
 dataflow edge; it dissolves the form-level `calculation_bindings`
