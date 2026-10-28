@@ -177,6 +177,8 @@ its error leg (clause PKG-06).
 |C30 |`provides-consumed-or-waived` |normal |warning
 |C31 |`requires-satisfied` |normal |error
 |C119 |`namespace-pin-violation` |normal |error
+|C187 |`workspace-locator-declared` |normal |error
+|C188 |`locator-credential-reference` |normal |error
 |C120 |`framework-references-resolve` |normal |error
 |C122 |`scheme-type-resolves` |normal |error
 |C123 |`document-module-references-resolve` |normal |error
