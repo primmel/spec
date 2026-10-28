@@ -12,7 +12,7 @@ are specified here.
 ==== instrument: the subject type
 
 One instrument declaration defines the subject type of a Recommendation:
-its variants, its classification dimensions, its family criteria, and its
+its classification dimensions, its family criteria, and its
 model groups.
 
 [source,prl]
@@ -20,7 +20,6 @@ model groups.
 instrument LoadCell {
   extends MeasuringInstrumentModel
   definition "Device that converts a load into an electrical signal."
-  variant AnaloguePassiveLoadCell { definition "..." }
   dimension accuracy_class {
     label "Accuracy class"
     scope group
@@ -43,16 +42,28 @@ instrument LoadCell {
 ----
 
 The facets are: `extends` (parent subject type), `definition`,
-`variant <id> { ... }` (repeatable), `dimension <id> { ... }` (repeatable;
+`dimension <id> { ... }` (repeatable;
 facets `label`, `scope`, `description`, `cardinality`, `label_separator`,
 `reference`, and `values { ... }` whose values may carry `label`,
-`description`, a `payload { ... }` map, `implies` subsumption links, and
-`term_ref` — the dimension grammar is stated once with the top-level
+`description`, a `payload { ... }` map, `implies` subsumption links,
+`term_ref`, and the typed relations (`ref`, <<references-and-relations,clause
+14>>; a value's `ref derives-from` folds onto the value's provenance —
+the clause citation of the value's definition) — the dimension grammar is
+stated once with the top-level
 form, <<dimension-construct,10.6>>),
 `family_criteria { ... }`, `family_defaults { dimensions { ... }
 parameters { ... } }`, and `model_group { ... }` with
-`identical_characteristics` and `identical_attributes`. Typed relations
-(`ref`, <<references-and-relations,clause 14>>) are accepted.
+`identical_characteristics` and `identical_attributes`.
+
+The subject-level `variant <id> { ... }` facet is RETIRED
+(TODO.lang-gaps/06): a variant family is a classification
+dimension like any other — the corpus's own doctrine ("categories are
+classification DIMENSIONS, not subclasses"), and the same fact stated
+twice drifts. The retired spelling is a PARSE ERROR naming the
+doctrine; the variant's name, definition, and citation fold onto the
+carrying dimension's value (`label`, `description`, `ref
+derives-from`). Where a Recommendation's variant family has no
+carrying dimension, the migration declares one.
 
 A dimension value's `implies` declares category subsumption inside one
 dimension; the applicability engine walks the implication closure, and the
