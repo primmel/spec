@@ -346,6 +346,57 @@ reference its provisions but MUST NOT declare a requirement class or a
 requirement whose identifier sits at or under an owned namespace (C119,
 namespace-pin-violation; the exact-identifier case is C28).
 
+[[workspace-locators]]
+=== The workspace and the locators
+
+A workspace declares the named resolution endpoints its packages compose
+through; the import carries its resolution in its own name. The
+`locator` construct is workspace data, declared in the package's
+`.primmel/locators.prl` — never package content; the kernel reads the
+file standalone:
+
+[source,prl]
+----
+locator ribose-registry {
+  scheme registry
+  registry "https://models.ribose.com/v1"
+  auth env:RIBOSE_MODELS_TOKEN
+}
+
+locator acme-local {
+  scheme local
+  path "../model-library/${id}"
+}
+----
+
+The facets are `scheme` (`local`, `registry`, or `git` — the endpoint
+kind), `path` (local: the directory template, `${id}` substituting the
+import's unqualified id), `registry` (the registry URL), `repo` and
+`ref` (git), and `auth`. The credentials are REFERENCES ONLY — `auth
+env:VAR` or `auth vault:path`; an inline secret in a locator is a
+checker error (C188, locator-credential-reference).
+
+The import qualifies its locator with the doubled colon — the same
+scoped-reference grammar the language carries, one scope further out
+(`ribose-registry::iso-iec-17000` reads: through the endpoint named
+ribose-registry, the package iso-iec-17000). A declared LOCAL endpoint
+resolves the entry through its path template; the registry and git
+schemes are declared endpoints their resolvers compile behind (the
+platform layer). An entry qualifying a locator the workspace does not
+declare is a checker error (C187, workspace-locator-declared) — the
+qualifier plane judges the qualified entry, never C27; a bare import
+stays this clause's own resolution, and the closure report carries its
+state.
+
+The closure is a first-class, declared state of the workspace, and the
+closure report is its evidence — `primmel closure <package-dir>` prints
+the per-dependency state as machine-readable JSON: `closed` (the
+content is present locally), `interface-closed` (the endpoint is
+declared — a registry or git locator — and the content sits behind the
+credential), `unresolved` (known by name, no locator reaches it). The
+report is the license boundary: it names what closed fully, what closed
+at the interface, and what lies outside the licensed scope.
+
 [[module-slot-overlays]]
 === Module-slot overlays
 
