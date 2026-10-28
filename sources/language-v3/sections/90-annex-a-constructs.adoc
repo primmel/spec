@@ -66,7 +66,7 @@ changes no v3.1 construct.
 |`behavior` | | behaviors | v2 | 10 | composition: Named DOES grouping
 |`calculation` | | calculations | v2 | 13 | composition: T over values
 |`calculation_context` | | calculationContexts | v3.3 | 20.14 | extension: Clause 20 register
-|`canvas` | `subprocess` | pages | v2 | 12 | inherit: MMEL diagram
+|`canvas` | `subprocess` | pages | v2 | 12 | inherit: MMEL diagram — deprecated (C154, the presentation sidecar)
 |`capability` | | capabilities | v2 | 10 | composition: Named IS grouping
 |`certificate_template` | | certificateTemplates | v3.3 | 20.7 | extension: The print projection contract
 |`check` | | checks | v3.3 | 11.10 | composition: Evaluate-and-compare — the consolidated surface forms over one construct
@@ -150,7 +150,7 @@ changes no v3.1 construct.
 |`variable` | | variables | v2 | 13 | inherit: MMEL measurement variable
 |`verdict` | | verdicts | v2 | 11 | composition: Re-runnable function over facts
 |`verification_pathway` | | verificationPathways | v3.3 | 20.31 | extension: Clause 20 register
-|`view_profile` | `view` | view profiles | v2 | 12 | inherit: MMEL view profile
+|`view_profile` | `view` | view profiles | v2 | 12 | inherit: MMEL view profile — deprecated (C154, the presentation sidecar)
 |===
 
 === Registry notes
@@ -164,6 +164,11 @@ forms; the two forms of one event kind share one parser.
 process's `subprocess` facet (<<process-subject,12.1>>) names the page it
 renders on; the two uses of the word are one reference.
 . `view` is the legacy spelling of `view_profile`.
+. `canvas` and `view_profile` are the presentation sidecar's ladder rung
+(<<canvases,13.4>>): the layout and the read-only projection are the
+canvas file beside the model's cargo — the model language stops carrying
+geometry; the constructs warn C154 until the corpus migration removes
+them.
 . The include directive (<<include-directive,16.2>>) is a preprocessor
 directive, not a construct; it never reaches the parser.
 . The checker allowlist file `.primmel-allowlist.prl` is package metadata
