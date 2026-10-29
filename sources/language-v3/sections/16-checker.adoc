@@ -346,7 +346,12 @@ adds:
 |C158 |`prose-quarantine`: no bare string field outside a `label`, a
 `description` block, an expression, or a urn; a free-text reference is
 an error; the DELETION TEST is normative (all descriptions removed ⇒
-identical check, link, run, and attest results).
+identical check, link, run, and attest results). The five bare prose
+carriers — `statement`, `definition`, `summary`, `response`,
+`criteria` — are RETIRED spellings: the human-language text of those
+facets takes the block form only (`facet { … }`, the value raw inside
+the braces), the serializer emits it canonically, and the bare quoted
+string REFUSES at parse naming this rule (TODO.lang-gaps/02).
 |C159 |`urn-only-refs`: every reference resolves to a declared urn; the
 retired `source { doc …, clause "" }` spelling no longer parses — a
 free-text citation is a canonical `ref derives-from` whose target is the
