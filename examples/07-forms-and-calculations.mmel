@@ -36,25 +36,25 @@ role QA {
 // ── Data classes ────────────────────────────────────────────────────
 
 class LoadCell#data {
-  id : string { definition "Unique identifier" modality SHALL }
-  manufacturer : string { definition "Manufacturer name" modality SHALL }
-  emax : number { definition "Maximum capacity (kg)" modality SHALL }
-  accuracy_class : enum { definition "A or C" modality SHALL }
-  status : enum { definition "DRAFT | SUBMITTED | ACCEPTED | REJECTED" modality SHALL }
+  id : string { definition { Unique identifier } modality SHALL }
+  manufacturer : string { definition { Manufacturer name } modality SHALL }
+  emax : number { definition { Maximum capacity (kg) } modality SHALL }
+  accuracy_class : enum { definition { A or C } modality SHALL }
+  status : enum { definition { DRAFT | SUBMITTED | ACCEPTED | REJECTED } modality SHALL }
 }
 
 class FormInstance#data {
   id : string { modality SHALL }
   test_report_id : string { modality SHALL }
-  result : enum { definition "PASS | FAIL | NA" modality SHALL }
-  status : enum { definition "OPEN | LOCKED" modality SHALL }
+  result : enum { definition { PASS | FAIL | NA } modality SHALL }
+  status : enum { definition { OPEN | LOCKED } modality SHALL }
 }
 
 class TestReport#data {
   id : string { modality SHALL }
-  status : enum { definition "DRAFT | SUBMITTED | UNDER_REVIEW | ACCEPTED | REJECTED" modality SHALL }
+  status : enum { definition { DRAFT | SUBMITTED | UNDER_REVIEW | ACCEPTED | REJECTED } modality SHALL }
   evaluation_report_id : string { modality MAY }
-  admissibility_progress : integer { definition "Number of accepted reports" modality MAY }
+  admissibility_progress : integer { definition { Number of accepted reports } modality MAY }
 }
 
 data_registry LoadCellRegistry {
@@ -96,7 +96,7 @@ reference LCS-6-3 {
 
 symbol f {
   name "Conversion factor"
-  definition "Ratio of indication change to load change at 75% of Max."
+  definition { Ratio of indication change to load change at 75% of Max. }
   type number
   unit "counts/v"
   latex "f"
@@ -274,7 +274,7 @@ form LoadTest {
   }
 
   pass_fail {
-    criteria "All |E_L| <= |MPE| at every test load"
+    criteria { All |E_L| <= |MPE| at every test load }
     pass_if "ocl{test_loads->forAll(t | t.within_mpe = 'yes')}"
   }
 }
@@ -304,7 +304,7 @@ form HumidityTest {
   }
 
   pass_fail {
-    criteria "C_Hmin and C_Hmax within limits"
+    criteria { C_Hmin and C_Hmax within limits }
     pass_if "ocl{true}"  // simplified
   }
 }

@@ -21,18 +21,18 @@ role Roaster {
 
 class RoastBatch#data {
   batch_id: string {
-    definition "Batch identifier"
+    definition { Batch identifier }
     modality SHALL
   }
   moisture_pct: string {
-    definition "Measured moisture percentage by mass"
+    definition { Measured moisture percentage by mass }
     modality SHALL
     satisfy {
       MoistureRecorded
     }
   }
   aged: boolean {
-    definition "Whether the batch is classified as aged stock"
+    definition { Whether the batch is classified as aged stock }
     modality MAY
   }
 }
@@ -128,25 +128,25 @@ measurement MoistureReading {
 
 measurement MaxMoisture {
   type DERIVED
-  definition "[MoistureReading].max"
+  definition { [MoistureReading].max }
   description "Highest moisture reading across all batches"
 }
 
 measurement MinMoisture {
   type DERIVED
-  definition "[MoistureReading].min"
+  definition { [MoistureReading].min }
   description "Lowest moisture reading across all batches"
 }
 
 measurement AvgMoisture {
   type DERIVED
-  definition "[MoistureReading].average"
+  definition { [MoistureReading].average }
   description "Average moisture reading across all batches"
 }
 
 measurement TotalTestedBatchCount {
   type DERIVED
-  definition "[MoistureReading].count"
+  definition { [MoistureReading].count }
   description "Number of batches with a moisture reading on file"
 }
 
@@ -157,7 +157,7 @@ measurement RequiredGrade {
 
 measurement RequiredMaxMoisture {
   type TABLE_REFERENCE
-  definition "FreshnessGradeTable,1,0,2"
+  definition { FreshnessGradeTable,1,0,2 }
   description "Maximum moisture percent for the required grade"
 }
 

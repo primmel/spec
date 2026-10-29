@@ -4,7 +4,7 @@
 
 attribute_definition reference_load {
   name "Reference load"
-  definition "The reference mass the comparison applies."
+  definition { The reference mass the comparison applies. }
   value_type number
   unit "kg"
   origin declared
@@ -13,11 +13,11 @@ attribute_definition reference_load {
 class IndicationRecord#data {
   meter_id: string {
     modality SHALL
-    definition "The meter under test"
+    definition { The meter under test }
   }
   error: string {
     modality SHALL
-    definition "The indicated error"
+    definition { The indicated error }
   }
 }
 
@@ -34,7 +34,7 @@ form indication-record {
   field indicated_mass : number { unit "kg" measurement_method direct }
   field error : number { unit "kg" measurement_method derived }
   field within_tolerance : boolean { required true measurement_method evaluated targets { /req/metrology/indication } }
-  pass_fail { criteria "The indicated error stays within the class tolerance." pass_if "ocl{within_tolerance}" }
+  pass_fail { criteria { The indicated error stays within the class tolerance. } pass_if "ocl{within_tolerance}" }
 }
 
 requirement /req/metrology/indication {

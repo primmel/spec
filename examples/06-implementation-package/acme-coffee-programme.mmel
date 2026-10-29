@@ -194,69 +194,69 @@ provision OCS#Provision4-4-1 {
 
 enum RoastLevel {
   Light {
-    definition "Light roast"
+    definition { Light roast }
   }
   Medium {
-    definition "Medium roast"
+    definition { Medium roast }
   }
   Dark {
-    definition "Dark roast"
+    definition { Dark roast }
   }
 }
 
 class BeanLot#data {
   lot_id: string {
-    definition "Supplier lot identifier"
+    definition { Supplier lot identifier }
     modality SHALL
   }
   origin: string {
-    definition "Country or region of origin"
+    definition { Country or region of origin }
     modality SHALL
   }
   received_on: datetime {
-    definition "Date received"
+    definition { Date received }
     modality SHALL
   }
   supplier: reference(SupplierApproval#data) {
-    definition "Supplier who provided the lot"
+    definition { Supplier who provided the lot }
     modality SHALL
   }
 }
 
 class RoastBatch#data {
   batch_id: string {
-    definition "Unique batch identifier"
+    definition { Unique batch identifier }
     modality SHALL
   }
   lot: reference(BeanLot#data) {
-    definition "Bean lot used"
+    definition { Bean lot used }
     modality SHALL
   }
   roast_level: RoastLevel {
-    definition "Roast level"
+    definition { Roast level }
     modality SHALL
   }
   roast_date: datetime {
-    definition "Roast date"
+    definition { Roast date }
     modality SHALL
   }
   moisture_pct: string {
-    definition "Measured moisture percentage"
+    definition { Measured moisture percentage }
     modality MAY
   }
 }
 
 class SupplierApproval#data {
   supplier_name: string {
-    definition "Supplier legal name"
+    definition { Supplier legal name }
     modality SHALL
   }
   approved_on: datetime {
-    definition "Approval date"
+    definition { Approval date }
     modality SHALL
   }
   approved_by: role {
-    definition "Operations manager who approved"
+    definition { Operations manager who approved }
     modality SHALL
   }
 }
@@ -283,7 +283,7 @@ measurement MoistureReading {
 
 measurement MaxMoisture {
   type DERIVED
-  definition "[MoistureReading].max"
+  definition { [MoistureReading].max }
   description "Highest moisture reading across all batches"
 }
 
