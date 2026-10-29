@@ -273,10 +273,12 @@ form LoadTest {
     subform_ref LoadTestRow { }
   }
 
-  pass_fail {
-    criteria { All |E_L| <= |MPE| at every test load }
-    pass_if "ocl{test_loads->forAll(t | t.within_mpe = 'yes')}"
-  }
+}
+
+check form:LoadTest:pass_fail {
+  expression "ocl{test_loads->forAll(t | t.within_mpe = 'yes')}"
+  description { All |E_L| <= |MPE| at every test load }
+  ref derives-from "form:LoadTest"
 }
 
 form HumidityTest {
@@ -303,10 +305,12 @@ form HumidityTest {
     }
   }
 
-  pass_fail {
-    criteria { C_Hmin and C_Hmax within limits }
-    pass_if "ocl{true}"  // simplified
-  }
+}
+
+check form:HumidityTest:pass_fail {
+  expression "ocl{true}"
+  description { C_Hmin and C_Hmax within limits }
+  ref derives-from "form:HumidityTest"
 }
 
 // ── Provisions ──────────────────────────────────────────────────────

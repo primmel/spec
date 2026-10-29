@@ -68,10 +68,11 @@ conformance_test /conf/drift-check {
       }
     }
   }
-  acceptance_criteria {
-    type composite
-    pass_if "ocl{true}"
-  }
+}
+
+check conformance_test:/conf/drift-check:acceptance_criteria {
+  expression "ocl{true}"
+  ref derives-from "conformance_test:/conf/drift-check"
 }
 
 state_machine chamber_states {

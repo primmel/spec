@@ -183,17 +183,25 @@ process TestMoisture {
     MoistureWithinRange
     StandardMeetFreshness
   }
-  validate_measurement {
-    "[MaxMoisture] <= 12"
-    "[MinMoisture] >= 8"
-    "[MaxMoisture] <= [RequiredMaxMoisture]"
-  }
   reference_data_registry {
     RoastBatchRegistry
   }
   note {
     MoistureNote
   }
+}
+
+check process:TestMoisture:validate_measurement:1 {
+  expression "[MaxMoisture] <= 12"
+  ref derives-from "process:TestMoisture"
+}
+check process:TestMoisture:validate_measurement:2 {
+  expression "[MinMoisture] >= 8"
+  ref derives-from "process:TestMoisture"
+}
+check process:TestMoisture:validate_measurement:3 {
+  expression "[MaxMoisture] <= [RequiredMaxMoisture]"
+  ref derives-from "process:TestMoisture"
 }
 
 process SellAgedStock {

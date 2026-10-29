@@ -69,13 +69,15 @@ process TestBatchMoisture {
     OCS#Provision4-4-1
     StandardMeetQuality
   }
-  validate_measurement {
-    "[MaxMoisture] <= [RequiredMaxMoisture]"
-  }
   reference_data_registry {
     RoastBatchRegistry
   }
   subprocess QualityCheckFlow
+}
+
+check process:TestBatchMoisture:validate_measurement:1 {
+  expression "[MaxMoisture] <= [RequiredMaxMoisture]"
+  ref derives-from "process:TestBatchMoisture"
 }
 
 process ReviewSuppliers {
