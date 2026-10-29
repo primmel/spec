@@ -19,7 +19,7 @@ reopen trigger, and is the authority this table is reconciled to
 
 |package / models scope |lang §Package |`package` (<<model-structure,9>>) |aligned (v2)
 |class |lang §Class |`class` |aligned (v2; inherit)
-|attribute (+ cardinality) |lang §Attribute |`datum` (<<subject-model,10.2>>); `attribute_definition`, `identity_slot`, capability parameters and form fields remain the plane-specific carriers |adopted: the `datum` construct; the four-plane carrier unification is TODO.lang-gaps/04
+|attribute (+ cardinality) |lang §Attribute |`datum` (<<subject-model,10.2>>); `attribute_definition`, `identity_slot`, capability parameters and form fields remain the plane-specific carriers |adopted: the `datum` construct; the four-plane carrier unification is TODO.lang-gaps/04 — the unification doctrine is <<datum-unification>>
 |attribute `default` + nil policy |decl §Attribute defaults |`default` on `attribute_definition`; `render_nil` on wire mappings |implemented on the existing carriers; no separate datum facets (TODO.lang-gaps/10 — no corpus demand)
 |instance-type override `isa` |decl §isa |— |DECLINED (TODO.lang-gaps/10 — zero corpus use; reopen on the first corpus demand)
 |value types |lang §Value |`value_types` plane |aligned (v3)

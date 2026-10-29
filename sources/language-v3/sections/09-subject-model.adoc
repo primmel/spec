@@ -109,7 +109,10 @@ calculation over one input produce one result. The `origin`, `scope`, and `categ
 program registers: the parser stores them as texts, and their closed
 vocabularies (for example `design-fixed` versus `declared` for the IS/HAS
 duality of <<is-has-duality,10.4>>) are enforced by the consuming
-program's linker, not by this specification.
+program's linker, not by this specification. The attribute definition
+is the model plane's carrier of the datum substrate — the plane
+carriers name one shared value declaration, and the unification
+doctrine is <<datum-unification>>.
 
 ==== capability: a composable mixin
 
