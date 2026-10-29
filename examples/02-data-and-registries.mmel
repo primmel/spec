@@ -21,77 +21,77 @@ role QA {
 
 enum RoastLevel {
   Light {
-    definition "Light roast"
+    definition { Light roast }
   }
   Medium {
-    definition "Medium roast"
+    definition { Medium roast }
   }
   Dark {
-    definition "Dark roast"
+    definition { Dark roast }
   }
 }
 
 class BeanLot#data {
   lot_id: string {
-    definition "Supplier lot identifier"
+    definition { Supplier lot identifier }
     modality SHALL
   }
   origin: string {
-    definition "Country or region of origin"
+    definition { Country or region of origin }
     modality SHALL
   }
   received_on: datetime {
-    definition "Date received at the roastery"
+    definition { Date received at the roastery }
     modality SHALL
   }
   certified_organic: boolean {
-    definition "Whether the lot is certified organic"
+    definition { Whether the lot is certified organic }
     modality MAY
   }
 }
 
 class RoastProfile {
   name {
-    definition "Profile name (e.g. City+, Full City)"
+    definition { Profile name (e.g. City+, Full City) }
   }
   target_level: RoastLevel {
-    definition "Target roast level"
+    definition { Target roast level }
   }
   development_time: string {
-    definition "Target development time in seconds"
+    definition { Target development time in seconds }
   }
   notes {
-    definition "Roaster's notes"
+    definition { Roaster's notes }
   }
 }
 
 class RoastBatch#data {
   batch_id: string {
-    definition "Unique batch identifier"
+    definition { Unique batch identifier }
     modality SHALL
   }
   lot: reference(BeanLot#data) {
-    definition "Bean lot used for this batch"
+    definition { Bean lot used for this batch }
     modality SHALL
   }
   profile: RoastProfile {
-    definition "Roast profile applied"
+    definition { Roast profile applied }
     modality SHALL
   }
   roast_level: RoastLevel {
-    definition "Actual roast level achieved"
+    definition { Actual roast level achieved }
     modality SHALL
   }
   roast_date: datetime {
-    definition "Date the batch was roasted"
+    definition { Date the batch was roasted }
     modality SHALL
   }
   moisture_pct: string {
-    definition "Measured moisture percentage"
+    definition { Measured moisture percentage }
     modality MAY
   }
   roasted_by: role {
-    definition "Roaster who ran the batch"
+    definition { Roaster who ran the batch }
     modality SHALL
   }
 }

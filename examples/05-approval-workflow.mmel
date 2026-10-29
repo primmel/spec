@@ -21,23 +21,23 @@ role OperationsManager {
 
 class RoastProfileApproval#data {
   profile_name: string {
-    definition "Name of the proposed roast profile"
+    definition { Name of the proposed roast profile }
     modality SHALL
   }
   target_bean: string {
-    definition "Target bean variety"
+    definition { Target bean variety }
     modality SHALL
   }
   approved_at: datetime {
-    definition "Approval timestamp"
+    definition { Approval timestamp }
     modality SHALL
   }
   approved_by: role {
-    definition "Operations manager who approved"
+    definition { Operations manager who approved }
     modality SHALL
   }
   notes {
-    definition "Approval notes"
+    definition { Approval notes }
   }
 }
 

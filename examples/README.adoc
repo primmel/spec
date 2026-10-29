@@ -130,12 +130,12 @@ directly:
 
 ----
 class RoastProfile {        // helper class, no registry
-  name { definition "Profile name" }
-  target_level: RoastLevel { definition "Target roast level" }
+  name { definition { Profile name } }
+  target_level: RoastLevel { definition { Target roast level } }
 }
 
 class RoastBatch#data {     // data class, can be linked to a registry
-  profile: RoastProfile { definition "Roast profile applied" }
+  profile: RoastProfile { definition { Roast profile applied } }
 }
 ----
 
