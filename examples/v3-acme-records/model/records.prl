@@ -34,7 +34,12 @@ form indication-record {
   field indicated_mass : number { unit "kg" measurement_method direct }
   field error : number { unit "kg" measurement_method derived }
   field within_tolerance : boolean { required true measurement_method evaluated targets { /req/metrology/indication } }
-  pass_fail { criteria { The indicated error stays within the class tolerance. } pass_if "ocl{within_tolerance}" }
+}
+
+check form:indication-record:pass_fail {
+  expression "ocl{within_tolerance}"
+  description { The indicated error stays within the class tolerance. }
+  ref derives-from "form:indication-record"
 }
 
 requirement /req/metrology/indication {
@@ -65,8 +70,9 @@ conformance_test /conf/indication-check {
     variable applied_load { type number unit "kg" source declared description "The load point the laboratory applies for this check" }
     variable e { type number unit "kg" source measured description "The indicated error" }
   }
-  acceptance_criteria {
-    type composite
-    pass_if "ocl{e > 0 -> false else true}"
-  }
+}
+
+check conformance_test:/conf/indication-check:acceptance_criteria {
+  expression "ocl{e > 0 -> false else true}"
+  ref derives-from "conformance_test:/conf/indication-check"
 }

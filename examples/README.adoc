@@ -18,7 +18,7 @@ suitable for public distribution.
 |`01-minimal-model.mmel` |Smallest valid model with a subprocess: `root`, `version`, `metadata`, two roles, one process, start/end events, a single-page diagram |`sources/spec/sections/08-syntax-reference.adoc` (Model header)
 |`02-data-and-registries.mmel` |`enum`, `class#data`, helper class without `#data`, `reference(Target#data)` fields, untyped fields, `data_registry`, `output` writes, `reference_data_registry` reads |`sources/spec/sections/08-syntax-reference.adoc` (Data modelling)
 |`03-process-flow.mmel` |Multi-page subprocesses, multiple `start_event`s, `timer_event` (WAIT + REPEAT), self-connection loop, `exclusive_gateway` with labelled branches and `"default"` fallback |`sources/spec/sections/08-syntax-reference.adoc` (Subprocesses)
-|`04-compliance-and-measurement.mmel` |`provision` with modality, `subject#N` binding, `note`, `table`, `measurement` (DATALIST/DERIVED/TEXT/TABLE_REFERENCE/NUMERIC), `validate_provision`, `validate_measurement`, gateway edge with `condition` |`sources/spec/sections/08-syntax-reference.adoc` (Provisions, Measurements)
+|`04-compliance-and-measurement.mmel` |`provision` with modality, `subject#N` binding, `note`, `table`, `measurement` (DATALIST/DERIVED/TEXT/TABLE_REFERENCE/NUMERIC), `validate_provision`, the check verdicts, gateway edge with `condition` |`sources/spec/sections/08-syntax-reference.adoc` (Provisions, Measurements)
 |`05-approval-workflow.mmel` |`approval` with `approve_by`, `approval_record`, role-typed fields |`sources/spec/sections/08-syntax-reference.adoc` (Approval steps)
 |`06-implementation-package/` |Full integration: `.mmel` + `.sdc` + `.map` + `.sws` working together, with `OCS#ElementID` cross-model aliasing |all sections
 |===

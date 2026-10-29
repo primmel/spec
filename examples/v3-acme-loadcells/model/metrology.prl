@@ -57,8 +57,9 @@ conformance_test /conf/indication-check {
       readings -> forAll(r | r.error <= r.allowed)
     } }
   }
-  acceptance_criteria {
-    type composite
-    pass_if "ocl{all_within}"
-  }
+}
+
+check conformance_test:/conf/indication-check:acceptance_criteria {
+  expression "ocl{all_within}"
+  ref derives-from "conformance_test:/conf/indication-check"
 }
