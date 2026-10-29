@@ -228,6 +228,55 @@ vocabulary, parse-enforced: `declared`, `design-fixed`, `observed`,
 notation. Declared datums join the checker's identifier registries: an
 expression argument may bind `datum:<id>` (<<limit-expressions,11.1.4>>).
 
+[[datum-unification]]
+=== The datum unification: one substrate, four plane surfaces
+
+The datum is the language's SUBSTRATE for "a named, typed, unit-ed
+value" — one declaration shape, one set of axes. The substrate carries
+the identifier and the type; the unit and the quantity kind
+(<<quantities>>); the ORIGIN, the epistemic axis — where the value's
+authority comes from: `declared` (the manufacturer asserts it),
+`design-fixed` (invariant by construction), `observed` (measured in a
+run, by whatever executor — a twin-measured reading is observed all
+the same), `computed` (derived by the model's own calculations); the
+SCOPE, the regime the value lives in (model, family, group, and the
+evaluation and run regimes between); the renders, the `render` pairs
+of <<datum-construct>>; and the typed refs
+(<<provenance-forms,14.3>>).
+
+Four plane carriers NAME this substrate, each keeping its plane's
+extras — extras on a shared substrate, never competing definitions of
+the value:
+
+* `attribute_definition` (<<subject-model>>) is the MODEL plane's
+carrier; its extras are the model plane's: `category`, `is_dimension`,
+the `enum` binding, and the `irdi` correspondence.
+* `identity_slot` (<<identity-slot-construct>>) is the INSCRIPTION
+plane's carrier; its extras are the presentation surfaces (the
+marking channels) and the slot's class in the scheme's marking
+register.
+* the capability's `has_parameters` is the COMPOSITION plane's face,
+and never its own value grammar: a composition-scoped SELECTION of
+declared datums, the names it lists being names the substrate already
+carries.
+* the form `field` (<<form-constructs>>) is the RUN plane's carrier;
+its extras are the `bind` path, the `verdict` it derives, the
+`required` / `required_when` gate, and the field's validation stack.
+
+The carriers are ALIASES, not competitors: parse-level spellings of
+the one substrate. A later revision retires a carrier spelling only
+after its corpus migration — the deprecation ladder every spelling
+change follows; until then both spellings are legal, and the checker
+treats them as the same class of thing. The unification's schedule —
+which carrier migrates when — is the kernel register's
+(TODO.lang-gaps/04), not this clause's.
+
+Dimension values and table columns state VALUES of declared axes;
+they are not value declarations of their own. A dimension value names
+the dimension and states the value; a table column types the column
+and states the cells — both reference the substrate, never re-declare
+it.
+
 [[time-primitives]]
 === Time primitives
 
