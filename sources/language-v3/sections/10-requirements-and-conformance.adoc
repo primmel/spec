@@ -283,7 +283,9 @@ declared object (`table:vehicle_mpe.mpe_initial` names a column of the
 declared table).
 
 |`observable:<id>`
-|The dispatch context — the readings the run observes.
+|A declared observable — a `kind observable` symbol or a declared
+`measurement` (<<measurements,12.3>>): the reading the run observes
+through that declaration. An id naming no declaration is air (C171).
 
 |`self.<path>`
 |The subject aspect the requirement constrains.
