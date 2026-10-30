@@ -27,7 +27,7 @@ prints as promises-as-verified.
 promise_set LoadCell {
   promise accuracy_class {
     target accuracy_class
-    statement "The type holds its declared accuracy class."
+    statement { The type holds its declared accuracy class. }
     verified_by { /req/metrological/mpe /conf/metrological-tests/measurement-error }
     ref derives-from "urn:oiml:pub:r:60-1:2021#clause-5.1.1"
     certificate { dimension accuracy_class type string label "Accuracy class" obligation mandatory }
@@ -80,7 +80,7 @@ ambient conditions' stability, the loading discipline, the measuring
 range limits. Each entry declares a title, a description, and a
 reference to the clause that grounds it. A procedure's steps reference
 these entries instead of restating them; the entries are the shared
-vocabulary of the condition anatomy (<<condition-anatomy,clause 10>>).
+vocabulary of the condition anatomy (<<common-test-condition-construct,clause 10>>).
 
 [[test-report-skeleton-construct]]
 === test_report_skeleton — the evidence contract
@@ -91,7 +91,7 @@ number, a title, a description, and its `form` entries; each form entry
 names the form construct, the file that authors it, its title, and when
 it is required. The skeleton is the evidence contract the laboratory
 procedures fill (the separation of evidence from judgment,
-<<evidence-contract,clause 11>>): its sections carry typed content with
+<<evidence-law,clause 11>>): its sections carry typed content with
 provenance, and a step that records a measurement never records the
 verdict on a requirement.
 
@@ -226,7 +226,7 @@ A document module names one publication of a framework's document
 series and claims the requirement namespace its provisions own: the
 document designation, its title, edition, year, and the namespace pin.
 The pin is what the composition machinery enforces
-(<<the-allowlist,clause 16>>'s namespace discipline): a downstream
+(<<allowlist,clause 16>>'s namespace discipline): a downstream
 package references the module's provisions but never declares
 requirements under its owned namespace.
 
