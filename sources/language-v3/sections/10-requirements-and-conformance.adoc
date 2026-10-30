@@ -96,8 +96,10 @@ semantics: <<applicability-semantics,11.1.1>>.
 |The evidence channel and the obligation level
 (<<modality-vocabulary,11.6>>).
 
-|`acceptance_criteria { ... }`
-|The threshold form of the decision rule.
+|the decision check
+|A top-level `check requirement:<id>:acceptance_criteria { ... }` beside
+the requirement; the retired `acceptance_criteria` and `pass_if` blocks
+refuse at parse.
 
 |`verification { method ... }`
 |The verification method of the requirement.
@@ -283,7 +285,9 @@ declared object (`table:vehicle_mpe.mpe_initial` names a column of the
 declared table).
 
 |`observable:<id>`
-|The dispatch context — the readings the run observes.
+|A declared observable — a `kind observable` symbol or a declared
+`measurement` (<<measurements,12.3>>): the reading the run observes
+through that declaration. An id naming no declaration is air (C171).
 
 |`self.<path>`
 |The subject aspect the requirement constrains.
@@ -417,8 +421,10 @@ variables; the `source` vocabulary is `declared`, `measured`, `derived`,
 `design` (the test design: selection rules, counts, phases, specimens,
 test points, and the validation facets), `procedure` (the execution
 skeleton — see below), `instances` (per-classification
-parameter values), `acceptance_criteria` and `pass_if` (the decision),
-`acceptance` (<<acceptance-decisions,11.5>>), and the output anchors
+parameter values), `acceptance` (<<acceptance-decisions,11.5>>) with
+the decision's checks beside the test (`check conformance_test:<id>:<slot>`;
+the retired `acceptance_criteria` and `pass_if` spellings refuse at
+parse), and the output anchors
 (`result_forms`, `produces_artifacts`, `report_rows`,
 `reference_materials`, `required_competence`). `inherits_from` reuses
 another test's definition; `dependencies` orders.
@@ -631,9 +637,10 @@ The principal facets: `name`, `data_class` (the record the form fills),
 `conformance_process`, `header` (a shared header form), `section`,
 `scope`, `dimensions`, `requirements { ... }` (the requirements the form
 serves), `references`, `applicability`, `instances`, `constraints`,
-`criteria`, `tables`, `calculation_context { ... }` (the calculations in
-scope), `pass_if` / `pass_fail` / `derivation` (the form-level judgment
-derivations), and `report_rows { ... }`. A
+`tables`, `calculation_context { ... }` (the calculations in
+scope), and `report_rows { ... }`. The form's judgment is a check
+beside it (`form:<id>:<slot>`); the retired `pass_if`, `pass_fail`,
+and `criteria` spellings refuse at parse. A
 `field <name>[: <type>] { ... }` entry carries `label`, `definition`,
 `bind` (the aspect path the field records), `unit`, `symbol`, `verdict`
 (the verdict the field derives, <<verdict-construct,11.3>>), `targets`,

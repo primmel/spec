@@ -18,8 +18,9 @@ attestation r60-certificate-claim {
   promises   LoadCell.promise_set
   basis      test_report "NMi-3826124-01"
   authority  IssuingAuthority "NMi Certin B.V."
-  statement  "This Certificate attests the conformity of the above
-              identified Type with the requirements of OIML R 60-1:2021"
+  statement {
+              This Certificate attests the conformity of the above
+              identified Type with the requirements of OIML R 60-1:2021 }
   limits     { scope   "the metrological and technical characteristics of
                         the type"
                legal    "does not bestow any form of legal international
@@ -102,8 +103,9 @@ attestation r60-certificate-claim {
   promises   LoadCell.promise_set
   basis      test_report "NMi-3826124-01"
   authority  IssuingAuthority "NMi Certin B.V."
-  statement  "This Certificate attests the conformity of the above
-              identified Type with the requirements of OIML R 60-1:2021"
+  statement {
+              This Certificate attests the conformity of the above
+              identified Type with the requirements of OIML R 60-1:2021 }
   claims {
     accuracy_class {
       declared     app-flintec-2025-0314.characteristics

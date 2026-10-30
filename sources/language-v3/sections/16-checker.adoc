@@ -400,8 +400,8 @@ never implicit.
 |C171 |`expression-identifiers-resolve`: every identifier inside a
 limit expression, a derivation, or a derive resolves to a declared
 name in scope — the expression's uses list, the test's declared
-variables, or the package's symbols, datums, verdicts, tables,
-attribute definitions, and calculations. Dotted paths are whole
+variables, or the package's symbols, measurements, datums, verdicts,
+tables, attribute definitions, and calculations. Dotted paths are whole
 references; a method call rides its declared object; the series
 aggregations (`max_of`, `min_of`, `mean_of`, `stddev_of`, `count_of`)
 are the type-A vocabulary the evaluation plane computes. The inline

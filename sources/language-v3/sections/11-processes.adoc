@@ -51,9 +51,10 @@ process creep_test {
 
 The v2 process facets remain: `name`, `actor`, `modality`,
 `reference_data_registry { ... }` (registries read), `output { ... }`
-(registries written), `validate_provision { ... }`,
-`validate_measurement { ... }`, `subprocess` (the canvas page), `links`,
-`note`, `table`, and `figure`. The v3 facets add:
+(registries written), `validate_provision { ... }`, `subprocess` (the
+canvas page), `links`, `note`, `table`, and `figure` (the retired
+`validate_measurement` facet refuses at parse — declare the check
+beside the process). The v3 facets add:
 `signature { in { ... } out { ... } }`, `invariants { ... }`,
 `gates { ... }` (<<gate-facet>>), `executor` (the process-level
 default executor — a role id or `machine`), `registers { ... }`,
