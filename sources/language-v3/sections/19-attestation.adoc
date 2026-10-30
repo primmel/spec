@@ -55,7 +55,7 @@ The certificate is the document form of an attestation plus the actors
 and the register lifecycle. The language models the document surface
 with the existing artifact constructs: the certificate's print
 projection is an `artifact_definition` whose content contract is
-<<artifact-derivation,derived from>> the attested promise set, and one
+<<artifact-kinds,derived from>> the attested promise set, and one
 issued certificate is an `artifact_instance` of that definition whose
 entries carry <<per-entry-provenance,per-entry provenance>>. The
 certificate's behaviors (attest, revise, withdraw) are the attesting
@@ -63,7 +63,7 @@ subject's declared behaviors, and the register's snapshot semantics are
 the withdrawal behavior's input: the certificate instance carries the
 register's status and year as provenance-attributed facts.
 
-The `certificate_template` construct (<<certificate-template,15.x>>)
+The `certificate_template` construct (<<certificate-template-construct,15.x>>)
 remains the print projection's rendering contract: its characteristic
 rows resolve by name against the attested promise set, and its
 obligation vocabulary (mandatory rows carry values; conditional rows

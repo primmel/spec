@@ -189,7 +189,7 @@ The package is the namespace of every id it declares: the composition
 rules enforce the ownership (C28 — a composed package references
 upstream ids but never redefines them; C119 — a downstream package
 never declares at or under an owned namespace), and the name grammar
-(<<references,13>>) names through it — `package:kind:id` hops land in
+(<<normative-references,13>>) names through it — `package:kind:id` hops land in
 the package's namespace, the dots descend within it. The `namespace`
 blocks below are the OTHER sense, a different plane: they bind the
 serialization wire names (§15), scoping nothing in the model.

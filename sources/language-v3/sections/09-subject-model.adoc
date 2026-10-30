@@ -19,7 +19,7 @@ model groups.
 ----
 instrument LoadCell {
   extends MeasuringInstrumentModel
-  definition "Device that converts a load into an electrical signal."
+  definition { Device that converts a load into an electrical signal. }
   dimension accuracy_class {
     label "Accuracy class"
     scope group
@@ -34,7 +34,7 @@ instrument LoadCell {
   family_criteria { "same material" "same design" }
   family_defaults { dimensions { construction technology } parameters { rated_output } }
   model_group {
-    definition "..."
+    definition { ... }
     identical_characteristics { metrological_class n_lc }
     identical_attributes { accuracy_class n_lc }
   }
@@ -78,7 +78,7 @@ labels).
 attribute_definition e_max {
   symbol "E_max"
   name "Maximum capacity"
-  definition "Largest load the instrument is designed to measure."
+  definition { Largest load the instrument is designed to measure. }
   quantity_kind mass
   unit kg
   value_type QuantityValue
@@ -143,7 +143,7 @@ applied directly.
 behavior creep {
   kind temporal
   stimulus force
-  response "Indication drift under constant load."
+  response { Indication drift under constant load. }
   ref derives-from "urn:oiml:pub:r:60-1:2021#clause-3.7.1"
   verified_by { /conf/metrological-tests/creep-test }
 }
@@ -208,7 +208,7 @@ subject LoadCell {
         target accuracy-class
         level symbolic C6
         conditions ocl{self.temperature >= rated.t_min}
-        statement "Holds accuracy class C6 across the rated range."
+        statement { Holds accuracy class C6 across the rated range. }
         verified_by { /req/metrological/mpe /conf/metrological-tests/mpe-test }
       }
     }

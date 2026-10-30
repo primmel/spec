@@ -94,7 +94,7 @@ measurement MoistureReading {
 }
 measurement MaxMoisture {
   type DERIVED
-  definition "[MoistureReading].max"
+  definition { [MoistureReading].max }
 }
 ----
 
@@ -446,7 +446,7 @@ A `term` declares one entry of the model's terminology register:
 ----
 term load-cell {
   label "load cell"
-  definition "Force transducer that converts a load into an electrical signal."
+  definition { Force transducer that converts a load into an electrical signal. }
   symbol "LC"
   part_of_speech noun
   aliases { "weighing cell" }
@@ -506,7 +506,7 @@ model, instead of being hand-rolled per consumer.
 ----
 term durability {
   label "durability"
-  definition "Ability of a measuring instrument to maintain its performance characteristics over a period of use."
+  definition { Ability of a measuring instrument to maintain its performance characteristics over a period of use. }
   aliases { "long-term stability" }
   colloquial { "drifting" "scale keeps drifting" "readings creep over months" }
   colloquial fra-Latn { "dérive" "les lectures dérivent" }
@@ -614,7 +614,7 @@ must agree with the symbol's (C115). One output, exactly one; inputs
 one or more.
 . the OUTPUT SYMBOL is the result's address: downstream calculations
 bind it as an input, steps bind it through the binding edge
-(<<process-steps,12.2>>), forms bind it into fields, evidence records
+(<<steps-and-flow,12.2>>), forms bind it into fields, evidence records
 carry it. Results are read out, reused, and linked BY SYMBOL — the
 symbol is the link.
 . units and quantity kinds reference AUTHORITATIVE registries only:

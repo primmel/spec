@@ -57,7 +57,7 @@ ExpressionString  ::= ? a token starting with 'ocl{', re-accumulated until the
                    braces balance ? (* the legacy carrier; C178 deprecates *)
 ExpressionBlock   ::= 'expression' Block | 'derive' Block | 'derivation' Block
                     | 'check' Block
-(* The block's body is FIRST-CLASS EXPRESSION SYNTAX (<<expression-language>>):
+(* The block's body is FIRST-CLASS EXPRESSION SYNTAX (<<embedded-expressions>>):
    the precedence grammar below, harvested by the checker's identifier
    resolution — never a quoted string. The grammar applies no expression
    tokenization to the block: the body is the raw span the expression
@@ -138,7 +138,7 @@ EOF
 === The expression grammar
 
 The inline carriers' body is the language's own expression syntax — a
-precedence grammar over the tokens of <<lexical-grammar>>, one
+precedence grammar over the tokens of <<lexical-structure>>, one
 expression per carrier, harvested by the checker's identifier
 resolution (<<checker,16>>):
 
