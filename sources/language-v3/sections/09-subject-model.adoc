@@ -509,6 +509,21 @@ dimension capabilities {
   values_of capabilities
 }
 ----
+dimension capabilities {
+  label "Capabilities"
+  description "Which declared capabilities of the program a unit carries."
+  cardinality set
+  values_of capabilities
+}
+----
+
+The value-set facets take one shape: the block (`values { … }`) or the
+bracket list (`values [A, B]`), at every carrier — the dimension's
+`values`, the attribute's and the calculation input's `enum_values`,
+the form field's `values`. A bare line-run payload (`values A B`)
+refuses at parse: it read one value and silently dropped the rest — a
+truncating parse, never a spelling variant (the manifest's list facets
+carry the same doctrine, <<model-structure,9>>).
 
 The facet set is exactly the instrument dimension's — one grammar, two
 placements: `label`, `scope`, `description`, `cardinality` (`single` or
