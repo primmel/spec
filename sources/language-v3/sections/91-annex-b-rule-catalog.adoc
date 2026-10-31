@@ -48,6 +48,8 @@ its error leg (clause PKG-06).
 
 === base
 
+the package's own declaration integrity — every name a declaration uses resolves in the package's registries, every shape is well-formed, and recorded debt stays honest
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -105,6 +107,8 @@ its error leg (clause PKG-06).
 |===
 === anatomy
 
+the subject anatomy — every facet sits in its family, characteristics derive, behaviors resolve, and extensions name real parents
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -117,6 +121,8 @@ its error leg (clause PKG-06).
 |C84 |`constraint-shape` |normal |error
 |===
 === process
+
+the process plane's graph and vocabulary — one start, terminal ends, flows resolve, signatures realize, and the facet vocabulary is live
 
 
 [cols="1,3,1,1", options="header"]
@@ -141,6 +147,8 @@ its error leg (clause PKG-06).
 |===
 === instantiation
 
+the instance chains — scopes, version pins, acyclicity, instantiation targets, power types, and class extensions resolve
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -156,6 +164,8 @@ its error leg (clause PKG-06).
 |===
 === mapping
 
+the wire-mapping plane — mappings resolve and stay directional, calculus-consistent, import-separate, described, and view-read-only
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -169,6 +179,8 @@ its error leg (clause PKG-06).
 |C26 |`view-read-only` |normal |error
 |===
 === composition
+
+the uses closure — edges resolve, redefinitions are marked, cycles refuse, and every consumed name is provided or waived
 
 
 [cols="1,3,1,1", options="header"]
@@ -204,6 +216,8 @@ its error leg (clause PKG-06).
 |===
 === quantities
 
+the quantity substrate — registers, units, kinds, and series records are coherent, qualified, and bindable (the math plane's legs are reserved)
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -226,6 +240,8 @@ its error leg (clause PKG-06).
 |===
 === state
 
+the operational-state machines — transitions resolve, lifecycle and operational families never mix, referenced states exist, and preconditions name known violations
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -241,6 +257,8 @@ its error leg (clause PKG-06).
 |===
 === promises
 
+the promise plane — targets resolve, every promise is verifiable, and none is a bare value
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -251,6 +269,8 @@ its error leg (clause PKG-06).
 |C44 |`promise-not-bare-value` |normal |error
 |===
 === artifacts
+
+the artifact contracts — definitions carry the contract, instances resolve to them, evidence stays separate from the artifact, and derivations are declared
 
 
 [cols="1,3,1,1", options="header"]
@@ -264,6 +284,8 @@ its error leg (clause PKG-06).
 |===
 === characteristics
 
+the characteristic and verdict chains — one home per characteristic, behavior links and derivations resolve, verdict inputs resolve and stay acyclic
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -276,6 +298,8 @@ its error leg (clause PKG-06).
 |C117 |`verdict-chain-acyclic` |normal |error
 |===
 === twins
+
+the digital-twin surface — serve targets, payloads, access scopes, freshness, endpoints, and monitors resolve and agree with the twin bindings they serve
 
 
 [cols="1,3,1,1", options="header"]
@@ -300,6 +324,8 @@ its error leg (clause PKG-06).
 |===
 === coverage
 
+the verification chain's inputs and outputs — requirement/test evidence, form judgments, limit inputs, lookup tables, and the run plane bind and resolve
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -318,6 +344,8 @@ its error leg (clause PKG-06).
 |===
 === edition
 
+the edition packagings — status, validity windows, supersession, pins, lineage, and the base URN are declared and coherent
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -332,6 +360,8 @@ its error leg (clause PKG-06).
 |===
 === dataspace
 
+the dataspace plane — references, trust anchors, governance provenance, policies, and correspondences are shaped and resolve
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -345,6 +375,8 @@ its error leg (clause PKG-06).
 |===
 === attestation
 
+the attestation plane — references resolve and every claim's lineage reaches the evidence that validates it
+
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -354,6 +386,8 @@ its error leg (clause PKG-06).
 |C151 |`attestation-claim-lineage` |normal |error
 |===
 === supply-chain
+
+the product and licensing surface — maps resolve, promises are covered, abstract imports are pinned, and the license key/holder pair is shaped and unique
 
 
 [cols="1,3,1,1", options="header"]
