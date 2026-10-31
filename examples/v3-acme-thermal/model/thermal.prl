@@ -22,15 +22,22 @@ symbol served_temp {
   unit "degC"
 }
 
+symbol drift_bound {
+  type number
+  quantity_kind temperature_diff
+  unit "K"
+  origin declared
+}
+
 requirement /req/thermal/drift {
   name "The chamber drift bound"
   limit {
     args {
-      d  <- observable:d
-      mu <- symbol:served_temp
+      d  <- verdict:drift_error
+      mu <- symbol:drift_bound
     }
     expression {
-      d <= mu / 10
+      d <= mu
     }
   }
   verification { method testing }

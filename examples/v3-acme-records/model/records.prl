@@ -42,6 +42,14 @@ check form:indication-record:pass_fail {
   ref derives-from "form:indication-record"
 }
 
+symbol e {
+  type number
+  quantity_kind mass
+  unit "kg"
+  kind observable
+  origin observed
+}
+
 requirement /req/metrology/indication {
   name "The indication tolerance"
   limit {
