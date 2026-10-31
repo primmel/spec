@@ -176,6 +176,35 @@ enforced by C72). A budget carries an integer and a recorded reason, and
 it only shrinks: a package at full coverage declares zero, and any
 regression fails.
 
+[[adjudication-matrix]]
+=== The adjudication matrix
+
+The KNOWN register, the budgets, the strictness flag, and the level
+compose in one fixed order (CLAUDE-2 #7's folklore, here stated as
+law; `primmel check --explain <rule-id>` prints a rule's own
+adjudication from the same constants):
+
+. *Runs?* — a normal-level rule runs at every level; an audit-level
+rule is dormant until `--audit`. A dormant rule never fires, and its
+allowlist entries never go stale.
+. *KNOWN?* — an issue matching an allowlist entry (rule id + message
+glob) prints as KNOWN and never counts, at every level, `--strict`
+included. A fixed site makes the entry stale (C57): the register
+records known-bad data, never dead data.
+. *Budget?* — a C51/C52 warning within `coverage_budget` (or a C71
+warning within `text_coverage_budget`) stays a warning even under
+`--strict`; the budget is its allowance. Exceeding the budget is
+C55's (respectively C72's) error.
+. *Strict?* — under `--strict`, every other surviving warning promotes
+to an error.
+. *Stale?* — an allowlist entry whose rule is active at the current
+level but matches no issue is C57's error: the data was fixed, the
+entry must die.
+
+The composition is exact: no other interaction exists. A rule's
+catalog severity is never silently overridden — the only promotions
+are step 4, the only suppressions are steps 2 and 3.
+
 [[deprecation-ladder]]
 === The deprecation ladder
 
