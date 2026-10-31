@@ -130,7 +130,13 @@ quantity_register si {
 
 A kind carries `dimensions { <base> <exponent> ... }` and `si_unit`; a
 unit carries `symbol`, `label`, `kind`, the multiplicative `factor`, and
-the affine `offset`. Comparison coherence is judged on kinds, not unit
+the affine `offset`. A unit may also declare its SPELLING VARIANTS
+(CLAUDE-2 #8's declared normalization layer): `spelling_variants [ "80%"
+"80 %" ]` — the token spellings the unit answers to beside its
+canonical symbol, for data that arrives from PDFs and legacy configs.
+The register's own resolution reads the variants; a variant colliding
+with any unit id, symbol, or other variant refuses at parse. Comparison
+coherence is judged on kinds, not unit
 strings (C33), and a package extends a register without redefining its
 entries (C32, C33). A `series` declaration on a symbol or variable states
 the axes and cell shape of a reading series.
