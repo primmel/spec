@@ -84,6 +84,7 @@ the package's own declaration integrity — every name a declaration uses resolv
 |C192 |`attribute-definition-datum-coherence` |normal |error
 |C193 |`field-datum-coherence` |normal |error
 |C177 |`kind-coherence` |normal |error
+|C194 |`collection-element-resolves` |normal |error
 |C178 |`legacy-carrier-deprecated` |normal |warning
 |C124 |`pair-list-shape` |normal |error
 |C125 |`formula-variant-shape` |normal |error

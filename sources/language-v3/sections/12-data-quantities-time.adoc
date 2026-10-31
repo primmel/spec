@@ -103,6 +103,14 @@ The documented measurement-type vocabulary (MN 113) is `NUMERIC`,
 `DURATION`; the type is stored as text, and the derivation definition of a
 `DERIVED` measurement is the consumer's expression dialect.
 
+A collection may carry its ELEMENT TYPE (CRITIQUE-3 #4):
+`type collection<Row>` where `Row` names a declared data class — the
+navigation's lambda parameter then reads against the class's attributes,
+and an unknown member is air (C194,
+<<checker,16>>). The parameterized form is opt-in: a bare `collection`
+stays untyped, and every existing collection declaration reads exactly
+as before.
+
 [[quantities]]
 === Quantities and units
 
