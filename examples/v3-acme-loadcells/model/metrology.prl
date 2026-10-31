@@ -20,7 +20,7 @@ requirement /req/metrology/indication {
   name "Indication error across the range"
   limit "low-range" {
     args {
-      e  <- observable:e
+      e  <- verdict:indication_error
       mu <- symbol:served_load
     }
     when {
@@ -32,7 +32,7 @@ requirement /req/metrology/indication {
   }
   limit "high-range" {
     args {
-      e  <- observable:e
+      e  <- verdict:indication_error
       mu <- symbol:served_load
     }
     when {
