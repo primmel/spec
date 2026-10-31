@@ -114,6 +114,13 @@ register of the package (the `.prd` payload reference,
 (<<references-and-relations,clause 14>>).
 |===
 
+The list facets take ONE shape — the block list (`provides { … }`,
+`requires { … }`, `waives { … }`, `uses { … }`, `editions { … }`,
+`maps_to { … }`). A bare line-run spelling (`provides a b`) refuses at
+parse: it read one name and silently dropped the rest — a truncating
+parse, never a spelling variant (CLAUDE-2 #2's one-list-shape
+doctrine).
+
 Unknown manifest facets are skipped under the forward-compatibility rule
 (<<parse-modes,9.5>>).
 
