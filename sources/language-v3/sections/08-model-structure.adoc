@@ -121,6 +121,14 @@ parse: it read one name and silently dropped the rest — a truncating
 parse, never a spelling variant (CLAUDE-2 #2's one-list-shape
 doctrine).
 
+The facet table above is DECLARED, not folklore (CLAUDE-2 #10): the
+manifest's facet registry — each facet's keyword, its accepted alias
+spellings, its arity, its closed vocabulary where one exists (`kind`,
+`status`), and the rules that judge it — is machine-readable, printed
+by `primmel check --manifest-schema`, and pinned by the tests against
+the parser's handler set in both directions. A facet cannot land
+undocumented, and a documented facet cannot outlive its parser.
+
 Unknown manifest facets are skipped under the forward-compatibility rule
 (<<parse-modes,9.5>>).
 
