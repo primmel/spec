@@ -290,6 +290,15 @@ transition may be the named form shown above or the arrow form
 Each machine's authored spelling is what the serializer replays: the
 round trip is a fixpoint.
 
+DERIVED planes are DECLARED (CLAUDE-2 #3): a plane the parse derives —
+the steps' own `requires` facets hoisted to the process level (the C160
+plane), the boolean spellings' folded checks (C161) — is registered as
+derived, and the serializer never emits it. The authored surface is the
+serialization truth; the round trip is a fixpoint by construction, and
+the declared registry pins the discipline against both failure modes:
+a plane cannot leak undeclared, and a declared plane cannot regress
+into the wire.
+
 [[roles-and-approvals]]
 === Roles and approvals
 
