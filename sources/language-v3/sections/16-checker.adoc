@@ -146,6 +146,30 @@ from the message's head); `reason` states the debt in one sentence;
 declares. A missing field is C56; a rule-inactive entry matching
 nothing is C57.
 
+The gate exclusions travel with the package too (CRITIQUE-2 #5's one
+ledger — the per-gate script maps retired): the fidelity gate's
+token exclusions and the method-ref gate's citation absences declare
+themselves in the same file,
+
+[source,prl]
+----
+fidelity_entry {
+  token "80 %"
+  reason "the extract ships no fragment text yet: the source document is being obtained."
+  audit_ref "TODO.external-refs/02"
+}
+method_ref_entry {
+  citation "IEC 61000-4-6:2013, Table 1"
+  reason "the citation names the register's own severity row, linked there."
+  audit_ref "TODO.external-refs/09"
+}
+----
+
+`token` is the source-extract token the package deliberately does not
+carry; `citation` is the standard reference deliberately left
+unlinked. Each names its `reason` and `audit_ref` under the same C56
+discipline; the gate reads the package's ledger, never a script.
+
 Two OPTIONAL facets carry the deprecation ladder's audit vocabulary
 (spec#58) — present means well-formed, absent means the entry is not
 ladder debt:
