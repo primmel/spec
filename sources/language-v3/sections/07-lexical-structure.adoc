@@ -93,6 +93,15 @@ recognizes a token starting with `ocl{` and re-accumulates tokens until the
 braces balance; the accumulated text, single-spaced, is the expression.
 Both the quoted spelling and the inline spelling parse to the same value.
 
+The same identity holds across FACET spellings: wherever a construct's
+facet list carries a `name`, the authoring alias `label` parses to the
+same field — both spellings are legal indefinitely, the wire field and
+the canonical serialization stay `name`, and a corpus may migrate its
+authored form to `label` (or back) without any ladder step. The alias
+applies only where no `label` facet competes: the datum's and the form
+field's `label` are their own facets (the presentation surface), and so
+is the role's (the v2 short label).
+
 The inline carrier (v3.3) is a delimited block — the raw formula, never
 quoted, parsed at load (`expression { ... }`; the facet's own grammar
 and its argument scope are specified with the limit,
