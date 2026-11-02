@@ -268,7 +268,11 @@ constraint (C51, C52, C5), and, for packages that ship `.prd` sentence
 payloads, the normative text itself: every normative sentence of the
 source document is either covered by a model element or carried as a
 pinned, reasoned allowance, with duplicate sentences adjudicated (C71,
-C72, C73). The coverage report prints with `--coverage`.
+C72, C73). Coverage follows the subtree doctrine the provenance
+resolution states: a binding naming a fragment's ANCESTOR (at a
+dot/slash boundary) covers the sentences that fragment carries — the
+corpus binds annex roots and body parts, and their provisions are
+claimed. The coverage report prints with `--coverage`.
 
 [[diff-and-exports]]
 === Diff and exports
