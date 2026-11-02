@@ -277,6 +277,15 @@ carries.
 its extras are the `bind` path, the `verdict` it derives, the
 `required` / `required_when` gate, and the field's validation stack.
 
+The ORIGIN axis is closed at the flat facets too: wherever a plane
+carrier (or the `symbol`, which carries the same facet) spells
+`origin` directly — without a datum block — the facet takes the same
+four tokens, and a token outside the axis refuses at parse, naming the
+valid set (the corpus's older spellings — `measured`, `derived`,
+`test-dependent`, `lookup` — migrated onto the axis before the
+refusal landed; a `test-dependent` value is observed through the type
+evaluation, and a table-read value is the document's declaration).
+
 The carriers are ALIASES, not competitors: parse-level spellings of
 the one substrate. A later revision retires a carrier spelling only
 after its corpus migration — the deprecation ladder every spelling
@@ -320,7 +329,9 @@ numbers), `profiles { ... }` (named row selections), `dimension` binding,
 `overrides`, and `binding`. A `symbol` declares a typed, unit-aware formal
 symbol: `type` is a closed vocabulary, parse-enforced (`number`,
 `integer`, `string`, `boolean`, `enum`, `collection`, `array`), with
-`unit`, `values`, `series`, `kind`, `quantity_kind`, `origin`,
+`unit`, `values`, `series`, `kind`, `quantity_kind`, `origin`
+(the same closed, parse-enforced axis the datum carries:
+`declared`, `design-fixed`, `observed`, `computed`),
 and the linking facets `attribute`, `calculation`, and `profile`.
 The `latex` facet is RETIRED: a per-symbol glyph is derived
 presentation the math engine renders, never model semantics.

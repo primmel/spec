@@ -105,11 +105,16 @@ the model. The checker rejects an expression that references anything
 else and names the missing declaration (C149, the closed-derivation
 rule). The rule is what makes evaluation total and pure: a calculation's
 semantics are its declared inputs and body, so two evaluations of one
-calculation over one input produce one result. The `origin`, `scope`, and `category` values are
+calculation over one input produce one result. The `scope` and `category` values are
 program registers: the parser stores them as texts, and their closed
-vocabularies (for example `design-fixed` versus `declared` for the IS/HAS
-duality of <<is-has-duality,10.4>>) are enforced by the consuming
-program's linker, not by this specification. The attribute definition
+vocabularies are enforced by the consuming program's linker, not by
+this specification. The `origin` value is NOT a register: it is the
+datum's epistemic axis (<<datum-unification>>) — `declared`,
+`design-fixed`, `observed`, `computed` — and the axis is closed at
+parse: a token outside the axis (the corpus's older spellings
+`measured`, `derived`, `test-dependent`, `lookup`) refuses, naming the
+valid set, exactly as the datum construct's own `origin` facet
+does. The attribute definition
 is the model plane's carrier of the datum substrate — the plane
 carriers name one shared value declaration, and the unification
 doctrine is <<datum-unification>>.
