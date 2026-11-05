@@ -95,9 +95,11 @@ Both the quoted spelling and the inline spelling parse to the same value.
 
 The same identity holds across FACET spellings: wherever a construct's
 facet list carries a `name`, the authoring alias `label` parses to the
-same field — both spellings are legal indefinitely, the wire field and
-the canonical serialization stay `name`, and a corpus may migrate its
-authored form to `label` (or back) without any ladder step. The alias
+same field — both spellings are legal indefinitely, the wire field
+stays `name`, and the canonical serialization spells `label` (the
+deprecation ladder's rung two: the authoring vocabulary unified first,
+then the dump flipped; the rung-one dumps' `name` spelling remains a
+legal reading forever). The alias
 applies only where no `label` facet competes: the datum's and the form
 field's `label` are their own facets (the presentation surface), and so
 is the role's (the v2 short label).
